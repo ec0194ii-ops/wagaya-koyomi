@@ -547,7 +547,7 @@ a.btn{text-decoration:none;display:inline-block}
 .hero .hcap{display:none}
 .hero.cover .hcap{display:block;font-family:var(--f-latin);font-style:italic;font-size:14px;opacity:.95;margin-top:6px;text-shadow:0 1px 6px rgba(0,0,0,.4)}
 /* home: memories strip */
-.mstrip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 6px;scroll-snap-type:x proximity}
+.mstrip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0;padding:2px 2px 6px;scroll-snap-type:x proximity}
 .mstrip::-webkit-scrollbar{display:none}
 .mtile{flex:none;width:118px;scroll-snap-align:start;border:0;padding:0;background:transparent;text-align:left;color:var(--fg)}
 .mtile .im{display:block;width:118px;height:150px;border-radius:18px;background:var(--sunk) center/cover no-repeat;box-shadow:var(--shadow)}
@@ -558,6 +558,45 @@ a.btn{text-decoration:none;display:inline-block}
 .onthis .im{width:84px;height:84px;border-radius:16px;background:var(--sunk) center/cover no-repeat;flex:none}
 .onthis small{font-family:var(--f-latin);font-style:italic;color:var(--accent);font-size:13px}
 .onthis b{display:block;font-size:15px;margin-top:2px}
+
+
+/* weather inside the 24h timeline */
+.hr{display:flex;flex-direction:column;gap:1px}
+.hr .ht{line-height:1.2}
+.hr .hw{display:flex;align-items:center;gap:1px;font-size:11px;color:var(--fg);line-height:1.1}
+.hr .hw .i{font-size:12px}
+.hr .hp{font-size:9.5px;color:var(--cold);line-height:1.1}
+.wband{position:absolute;left:0;right:0;background:color-mix(in srgb,var(--cold) 9%,transparent);pointer-events:none}
+.wband.wet{background:color-mix(in srgb,var(--cold) 17%,transparent)}
+.tlwx{display:flex;align-items:center;gap:8px;padding:2px 2px 10px;font-size:13px;color:var(--fg);text-decoration:none}
+.tlwx .i{font-size:20px}
+.tlwx .t{font-family:var(--f-num);color:var(--muted)}
+.tlwx .p{font-family:var(--f-num);color:var(--cold)}
+.tlwx .y{margin-left:auto;font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap}
+
+
+/* memories movie */
+.layrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lyplay{border:0;border-radius:999px;background:var(--fg);color:var(--paper);font-weight:700;font-size:12.5px;padding:8px 14px;margin-top:12px}
+.playrow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 0 12px}
+.playrow::-webkit-scrollbar{display:none}
+.playbtn{flex:none;display:flex;align-items:center;gap:10px;border:0;border-radius:18px;padding:8px 14px 8px 8px;background:var(--paper);box-shadow:var(--shadow);color:var(--fg);text-align:left}
+.playbtn .th{width:44px;height:44px;border-radius:12px;background:var(--sunk) center/cover no-repeat;display:grid;place-items:center;position:relative}
+.playbtn .th::after{content:"▶";color:#fff;font-size:13px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.playbtn b{display:block;font-size:13.5px}
+.playbtn small{font-size:11.5px;color:var(--muted)}
+.movie{position:fixed;inset:0;z-index:60;background:#0d0d10;display:flex;align-items:center;justify-content:center}
+.movie canvas{max-width:100vw;max-height:100dvh;aspect-ratio:9/16;height:100dvh;width:auto;object-fit:contain}
+.mvbars{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;display:flex;gap:3px;z-index:3}
+.mvbars i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.28);overflow:hidden}
+.mvbars i b{display:block;height:100%;width:0;background:#fff}
+.mvx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 22px);right:12px;z-index:4;border:0;background:rgba(0,0,0,.35);color:#fff;width:40px;height:40px;border-radius:50%;font-size:24px;line-height:1}
+.mvtap{position:absolute;inset:70px 0 110px;display:grid;grid-template-columns:1fr 2fr;z-index:2}
+.mvtap button{border:0;background:transparent}
+.mvctl{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);left:0;right:0;display:flex;justify-content:center;gap:10px;z-index:4}
+.mvctl button{border:0;border-radius:999px;padding:10px 16px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:13px;backdrop-filter:blur(8px)}
+.mvctl button[aria-pressed="false"]{opacity:.55}
+.mvmsg{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);left:0;right:0;text-align:center;color:#fff;font-size:13px;margin:0;z-index:4;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
@@ -773,6 +812,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </div>
   <div class="sec" id="memSec">
     <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
+    <div class="playrow" id="playRow"></div>
     <div id="onThis"></div>
     <div class="mstrip" id="mStrip"></div>
   </div>
@@ -796,7 +836,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <button class="ibtn" id="prevM" type="button" aria-label="前の月">‹</button>
     <button class="ibtn" id="nextM" type="button" aria-label="次へ">›</button>
   </div>
-  <div class="layer" role="group" aria-label="カレンダーに出すもの"><button type="button" id="lyPlan" aria-pressed="true">予定</button><button type="button" id="lyPhoto" aria-pressed="false">思い出</button></div>
+  <div class="layrow"><div class="layer" role="group" aria-label="カレンダーに出すもの"><button type="button" id="lyPlan" aria-pressed="true">予定</button><button type="button" id="lyPhoto" aria-pressed="false">思い出</button></div><button type="button" class="lyplay" id="lyMovie" hidden>▶ この月をムービーで</button></div>
   <div class="sec calwrap" id="calMonth">
     <div class="mgrid" id="grid" role="group" aria-label="カレンダー"></div>
     <button class="foldbtn" id="foldBtn" type="button" aria-expanded="true"><span class="grip" aria-hidden="true"></span><span id="foldTx"></span></button>
@@ -821,6 +861,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <p class="empty" id="cdEmpty">この日の予定はありません。</p>
     </div>
     <div class="card" id="cdTimeBox" hidden>
+      <div id="tlWx"></div>
       <div class="allday" id="cdTAll" style="margin-bottom:10px"></div>
       <div class="tlwrap" id="tlwrap"><div class="tline" id="tline"></div></div>
     </div>
@@ -980,6 +1021,18 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 </div>
 
 <input type="file" accept="image/*" id="memFile" hidden>
+<div class="movie" id="movie" hidden role="dialog" aria-modal="true" aria-label="思い出ムービー">
+  <div class="mvbars" id="mvBars"></div>
+  <button type="button" class="mvx" id="mvClose" aria-label="閉じる">×</button>
+  <canvas id="mvCanvas" width="720" height="1280"></canvas>
+  <div class="mvtap"><button type="button" id="mvPrev" aria-label="前へ"></button><button type="button" id="mvNext" aria-label="次へ"></button></div>
+  <div class="mvctl">
+    <button type="button" id="mvPlay" aria-label="一時停止">❚❚</button>
+    <button type="button" id="mvSound" aria-pressed="true">♪ 音楽</button>
+    <button type="button" id="mvSave">動画で保存</button>
+  </div>
+  <p class="mvmsg" id="mvMsg" role="status"></p>
+</div>
 <div class="scrim" id="memScrim" hidden>
   <form class="sheet" id="memForm" role="dialog" aria-modal="true" aria-labelledby="memTitle" autocomplete="off">
     <div class="grab"></div>
@@ -1359,6 +1412,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     $("calLegend").hidden=wk;
     const g=$("grid"); const h0=g.offsetHeight;
     g.classList.toggle("wkmode",wk); g.classList.toggle("photo",calLayer==="photo");
+    { const mk=ymd(view).slice(0,7); const ml=photos.filter(p=>p.path&&p.date.slice(0,7)===mk&&p.date<=todayKey); const b=$("lyMovie"); b.hidden=!(calLayer==="photo"&&ml.length>=2);
+      b.onclick=()=>openMovie({title:(+mk.slice(5))+"月の思い出",sub:ml.length+"枚",eng:new Date(+mk.slice(0,4),+mk.slice(5)-1,1).toLocaleString("en",{month:"long"})+" "+mk.slice(0,4),list:ml}); }
     $("lyPlan").setAttribute("aria-pressed",calLayer==="plan"?"true":"false"); $("lyPhoto").setAttribute("aria-pressed",calLayer==="photo"?"true":"false");
     g.replaceChildren();
     [1,2,3,4,5,6,0].forEach(i=>g.append(el("div","dow"+(i===0?" sun":i===6?" sat":""),DOW[i])));
@@ -1386,7 +1441,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     $("cdListBox").hidden=dayMode!=="list"; $("cdTimeBox").hidden=dayMode!=="time";
     renderAgenda(calSel,$("cdAll"),$("cdList"),$("cdEmpty"),$("cdPills"),true);
     renderMemCard($("cdMem"),calSel);
-    const cw=$("cdWx"); cw.replaceChildren(); const wp=weather?wxPanel(calSel):null; if(wp) cw.append(wp);
+    const cw=$("cdWx"); cw.replaceChildren(); const wp=(weather&&dayMode!=="time")?wxPanel(calSel):null; if(wp) cw.append(wp);
     if(dayMode==="time") renderTimeline();
   }
   function renderTimeline(){
@@ -1396,7 +1451,20 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     tds.forEach(t=>{const b=el("button","adi p-"+colorOf(t.who));b.type="button";b.append(el("span","lab","締切"),el("span","tt",t.title));b.addEventListener("click",()=>openSheet("todo",t));ad.append(b)});
     ad.hidden=!ad.children.length;
     const tl=$("tline"); tl.replaceChildren(); const HH=44;
-    for(let h=0;h<24;h++){const r=el("div","hr",pad(h)+":00");r.style.top=(h*HH)+"px";tl.append(r)}
+    const rows=[]; for(let h=0;h<24;h++){const r=el("div","hr");r.append(el("span","ht",pad(h)+":00"));r.style.top=(h*HH)+"px";tl.append(r);rows.push(r)}
+    // weather woven into the hours: icon + temperature in the gutter, rainy hours tinted blue
+    const hw=(weather&&Array.isArray(weather.hourly)?weather.hourly:[]).filter(x=>x&&x.t&&x.t.slice(0,10)===calSel&&x.h>=0&&x.h<24);
+    hw.forEach(x=>{
+      if(x.pop!=null&&x.pop>=30){ const band=el("div","wband"+(x.pop>=50?" wet":"")); band.style.top=(x.h*HH)+"px"; band.style.height=(Math.min(3,24-x.h)*HH)+"px"; tl.insertBefore(band,tl.firstChild); }
+      const r=rows[x.h]; if(!r) return;
+      const w=el("span","hw"); w.append(el("span","i",x.icon||""), (x.temp!=null?x.temp+"°":""));
+      r.append(w); if(x.pop!=null&&x.pop>=30) r.append(el("span","hp","☂"+x.pop+"%"));
+    });
+    { const tw=$("tlWx"); tw.replaceChildren(); const d=wxFor(calSel);
+      if(d||hw.length){ const a=el("a","tlwx"); a.href=yahooUrl(); a.target="_blank"; a.rel="noopener";
+        if(d){ a.append(el("span","i",d.icon||""), el("b","",d.text||""), el("span","t",(hiOf(d)??"-")+"° / "+(loOf(d)??"-")+"°")); if(d.pop!=null) a.append(el("span","p","☂"+d.pop+"%")); }
+        else a.append(el("b","","3時間ごとの天気を時間の横に表示"));
+        a.append(el("span","y","Yahoo!天気 ›")); tw.append(a); } }
     const timed=list.filter(e=>e.time).map(e=>{const s=toMin(e.time);const t=e.end?Math.max(toMin(e.end),s+15):s+60;return{e,s,t:Math.min(t,1440)}}).sort((a,b)=>a.s-b.s);
     const cols=[]; timed.forEach(it=>{let c=cols.findIndex(x=>x<=it.s);if(c<0){c=cols.length;cols.push(0)}cols[c]=it.t;it.c=c});
     const n=Math.max(1,cols.length);
@@ -1769,9 +1837,177 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     if(!tp){ const a=el("button","mtile add"); a.type="button"; a.append(el("span","im","＋"), el("b","","今日の1枚"), el("span","","のせる")); a.addEventListener("click",()=>pickMem(todayKey)); st.append(a); }
     const list=photos.filter(p=>p.path&&p.date<=todayKey).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
     list.forEach(p=>{ const ph=photoOf(p.date); const b=el("button","mtile"); b.type="button"; const im=el("span","im"); if(ph&&ph.src) im.style.backgroundImage=cssUrl(ph.src); b.append(im, el("b","",md(p.date)+" "+DOW[k2d(p.date).getDay()]), el("span","",p.caption||"")); b.addEventListener("click",()=>goCal(p.date)); st.append(b); });
+    renderPlayRow();
     const n=photos.filter(p=>p.path&&p.date.slice(0,7)===todayKey.slice(0,7)).length;
     $("memSub").textContent=n?(+todayKey.slice(5,7))+"月は"+n+"枚":"";
   }
+
+
+  /* ---------- memories movie: a short, story-style recap of a week or a month ---------- */
+  const MV={on:false,list:[],imgs:[],t:0,last:0,playing:false,raf:0,sound:true,ac:null,dest:null,mus:null,rec:null,title:"",sub:""};
+  const T_TITLE=2600, T_PH=3400, T_X=800, T_END=2800;
+  function mvDuration(){ return T_TITLE + MV.list.length*T_PH + T_END; }
+  function ensureUrls(paths){
+    return new Promise(res=>{ const need=paths.filter(p=>{const c=phUrl.get(p);return !(c&&c.exp>Date.now()+120000)}); if(!need.length) return res();
+      window.__koyomiApi("photo_urls",{paths:need}).then(j=>{const exp=Date.now()+((j.expiresIn||600)*1000);Object.entries(j.urls||{}).forEach(([p,u])=>phUrl.set(p,{url:u,exp}))}).catch(()=>{}).finally(res); });
+  }
+  function loadImg(u){ return new Promise(r=>{ const im=new Image(); im.crossOrigin="anonymous"; im.onload=()=>r(im);
+    im.onerror=()=>{ const j=new Image(); j.onload=()=>r(j); j.onerror=()=>r(null); j.src=u; };   // still viewable even if the host refuses CORS (saving then is not possible)
+    im.src=u; }); }
+  function recapSets(){
+    const ok=photos.filter(p=>p.path&&p.date<=todayKey);
+    const ws=weekStart(todayKey), lastWs=addDays(ws,-7);
+    const thisMonth=todayKey.slice(0,7); const pm=(()=>{const d=k2d(todayKey);const t=new Date(d.getFullYear(),d.getMonth()-1,1);return ymd(t).slice(0,7)})();
+    const sets=[];
+    const wk=ok.filter(p=>p.date>=ws); if(wk.length>=2) sets.push({key:"w",title:"今週の思い出",sub:md(ws)+"〜"+md(addDays(ws,6)),eng:"This week",list:wk});
+    const lw=ok.filter(p=>p.date>=lastWs&&p.date<ws); if(lw.length>=2) sets.push({key:"lw",title:"先週の思い出",sub:md(lastWs)+"〜"+md(addDays(lastWs,6)),eng:"Last week",list:lw});
+    const mo=ok.filter(p=>p.date.slice(0,7)===thisMonth); if(mo.length>=2) sets.push({key:"m",title:(+thisMonth.slice(5))+"月の思い出",sub:mo.length+"枚",eng:k2d(todayKey).toLocaleString("en",{month:"long"})+" "+thisMonth.slice(0,4),list:mo});
+    const pmo=ok.filter(p=>p.date.slice(0,7)===pm); if(pmo.length>=2) sets.push({key:"pm",title:(+pm.slice(5))+"月の思い出",sub:pmo.length+"枚",eng:new Date(+pm.slice(0,4),+pm.slice(5)-1,1).toLocaleString("en",{month:"long"})+" "+pm.slice(0,4),list:pmo});
+    return sets;
+  }
+  function renderPlayRow(){
+    const row=$("playRow"); row.replaceChildren();
+    recapSets().forEach(st=>{
+      const b=el("button","playbtn"); b.type="button";
+      const th=el("span","th"); const cover=photoOf(st.list[st.list.length-1].date); if(cover&&cover.src) th.style.backgroundImage=cssUrl(cover.src);
+      const tx=el("span"); tx.append(el("b","",st.title), el("small","",st.sub+"・ムービー"));
+      b.append(th,tx); b.addEventListener("click",()=>openMovie(st)); row.append(b);
+    });
+    row.hidden=!row.children.length;
+  }
+  async function openMovie(st){
+    MV.list=st.list.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(0,40); MV.title=st.title; MV.sub=st.sub; MV.eng=st.eng;
+    $("movie").hidden=false; MV.on=true; $("mvMsg").textContent="準備しています…";
+    $("mvBars").replaceChildren(); for(let i=0;i<MV.list.length+2;i++){const x=el("i");x.append(el("b"));$("mvBars").append(x)}
+    await ensureUrls(MV.list.map(p=>p.path));
+    try{ await document.fonts.ready; }catch(e){}
+    MV.imgs=await Promise.all(MV.list.map(p=>{const c=phUrl.get(p.path);return c?loadImg(c.url):Promise.resolve(null)}));
+    if(!MV.on) return;
+    $("mvMsg").textContent=""; MV.t=0; mvPlay(true);
+  }
+  function closeMovie(){ MV.on=false; mvPlay(false); stopMusic(); if(MV.rec&&MV.rec.state==="recording"){MV.rec.onstop=null;MV.rec.stop();} MV.rec=null; $("movie").hidden=true; }
+  function mvPlay(on){
+    MV.playing=on; $("mvPlay").textContent=on?"❚❚":"▶"; $("mvPlay").setAttribute("aria-label",on?"一時停止":"再生");
+    cancelAnimationFrame(MV.raf);
+    if(on){ MV.last=performance.now(); if(MV.sound) startMusic(); MV.raf=requestAnimationFrame(mvTick); } else stopMusic();
+  }
+  function mvTick(now){
+    if(!MV.on) return;
+    MV.t+=Math.min(100,now-MV.last); MV.last=now;
+    const D=mvDuration();
+    if(MV.t>=D){ MV.t=D; mvDraw(); if(MV.rec&&MV.rec.state==="recording") MV.rec.stop(); mvPlay(false); return; }
+    mvDraw(); MV.raf=requestAnimationFrame(mvTick);
+  }
+  function mvSeek(dir){
+    const marks=[0,T_TITLE]; for(let i=1;i<=MV.list.length;i++) marks.push(T_TITLE+i*T_PH);
+    let idx=marks.filter(m=>m<=MV.t+1).length-1; idx=Math.max(0,Math.min(marks.length-1,idx+dir));
+    MV.t=marks[idx]+1; mvDraw(); if(!MV.playing) mvPlay(true);
+  }
+  function cover(ctx,img,W,H,scale,dx,dy){
+    const r=Math.max(W/img.width,H/img.height)*scale, w=img.width*r, h=img.height*r;
+    ctx.drawImage(img,(W-w)/2+dx*(w-W)/2,(H-h)/2+dy*(h-H)/2,w,h);
+  }
+  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+  function mvDraw(){
+    const cv=$("mvCanvas"), ctx=cv.getContext("2d"), W=cv.width, H=cv.height, t=MV.t, n=MV.list.length;
+    ctx.fillStyle="#141218"; ctx.fillRect(0,0,W,H);
+    const serif='"Fraunces","Shippori Mincho B1",serif', jp='"Zen Kaku Gothic New",system-ui,sans-serif', mincho='"Shippori Mincho B1",serif';
+    const photoAt=(i,local)=>{ const img=MV.imgs[i]; if(!img) return; const prog=Math.min(1,Math.max(0,local/(T_PH+T_X)));
+      const dirs=[[-.6,.3],[.6,-.3],[.3,.6],[-.3,-.6]], d=dirs[i%4];
+      cover(ctx,img,W,H,1.06+0.10*prog,d[0]*(prog-.5),d[1]*(prog-.5)); };
+    const overlay=(i,a)=>{ const p=MV.list[i]; ctx.save(); ctx.globalAlpha=a;
+      const g=ctx.createLinearGradient(0,H*.58,0,H); g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,.62)"); ctx.fillStyle=g; ctx.fillRect(0,H*.55,W,H*.45);
+      const d=k2d(p.date); ctx.fillStyle="#fff"; ctx.textBaseline="alphabetic";
+      ctx.font='300 italic 44px '+serif; ctx.fillText(d.toLocaleString("en",{month:"short"})+". "+d.getDate()+" · "+d.toLocaleString("en",{weekday:"short"}),56,H-(p.caption?190:120));
+      if(p.caption){ ctx.font='700 46px '+jp; wrapText(ctx,p.caption,56,H-122,W-112,58,2); }
+      ctx.restore(); };
+    // title card
+    if(t<T_TITLE+T_X){
+      const a=t<T_TITLE?1:1-(t-T_TITLE)/T_X;
+      ctx.save(); ctx.globalAlpha=a;
+      if(MV.imgs[n-1]){ ctx.filter="blur(28px) brightness(.62)"; cover(ctx,MV.imgs[n-1],W,H,1.2,0,0); ctx.filter="none"; }
+      ctx.fillStyle="rgba(20,18,24,.25)"; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle="#fff"; ctx.textAlign="center";
+      const k=ease(Math.min(1,t/1200));
+      ctx.globalAlpha=a*k; ctx.font='300 italic 60px '+serif; ctx.fillText(MV.eng||"",W/2,H*.42+20*(1-k));
+      ctx.font='700 76px '+mincho; ctx.fillText(MV.title,W/2,H*.5+20*(1-k));
+      ctx.font='400 32px '+jp; ctx.globalAlpha=a*k*.85; ctx.fillText(MV.sub+"　パパ・ママ・ゆづ",W/2,H*.56+20*(1-k));
+      ctx.restore(); ctx.textAlign="left";
+    }
+    // photos with cross-fades
+    for(let i=0;i<n;i++){
+      const st=T_TITLE+i*T_PH, local=t-st;
+      if(local<0||local>T_PH+T_X) continue;
+      const a=local<T_X?ease(local/T_X):(local>T_PH?1-ease((local-T_PH)/T_X):1);
+      ctx.save(); ctx.globalAlpha=a; photoAt(i,local); ctx.restore();
+      overlay(i,Math.max(0,Math.min(1,(local-300)/600))*(local>T_PH?1-(local-T_PH)/T_X:1));
+    }
+    // end card
+    const es=T_TITLE+n*T_PH;
+    if(t>es){
+      const a=ease(Math.min(1,(t-es)/T_X));
+      ctx.save(); ctx.globalAlpha=a; ctx.fillStyle="#f5f4f0"; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle="#2a2a2e"; ctx.textAlign="center";
+      ctx.font='300 italic 54px '+serif; ctx.fillText("see you next time",W/2,H*.46);
+      ctx.font='700 48px '+mincho; ctx.fillText("わが家のこよみ",W/2,H*.54);
+      ctx.font='400 30px '+jp; ctx.fillStyle="#6b6b70"; ctx.fillText(n+"枚の思い出",W/2,H*.59);
+      ctx.restore(); ctx.textAlign="left";
+    }
+    // progress bars
+    const segs=[T_TITLE,...MV.list.map(()=>T_PH),T_END]; let acc=0;
+    [...$("mvBars").children].forEach((x,i)=>{ const f=Math.max(0,Math.min(1,(t-acc)/segs[i])); acc+=segs[i]; x.firstChild.style.width=(f*100)+"%"; });
+  }
+  function wrapText(ctx,text,x,y,maxW,lh,maxLines){
+    const chars=[...text]; let line="", lines=[];
+    for(const ch of chars){ if(ctx.measureText(line+ch).width>maxW&&line){ lines.push(line); line=ch; } else line+=ch; }
+    if(line) lines.push(line);
+    if(lines.length>maxLines){ lines=lines.slice(0,maxLines); lines[maxLines-1]=lines[maxLines-1].slice(0,-1)+"…"; }
+    const top=y-(lines.length-1)*lh; lines.forEach((l,i)=>ctx.fillText(l,x,top+i*lh));
+  }
+  // a soft music-box loop made on the spot (no audio files)
+  function startMusic(){
+    try{
+      if(!MV.ac){ MV.ac=new (window.AudioContext||window.webkitAudioContext)(); MV.dest=MV.ac.createMediaStreamDestination(); MV.master=MV.ac.createGain(); MV.master.gain.value=.18; MV.master.connect(MV.ac.destination); MV.master.connect(MV.dest); }
+      if(MV.ac.state==="suspended") MV.ac.resume();
+      if(MV.mus) return;
+      const ac=MV.ac, notes=[0,4,7,11,12,7,4,2, 0,4,9,12,14,12,9,7, -3,0,4,9,12,9,4,0, 2,5,9,12,14,12,7,4];
+      let step=0; const base=523.25, beat=.36;
+      let next=ac.currentTime+.05;
+      const tick=()=>{ while(next<ac.currentTime+.4){ const n=notes[step%notes.length]; ping(base*Math.pow(2,n/12),next,.9); if(step%8===0) ping(base/2*Math.pow(2,notes[step%notes.length]/12),next,1.6,.5); next+=beat; step++; } };
+      MV.mus=setInterval(tick,120); tick();
+    }catch(e){}
+  }
+  function ping(f,at,len,vol){ const ac=MV.ac; const o=ac.createOscillator(), o2=ac.createOscillator(), g=ac.createGain();
+    o.type="sine"; o.frequency.value=f; o2.type="sine"; o2.frequency.value=f*2.01;
+    g.gain.setValueAtTime(0,at); g.gain.linearRampToValueAtTime(vol||.7,at+.01); g.gain.exponentialRampToValueAtTime(.001,at+len);
+    const g2=ac.createGain(); g2.gain.value=.25; o2.connect(g2); g2.connect(g); o.connect(g); g.connect(MV.master); o.start(at); o2.start(at); o.stop(at+len+.05); o2.stop(at+len+.05); }
+  function stopMusic(){ if(MV.mus){ clearInterval(MV.mus); MV.mus=null; } }
+  async function saveMovie(){
+    const cv=$("mvCanvas");
+    if(!cv.captureStream||!window.MediaRecorder){ $("mvMsg").textContent="このスマホでは動画の保存に対応していません。"; return; }
+    try{ cv.getContext("2d").getImageData(0,0,1,1); }catch(e){ $("mvMsg").textContent="写真の読み込みの都合で保存できませんでした。"; return; }
+    const types=["video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm"]; const type=types.find(x=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(x))||"";
+    const stream=cv.captureStream(30);
+    if(MV.sound){ startMusic(); if(MV.dest) MV.dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t)); }
+    const chunks=[]; const rec=new MediaRecorder(stream,type?{mimeType:type,videoBitsPerSecond:4000000}:undefined); MV.rec=rec;
+    rec.ondataavailable=e=>{ if(e.data&&e.data.size) chunks.push(e.data); };
+    rec.onstop=async()=>{
+      const mime=rec.mimeType||type||"video/webm"; const ext=/mp4/.test(mime)?"mp4":"webm";
+      const blob=new Blob(chunks,{type:mime}); const name=(MV.title.replace(/\s/g,""))+"."+ext;
+      const file=new File([blob],name,{type:mime});
+      $("mvMsg").textContent="できました！";
+      try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:MV.title}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.append(a); a.click(); a.remove();
+    };
+    MV.t=0; rec.start(500); $("mvMsg").textContent="動画にしています…最後まで再生すると保存できます"; mvPlay(true);
+  }
+  $("mvClose").addEventListener("click",closeMovie);
+  $("mvPlay").addEventListener("click",()=>{ if(MV.t>=mvDuration()) MV.t=0; mvPlay(!MV.playing); });
+  $("mvPrev").addEventListener("click",()=>mvSeek(-1));
+  $("mvNext").addEventListener("click",()=>mvSeek(1));
+  $("mvSound").addEventListener("click",()=>{ MV.sound=!MV.sound; $("mvSound").setAttribute("aria-pressed",MV.sound?"true":"false"); if(MV.sound&&MV.playing) startMusic(); else stopMusic(); });
+  $("mvSave").addEventListener("click",saveMovie);
+  document.addEventListener("keydown",e=>{ if(!MV.on) return; if(e.key==="Escape") closeMovie(); if(e.key==="ArrowRight") mvSeek(1); if(e.key==="ArrowLeft") mvSeek(-1); });
 
   /* ---------- todo tab ---------- */
   function todoRow(t){
