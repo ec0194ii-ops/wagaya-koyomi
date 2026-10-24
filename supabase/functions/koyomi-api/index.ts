@@ -166,7 +166,8 @@ async function updateWeather() {
   const w = pick(short[0].areas, '250010');
   short[0].timeDefines.forEach((t: string, i: number) => { const d = day(t); if (w.weatherCodes?.[i]) d.code = w.weatherCodes[i]; if (w.weathers?.[i]) d.detail = String(w.weathers[i]).replace(/[\s　]+/g, ' ').trim(); });
   const pp = pick(short[1].areas, '250010');
-  short[1].timeDefines.forEach((t: string, i: number) => { const v = pp.pops?.[i]; if (v === '' || v == null) return; const d = day(t); d.pop = Math.max(d.pop ?? 0, Number(v)); });
+  const blocks: { from: number; pop: number }[] = [];
+  short[1].timeDefines.forEach((t: string, i: number) => { const v = pp.pops?.[i]; if (v === '' || v == null) return; const d = day(t); d.pop = Math.max(d.pop ?? 0, Number(v)); blocks.push({ from: Date.parse(t), pop: Number(v) }); });
   const tt = pick(short[2].areas, '60216');
   short[2].timeDefines.forEach((t: string, i: number) => { const v = tt.temps?.[i]; if (v === '' || v == null) return; const d = day(t); if (t.slice(11, 13) === '00') d.lo = Number(v); else d.hi = Number(v); });
   const wk = j[1]?.timeSeries || [];
@@ -179,7 +180,7 @@ async function updateWeather() {
   const now = new Date(Date.now() + 9 * 3600000);
   const updated = `${now.getUTCMonth() + 1}/${now.getUTCDate()} ${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
   let hourly: unknown[] = [];
-  try { hourly = await hourlyForecast(); } catch { /* the daily forecast still goes out */ }
+  try { hourly = await hourlyForecast(blocks); } catch { /* the daily forecast still goes out */ }
   await saveInfo('weather', { key: 'weather', area: '大津市', source: '気象庁・Open-Meteo', updated, url: 'https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html', days: list, hourly });
   return list.length;
 }
@@ -195,7 +196,7 @@ function wmo(c: number): [string, string] {
   return ['☁️', 'くもり'];
 }
 // 3-hourly temperature, weather and rain chance for the next ~27 hours (大津市役所付近).
-async function hourlyForecast() {
+async function hourlyForecast(blocks: { from: number; pop: number }[] = []) {
   const u = 'https://api.open-meteo.com/v1/forecast?latitude=35.0045&longitude=135.8686&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Asia%2FTokyo&forecast_days=3';
   const r = await fetch(u); if (!r.ok) fail(502, 'hourly_unavailable');
   const j = await r.json(); const h = j.hourly || {};
@@ -206,7 +207,12 @@ async function hourlyForecast() {
     if (hh % 3 !== 0 || t.slice(0, 13) < nowJst.slice(0, 11) + String(Math.floor(Number(nowJst.slice(11, 13)) / 3) * 3).padStart(2, '0')) return;
     if (out.length >= 10) return;
     const [icon, text] = wmo(Number(h.weather_code?.[i]));
-    out.push({ t, h: hh, temp: h.temperature_2m?.[i] != null ? Math.round(h.temperature_2m[i]) : null, pop: h.precipitation_probability?.[i] ?? null, icon, text });
+    // Rain chance: the 気象庁 6-hour figure when the slot falls inside one (what Yahoo!天気 shows too); otherwise the model value rounded to 10%.
+    const at = Date.parse(t + ':00+09:00');
+    const blk = blocks.find(b => at >= b.from && at < b.from + 6 * 3600000);
+    const raw = h.precipitation_probability?.[i];
+    const pop = blk ? blk.pop : raw == null ? null : Math.round(Number(raw) / 10) * 10;
+    out.push({ t, h: hh, temp: h.temperature_2m?.[i] != null ? Math.round(h.temperature_2m[i]) : null, pop, src: blk ? 'jma' : 'model', icon, text });
   });
   return out;
 }

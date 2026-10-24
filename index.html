@@ -335,6 +335,43 @@ a.btn{text-decoration:none;display:inline-block}
 .wxday .t3{font-size:12px;color:var(--muted)}
 .wxhint{font-size:11px;color:var(--faint)}
 
+
+/* ---- canva-ish editorial touches ---- */
+.eyebrow{font-family:var(--f-num);font-size:10.5px;font-weight:600;letter-spacing:.24em;color:var(--accent);margin-bottom:2px}
+.sech{align-items:flex-end}
+.sech h2{font-size:21px}
+.card{border-radius:24px}
+/* category colours for outings */
+.cat-子ども{--cc:var(--yuzu);--cs:var(--yuzu-soft)} .cat-ハロウィン{--cc:#e39a5d;--cs:#fbe9da} .cat-祭り{--cc:var(--mama);--cs:var(--mama-soft)}
+.cat-季節{--cc:var(--family);--cs:var(--family-soft)} .cat-紅葉{--cc:#d9775f;--cs:#f9e3dc} .cat-のりもの{--cc:var(--papa);--cs:var(--papa-soft)} .cat-学び{--cc:#7aa889;--cs:#e3f0e6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cat-ハロウィン{--cs:#3d2c20} :root:not([data-theme="light"]) .cat-紅葉{--cs:#3d2722} :root:not([data-theme="light"]) .cat-学び{--cs:#22332a}}
+:root[data-theme="dark"] .cat-ハロウィン{--cs:#3d2c20} :root[data-theme="dark"] .cat-紅葉{--cs:#3d2722} :root[data-theme="dark"] .cat-学び{--cs:#22332a}
+.sticker{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--cs,var(--sunk));color:color-mix(in srgb,var(--cc,var(--fg)) 45%,var(--fg));box-shadow:0 2px 6px -3px rgba(0,0,0,.25)}
+/* big photo cards (carousel) */
+.oc2{flex:0 0 76%;max-width:310px;padding:0;overflow:hidden;gap:0;border-radius:26px}
+.oc2 .ph2{margin:0;position:relative;aspect-ratio:4/3;border-radius:0;background:linear-gradient(135deg,var(--cs,var(--sunk)),var(--sunk))}
+.oc2 .ph2 .fb{position:absolute;inset:0;display:grid;place-items:center;font-size:52px;opacity:.75}
+.oc2 .ph2{overflow:hidden}
+.oc2 .ph2 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.oc2 .ph2 .sticker{position:absolute;left:12px;top:12px;z-index:2}
+.oc2 .ph2 .datechip{position:absolute;right:12px;bottom:12px;z-index:2;font-family:var(--f-num);font-size:12px;font-weight:600;background:rgba(255,255,255,.92);color:#2f2c36;border-radius:12px;padding:4px 10px;box-shadow:0 2px 8px -4px rgba(0,0,0,.4)}
+.oc2 .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.oc2 .when{font-size:11.5px}
+.oc2 h3{font-size:16.5px}
+.oc2 .ac{margin-top:6px;flex-wrap:nowrap;gap:6px}
+.oc2 .ac .btn.ghost{padding:6px 10px;font-size:12px}
+.og{scroll-padding-left:max(16px,env(safe-area-inset-left,0px))}
+/* today's outing tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;display:block;border-radius:22px;overflow:hidden;aspect-ratio:1/1.1;background:linear-gradient(135deg,var(--cs,var(--sunk)),var(--sunk));text-decoration:none;color:#fff;box-shadow:var(--shadow)}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile .fb{position:absolute;inset:0;display:grid;place-items:center;font-size:46px;opacity:.75}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(20,16,30,.78) 100%)}
+.tile .sticker{position:absolute;left:10px;top:10px;z-index:2}
+.tile .tx{position:absolute;left:12px;right:12px;bottom:11px;z-index:2;display:flex;flex-direction:column;gap:2px}
+.tile .tx b{font-size:14px;line-height:1.35;text-shadow:0 1px 4px rgba(0,0,0,.35);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tile .tx span{font-size:11px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -395,8 +432,6 @@ img{max-width:100%}
 .set .row2 span{font-size:14px}
 .set small{color:var(--muted);font-size:12px;line-height:1.6}
 /* outing photos */
-.oc2 .ph2{margin:-14px -16px 4px;aspect-ratio:16/9;background:var(--sunk);border-radius:22px 22px 0 0;overflow:hidden}
-.oc2 .ph2 img{width:100%;height:100%;object-fit:cover;display:block}
 .ogr .th{width:52px;height:52px;border-radius:12px;object-fit:cover;flex:none;background:var(--line)}
 </style>
 </head>
@@ -422,16 +457,8 @@ img{max-width:100%}
     <div class="ribbon" id="ribbon" role="group" aria-label="今日から1週間"></div>
   </header>
 
-  <div class="sec" id="wxSec" hidden>
-    <div class="sech"><h2>大津市の天気</h2><span class="sub" id="wxArea"></span></div>
-    <div class="card wxcard">
-      <div class="wx" id="wx" role="group" aria-label="日付を選ぶ"></div>
-      <a class="wxpanel" id="wxPanel" href="https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html" target="_blank" rel="noopener"></a>
-      <div class="wxfoot"><span id="wxMeta"></span><span class="wxhint">日付を押すと切り替わります</span></div>
-    </div>
-  </div>
   <div class="sec">
-    <div class="sech"><h2 id="agTitle">今日の予定</h2><span class="sub" id="agSub"></span></div>
+    <div class="sech"><div><div class="eyebrow">TODAY</div><h2 id="agTitle">今日の予定</h2></div><span class="sub" id="agSub"></span></div>
     <div class="strip" id="agPills"></div>
     <div class="card" id="agCard">
       <div class="allday" id="agAll"></div>
@@ -439,18 +466,27 @@ img{max-width:100%}
       <p class="empty" id="agEmpty">予定はありません。のんびりできる日です。</p>
     </div>
   </div>
-
   <div class="sec" id="dlSec">
-    <div class="sech"><h2>近い締め切り</h2><span class="sub">3日以内と期限切れ</span></div>
+    <div class="sech"><div><div class="eyebrow">DEADLINE</div><h2>近い締め切り</h2></div><span class="sub">3日以内と期限切れ</span></div>
     <div class="card"><div id="dlList"></div></div>
   </div>
-
+  <div class="sec" id="wxSec" hidden>
+    <div class="sech"><div><div class="eyebrow">THIS WEEK</div><h2>今週の天気</h2></div><span class="sub">大津市</span></div>
+    <div class="card wxcard">
+      <div class="wx" id="wx" role="group" aria-label="日付を選ぶ"></div>
+      <a class="wxpanel" id="wxPanel" href="https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html" target="_blank" rel="noopener"></a>
+      <div class="wxfoot"><span id="wxMeta"></span><span class="wxhint">日付を押すと切り替わります</span></div>
+    </div>
+  </div>
+  <div class="sec" id="ogTodaySec" hidden>
+    <div class="sech"><div><div class="eyebrow">GO OUT TODAY</div><h2>今日のおでかけ候補</h2></div><span class="sub" id="ogTodaySub"></span></div>
+    <div class="tiles" id="ogToday"></div>
+  </div>
   <div class="sec" id="ogSec" hidden>
-    <div class="sech"><h2>大津周辺のおでかけ</h2><span class="sub" id="ogSub"></span></div>
+    <div class="sech"><div><div class="eyebrow">AROUND OTSU</div><h2>大津周辺のおでかけ</h2></div><span class="sub" id="ogSub"></span></div>
     <div class="og" id="ogList"></div>
     <div class="ogfoot" id="ogFoot"></div>
   </div>
-
   <p class="note">Claudeに「来週土曜10時にゆづの歯医者」「金曜までに申込用紙を出す」と話しかけても追加できます。</p>
 </section>
 
@@ -697,7 +733,7 @@ img{max-width:100%}
   }
 
   /* ---------- agenda (shared by home & calendar) ---------- */
-  function renderAgenda(k, allBox, listBox, emptyEl, pillBox, withActions){
+  function renderAgenda(k, allBox, listBox, emptyEl, pillBox, withActions, noOutings){
     const evs=eventsOn(k), tds=todosOn(k);
     allBox.replaceChildren(); listBox.replaceChildren(); pillBox.replaceChildren();
     // pills: holiday, garbage, weather
@@ -734,7 +770,7 @@ img{max-width:100%}
       tds.forEach(t=>{const d=dueText(t);const r=el("div","todoi"+(t.done?" done":""));r.append(chk(t),el("span","tt",(catIcon(t)?catIcon(t)+" ":"")+t.title),el("span","dd "+d.cls,t.done?"完了":"締切"));r.addEventListener("click",()=>openSheet("todo",t));wrap.append(r)});
       listBox.append(wrap);
     }
-    const ogAll=outings.filter(o=>o.start&&o.start<=k&&(o.end||o.start)>=k); const ogs=ogAll.slice(0,3);
+    const ogAll=noOutings?[]:outings.filter(o=>o.start&&o.start<=k&&(o.end||o.start)>=k); const ogs=ogAll.slice(0,3);
     if(ogs.length){
       const wrap=el("li","ogday"); wrap.append(el("h4","","この日のおでかけ候補"));
       ogs.forEach(o=>{const r=el("div","ogr");const im=o.img||ogImg(o.url);if(im){const t=el("img","th");t.src=im;t.alt="";t.loading="lazy";t.referrerPolicy="no-referrer";t.onerror=()=>t.remove();r.append(t)}const tx=el("div","tx");tx.append(el("b","",o.title),el("span","",[o.when,o.place].filter(Boolean).join("・")));r.append(tx);
@@ -782,7 +818,7 @@ img{max-width:100%}
     }
     $("agTitle").textContent = homeSel===todayKey?"今日の予定":homeSel===tmrKey?"明日の予定":fmtDay(homeSel);
     $("agSub").textContent = homeSel===todayKey?fmtDay(todayKey):"";
-    renderAgenda(homeSel,$("agAll"),$("agList"),$("agEmpty"),$("agPills"),false);
+    renderAgenda(homeSel,$("agAll"),$("agList"),$("agEmpty"),$("agPills"),false,true); renderOgToday();
     // deadlines
     const soon=todos.filter(t=>!t.done&&t.due&&dayDiff(todayKey,t.due)<=3).sort((a,b)=>a.due.localeCompare(b.due));
     const dl=$("dlList"); dl.replaceChildren();
@@ -814,7 +850,6 @@ img{max-width:100%}
       c.addEventListener("click",()=>{wxSel=x.date;renderWx()});
       wx.append(c);
     });
-    $("wxArea").textContent="";
     $("wxMeta").textContent=(weather.updated?weather.updated+" 更新":"");
     const pnl=$("wxPanel"); pnl.href=yahooUrl(); pnl.replaceChildren();
     const d=days.find(x=>x.date===wxSel);
@@ -1091,6 +1126,28 @@ img{max-width:100%}
   }
 
   /* ---------- outings ---------- */
+  const CATI={"子ども":"🧸","ハロウィン":"🎃","祭り":"🏮","季節":"🌹","紅葉":"🍁","のりもの":"🚃","学び":"🖼"};
+  function photo(o,box){
+    const fb=el("span","fb",CATI[o.cat]||"📍"); fb.setAttribute("aria-hidden","true"); box.append(fb);
+    const im=o.img||ogImg(o.url);
+    if(im){const i=el("img");i.src=im;i.alt="";i.loading="lazy";i.decoding="async";i.referrerPolicy="no-referrer";i.onerror=()=>i.remove();box.append(i)}
+  }
+  function renderOgToday(){
+    const k=homeSel, list=outings.filter(o=>o.start&&o.start<=k&&(o.end||o.start)>=k)
+      .sort((a,b)=>((a.end||"")<(b.end||"")?-1:1));
+    $("ogTodaySec").hidden=!list.length;
+    $("ogTodaySec").querySelector("h2").textContent=k===todayKey?"今日のおでかけ候補":k===tmrKey?"明日のおでかけ候補":fmtDay(k)+"のおでかけ候補";
+    $("ogTodaySub").textContent=list.length?list.length+"件":"";
+    const box=$("ogToday"); box.replaceChildren();
+    list.slice(0,6).forEach(o=>{
+      const t=el("a","tile cat-"+(o.cat||"")); t.href=o.url||"#"; t.target="_blank"; t.rel="noopener";
+      photo(o,t);
+      if(o.cat) t.append(el("span","sticker",(CATI[o.cat]||"")+" "+o.cat));
+      const tx=el("span","tx"); tx.append(el("b","",o.title), el("span","",[o.start===o.end?"":"〜"+md(o.end), o.place].filter(Boolean).join("・"))); t.append(tx);
+      t.setAttribute("aria-label",o.title+"（記事を開く）");
+      box.append(t);
+    });
+  }
   function renderOutings(){
     const until=addDays(todayKey,45);
     const list=outings.filter(o=>(o.end||o.start||todayKey)>=todayKey && (o.start||todayKey)<=until)
@@ -1098,24 +1155,28 @@ img{max-width:100%}
     $("ogSec").hidden=!list.length;
     const box=$("ogList"); box.replaceChildren();
     list.forEach(o=>{
-      const c=el("article","oc2");
-      const im=o.img||ogImg(o.url); if(im){const f=el("div","ph2");const i=el("img");i.src=im;i.alt="";i.loading="lazy";i.referrerPolicy="no-referrer";i.onerror=()=>f.remove();f.append(i);c.append(f)}
-      const w=el("div","when",o.when||(o.start?(md(o.start)+(o.end&&o.end!==o.start?"〜"+md(o.end):"")):""));
-      if(o.start&&o.start<=todayKey&&(o.end||o.start)>=todayKey) w.append(el("span","now","開催中"));
-      else if(o.start&&dayDiff(todayKey,o.start)<=7) w.append(el("span","now","もうすぐ"));
-      c.append(w, el("h3","",o.title||""));
-      if(o.place) c.append(el("div","pl","📍 "+o.place));
-      if(o.note) c.append(el("div","nt",o.note));
+      const c=el("article","oc2 cat-"+(o.cat||""));
+      const ph=el("div","ph2"); photo(o,ph);
+      if(o.cat) ph.append(el("span","sticker",(CATI[o.cat]||"")+" "+o.cat));
+      ph.append(el("span","datechip",o.start&&o.start<=todayKey?"開催中":o.start?md(o.start)+(o.end&&o.end!==o.start?"〜":""):""));
+      c.append(ph);
+      const bd=el("div","bd");
+      const w=el("div","when",o.when||"");
+      if(o.start&&o.start>todayKey&&dayDiff(todayKey,o.start)<=7) w.append(el("span","now","もうすぐ"));
+      bd.append(w, el("h3","",o.title||""));
+      if(o.place) bd.append(el("div","pl","📍 "+o.place));
+      if(o.note) bd.append(el("div","nt",o.note));
       const ac=el("div","ac");
-      if(o.url&&/^https:\/\//.test(o.url)){const a=el("a","btn ghost","詳しく見る");a.href=o.url;a.target="_blank";a.rel="noopener";ac.append(a)}
+      if(o.url&&/^https:\/\//.test(o.url)){const a=el("a","btn ghost","記事を見る");a.href=o.url;a.target="_blank";a.rel="noopener";ac.append(a)}
       const pl=el("button","btn ghost","予定にする");pl.type="button";
-      pl.addEventListener("click",()=>{openSheet("ev",{title:o.title,note:(o.place?o.place+"　":"")+(o.url||"")}); if(o.start&&o.start>=todayKey) $("evDate").value=o.start; });
-      const wi=el("button","btn ghost","やりたいことへ");wi.type="button";
+      pl.addEventListener("click",()=>{openSheet("ev",{title:o.title,cat:"outing",note:(o.place?o.place+"　":"")+(o.url||"")}); if(o.start&&o.start>=todayKey) $("evDate").value=o.start; });
+      const wi=el("button","btn ghost","やりたい");wi.type="button";
       wi.addEventListener("click",async()=>{ if(!db) return; wi.disabled=true; try{ await db.collection("wishes").add({title:o.title,note:[o.when,o.place].filter(Boolean).join("・"),done:false,createdAt:new Date().toISOString()}); wi.textContent="追加しました"; status("やりたいことに追加しました"); }catch(e){ wi.disabled=false; status("追加できませんでした。",true); } });
-      ac.append(pl,wi); c.append(ac); box.append(c);
+      ac.append(pl,wi); bd.append(ac); c.append(bd); box.append(c);
     });
     $("ogSub").textContent=list.length+"件";
-    $("ogFoot").textContent=ogMeta&&ogMeta.updated?"大津市イベント情報（otsu-event.site）から "+ogMeta.updated+" にClaudeが選びました。毎週月曜に更新します。日程は変わることがあるので、出かける前に詳細ページで確認してください。":"";
+    $("ogFoot").textContent=ogMeta&&ogMeta.updated?"大津市イベント情報（otsu-event.site）から "+ogMeta.updated+" にClaudeが選びました。毎週月曜に更新します。日程は変わることがあるので、出かける前に記事で確認してください。":"";
+    renderOgToday();
   }
 
   /* ---------- tabs ---------- */
