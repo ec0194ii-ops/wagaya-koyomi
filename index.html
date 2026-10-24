@@ -405,6 +405,7 @@ a.btn{text-decoration:none;display:inline-block}
 
 
 /* quick week / day jumping */
+#calMonth,#calWeek,#cdBody{touch-action:pan-y}
 .wjump{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:2px 16px 4px;scroll-snap-type:x proximity}
 .wjump::-webkit-scrollbar,.dstrip::-webkit-scrollbar{display:none}
 .wchip{flex:none;scroll-snap-align:center;border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:7px 12px 6px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;color:var(--fg);min-width:84px}
@@ -1237,19 +1238,35 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     const box=calView==="month"?$("calMonth"):calView==="week"?$("calWeek"):$("cdBody");
     if(box){box.classList.remove("slideL","slideR");void box.offsetWidth;box.classList.add(n>0?"slideL":"slideR")}
   }
-  // swipe left/right anywhere on the calendar to go to the next/previous month, week or day
+  // swipe left/right anywhere on the calendar to go to the next/previous month, week or day.
+  // Track the finger on touchmove (Android fires touchcancel instead of touchend once it starts panning),
+  // and let the box follow the finger a little so the gesture feels alive.
   (function(){
-    let sx=0, sy=0, ok=false;
+    let sx=0, sy=0, lx=0, ly=0, on=false, dir=0, box=null;
     const pane=$("pane-cal");
+    const curBox=()=>calView==="month"?$("calMonth"):calView==="week"?$("calWeek"):$("cdBody");
+    function reset(){ if(box){box.style.transition="transform .18s ease";box.style.transform="";const b=box;setTimeout(()=>{b.style.transition=""},200)} box=null; }
     pane.addEventListener("touchstart",e=>{
-      const t=e.touches[0]; ok=e.touches.length===1&&!e.target.closest(".wjump,.hscroll,input,textarea,select");
-      sx=t.clientX; sy=t.clientY;
+      on=e.touches.length===1&&!e.target.closest(".wjump,.hscroll,input,textarea,select,.sheet");
+      if(!on) return;
+      sx=lx=e.touches[0].clientX; sy=ly=e.touches[0].clientY; dir=0; box=curBox();
     },{passive:true});
-    pane.addEventListener("touchend",e=>{
-      if(!ok) return; ok=false;
-      const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
-      if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6) stepCal(dx<0?1:-1);
-    },{passive:true});
+    pane.addEventListener("touchmove",e=>{
+      if(!on) return;
+      lx=e.touches[0].clientX; ly=e.touches[0].clientY;
+      const dx=lx-sx, dy=ly-sy;
+      if(!dir&&(Math.abs(dx)>10||Math.abs(dy)>10)) dir=Math.abs(dx)>Math.abs(dy)?1:2;
+      if(dir===1){ if(e.cancelable) e.preventDefault(); if(box) box.style.transform="translateX("+(dx*0.35)+"px)"; }
+    },{passive:false});
+    function end(){
+      if(!on) return; on=false;
+      const dx=lx-sx, dy=ly-sy, ok=dir===1&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3;
+      if(box){box.style.transform="";}
+      box=null;
+      if(ok) stepCal(dx<0?1:-1); else reset();
+    }
+    pane.addEventListener("touchend",end,{passive:true});
+    pane.addEventListener("touchcancel",end,{passive:true});
   })();
   $("prevM").addEventListener("click",()=>stepCal(-1));
   $("nextM").addEventListener("click",()=>stepCal(1));
