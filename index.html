@@ -587,9 +587,14 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <div class="hwx" id="hWx" hidden><div class="ic" id="hWxI"></div><div class="tt"><span class="hi" id="hWxH"></span> / <span class="lo" id="hWxL"></span></div><div class="pp2" id="hWxP"></div></div>
     </div>
     <p class="hello" id="hello"></p>
-    <div class="ribbon" id="ribbon" role="group" aria-label="今日から1週間"></div>
   </header>
 
+  <div class="sec" id="monthSec">
+    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div></div>
+    <div class="card mocard">
+      <div class="mogrid" id="moGrid" role="group" aria-label="今月のカレンダー"></div>
+    </div>
+  </div>
   <div class="sec">
     <div class="sech"><div><div class="eyebrow">Today’s plan</div><h2 id="agTitle">今日の予定</h2></div><span class="sub" id="agSub"></span></div>
     <div class="strip" id="agPills"></div>
@@ -602,12 +607,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="sec" id="dlSec">
     <div class="sech"><div><div class="eyebrow">Due soon</div><h2>近い締め切り</h2></div><span class="sub">3日以内と期限切れ</span></div>
     <div class="card"><div id="dlList"></div></div>
-  </div>
-  <div class="sec" id="monthSec">
-    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div></div>
-    <div class="card mocard">
-      <div class="mogrid" id="moGrid" role="group" aria-label="今月のカレンダー"></div>
-    </div>
   </div>
   <div class="sec" id="wxSec" hidden>
     <div class="sech"><div><div class="eyebrow">Weather</div><h2>今日の天気</h2></div><span class="sub">大津市</span></div>
@@ -940,8 +939,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     const tw=wxFor(todayKey); $("hWx").hidden=!tw;
     if(tw){$("hWxI").textContent=tw.icon||"";{const dt=dayTemps(todayKey)||{};$("hWxH").textContent=(tw.hi??dt.hi??"-")+"°";$("hWxL").textContent=(tw.lo??dt.lo??"-")+"°";}$("hWxP").textContent=(tw.text||"")+(tw.pop!=null?" ☂"+tw.pop+"%":"")}
     // ribbon: today first
-    const rb=$("ribbon"); rb.replaceChildren();
-    for(let i=0;i<7;i++){
+    const rb=$("ribbon"); if(rb) rb.replaceChildren();
+    for(let i=0;rb&&i<7;i++){
       const k=addDays(todayKey,i), dd=k2d(k), dw=dd.getDay();
       const b=el("button","rday"+(dw===0?" sun":dw===6?" sat":"")+(HOL[k]?" hol":"")); b.type="button";
       b.setAttribute("aria-pressed",k===homeSel?"true":"false");
