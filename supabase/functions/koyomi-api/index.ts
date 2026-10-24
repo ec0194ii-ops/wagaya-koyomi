@@ -4,7 +4,7 @@ const ORIGINS = ['https://ec0194ii-ops.github.io', ...(Deno.env.get('KOYOMI_EXTR
 const BASE = Deno.env.get('SUPABASE_URL')!;
 const ADMIN = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const MEMBERS: Record<string, string> = { papa: 'パパ', mama: 'ママ' };
-const WRITABLE = ['event', 'todo', 'shop', 'wish', 'garbage', 'place'];
+const WRITABLE = ['event', 'todo', 'shop', 'wish', 'garbage', 'place', 'note'];
 const enc = new TextEncoder();
 const hex = (b: ArrayBuffer | Uint8Array) => Array.from(new Uint8Array(b as ArrayBuffer), x => x.toString(16).padStart(2, '0')).join('');
 const unhex = (s: string) => Uint8Array.from(s.match(/../g) || [], x => parseInt(x, 16));
@@ -462,6 +462,12 @@ Deno.serve(async req => {
     }
     if (body.action === 'push_unsubscribe') { const ep = text(body.endpoint, 1000, true); await db('koyomi_push_subs', 'DELETE', `endpoint=eq.${encodeURIComponent(ep)}`); return response({ ok: true }); }
     if (body.action === 'push_test') { await limit(`push-test:${actor}`, 5); await sendPush(null, `${who}のスマホで通知が使えるようになりました`, 'koyomi-test'); return response({ ok: true }); }
+    if (body.action === 'shop_go') {   // "I'm off to the shops" — tells the rest of the family to add things now
+      await limit(`shop-go:${actor}`, 6);
+      const n = Number.isSafeInteger(body.count) ? Math.min(Math.max(body.count, 0), 999) : 0;
+      await sendPush(session.member, `🛒 ${who}がいまから買い物に行きます。ほしいものは今のうちにリストへ${n ? `（いま${n}品）` : ''}`, 'koyomi-shop-go');
+      return response({ ok: true });
+    }
     if (body.action === 'og_image') { await limit(`og:${actor}`, 120); return response({ image: await ogImage(httpsUrl(body.url)) }); }
 
 

@@ -539,6 +539,7 @@ a.btn{text-decoration:none;display:inline-block}
 .mc.ph.today .n{box-shadow:0 0 0 2px #fff;background:transparent}
 /* home: magazine cover when today has a photo */
 .hero .hcov{position:absolute;inset:0;z-index:0;background:center/cover no-repeat;transition:opacity .4s}
+.hero:not(.cover) .hcov{display:none}
 .hero .hcov::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,.05) 38%,rgba(0,0,0,.5) 100%)}
 .hero.cover{color:#fff;min-height:430px;display:flex;flex-direction:column}
 .hero.cover::before{opacity:0}
@@ -634,6 +635,7 @@ a.btn{text-decoration:none;display:inline-block}
 .wnote:nth-child(4n+3){--wc:#f4e6ee;transform:rotate(.4deg)}.wnote:nth-child(4n+4){--wc:#e5ecf5;transform:rotate(-.4deg)}
 .wnote b{font-size:15px;line-height:1.45;padding-right:44px}
 .wnote .nt{font-size:12px;color:#6a6a6a}
+.wnote .wwhen{align-self:flex-start;width:auto;max-width:100%;appearance:none;-webkit-appearance:none;border:0;border-radius:999px;background:rgba(255,255,255,.65);font:inherit;font-size:11.5px;font-weight:700;color:#555;padding:3px 10px}
 .wnote .by{font-size:11px;color:#7a7a7a}
 .wnote .sched{font-size:11.5px;font-weight:700;color:#3f7a66}
 .wnote .row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:auto;padding-top:4px}
@@ -669,6 +671,23 @@ a.btn{text-decoration:none;display:inline-block}
 .wknote .wbli .tx{font-size:14px}
 .wknote .chk{width:20px;height:20px;border-radius:6px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wknote{filter:brightness(.9)}}
+
+
+/* shopping */
+.freq{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.freq .fl{font-size:11.5px;color:var(--muted);font-weight:700}
+.fchip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 10px;font-size:12.5px;color:var(--fg)}
+.gobtn{display:flex;align-items:center;gap:12px;width:100%;border:0;border-radius:20px;padding:12px 16px;margin:12px 0;background:color-mix(in srgb,var(--accent) 10%,var(--paper));color:var(--fg);text-align:left;box-shadow:var(--shadow)}
+.gobtn>span:first-child{font-size:24px}
+.gobtn b{display:block;font-size:14.5px} .gobtn small{font-size:12px;color:var(--muted)}
+.gobtn:disabled{opacity:.55}
+.aisle{padding-top:10px}
+.aisle h4{margin:12px 0 0;font-size:12.5px;color:var(--muted);font-weight:700}
+.aisle h4:first-child{margin-top:0}
+.aisle .items .item:first-child{border-top:0}
+.aisle .item{padding:9px 2px}
+.aisle .qty{display:inline-block;margin-left:6px;font-family:var(--f-num);font-size:12px;color:var(--accent);font-weight:700}
+.aisle.bought{opacity:.7}
 
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
@@ -945,8 +964,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= TODO ================= -->
 <section id="pane-todo" role="tabpanel" aria-labelledby="tab-todo" hidden>
-  <div class="mhead"><h2 id="listTitle">やること</h2></div>
-  <div class="layer lseg" role="group" aria-label="切り替え"><button type="button" id="lsTodo" aria-pressed="true">やること</button><button type="button" id="lsWish" aria-pressed="false">やりたいこと</button></div>
+  <div class="mhead"><h2><span class="y" id="listSub">やること</span><span id="listTitle">Todo</span></h2></div>
+  <div class="layer lseg" role="group" aria-label="切り替え"><button type="button" id="lsTodo" aria-pressed="true">Todo</button><button type="button" id="lsWish" aria-pressed="false">Wish</button></div>
   <div id="pgTodo">
     <div class="sec" style="margin-top:14px">
       <div class="sech"><div><div class="eyebrow">This week</div><h2>今週やること</h2></div><span class="sub" id="twRange"></span></div>
@@ -956,9 +975,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <div class="card">
         <form id="todoForm" autocomplete="off" style="display:grid;grid-template-columns:1fr auto;gap:8px">
           <input style="grid-column:1/-1" type="text" id="todoInput" placeholder="やること（例：申込用紙を提出）" aria-label="やること" required>
-          <select id="todoWhen" aria-label="いつまで"><option value="week">今週中に</option><option value="date">日にちを決める</option><option value="">いつでも</option></select>
-          <button class="btn" type="submit">追加</button>
-          <input style="grid-column:1/-1" type="date" id="todoDue" aria-label="締め切り" hidden>
+          <div class="whenpick" id="todoWhen" role="radiogroup" aria-label="期限" style="grid-column:1/-1"></div>
+          <input type="date" id="todoDue" aria-label="期限の日にち" hidden>
+          <button class="btn" type="submit" style="grid-column:2">追加</button>
         </form>
       </div>
       <div class="card"><div id="todoGroups"></div><p class="empty" id="todoEmpty">やることはありません。</p></div>
@@ -984,16 +1003,19 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= SHOP ================= -->
 <section id="pane-shop" role="tabpanel" aria-labelledby="tab-shop" hidden>
-  <div class="mhead"><h2>買い物</h2></div>
+  <div class="mhead"><h2>買い物</h2><button class="tbtn" id="shopShare" type="button">LINEで送る</button></div>
   <div class="sec" style="margin-top:12px">
     <div class="card">
       <form class="addrow" id="shopForm" autocomplete="off">
-        <input type="text" id="shopInput" placeholder="買うもの（例：牛乳）" aria-label="買うもの" required>
+        <input type="text" id="shopInput" placeholder="買うもの（例：牛乳 2）" aria-label="買うもの" required>
         <button class="btn" type="submit">追加</button>
       </form>
+      <div class="freq" id="shopFreq" aria-label="よく買うもの"></div>
     </div>
-    <div class="card"><ul class="items" id="shopList"></ul><p class="empty" id="shopEmpty">買うものはありません。</p>
-      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn ghost sm" id="shopClear" type="button" hidden>買ったものを消す</button></div></div>
+    <button type="button" class="gobtn" id="shopGo"><span aria-hidden="true">🛒</span><span><b>いまから買い物に行く</b><small>家族に「ほしいものは今のうちに」と通知します</small></span></button>
+    <div id="shopAisles"></div>
+    <p class="empty card" id="shopEmpty">買うものはありません。</p>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn ghost sm" id="shopClear" type="button" hidden>買ったものを消す</button></div>
   </div>
 </section>
 
@@ -1002,7 +1024,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="mhead"><h2>その他</h2></div>
   <div class="sec" style="margin-top:12px">
     <div class="sech"><h2>やりたいこと</h2></div>
-    <div class="card"><button type="button" class="btn ghost" id="toWish" style="width:100%">やりたいことノートを開く ›</button></div>
+    <div class="card"><button type="button" class="btn ghost" id="toWish" style="width:100%">Wish（やりたいことノート）を開く ›</button></div>
   </div>
   <div class="sec">
     <div class="sech"><h2>よく使うところ</h2></div>
@@ -1046,7 +1068,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 <nav class="nav" aria-label="メニュー"><div class="in" role="tablist">
   <button role="tab" id="tab-home" aria-controls="pane-home" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z"/></svg>ホーム</button>
   <button role="tab" id="tab-cal" aria-controls="pane-cal" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>カレンダー</button>
-  <button role="tab" id="tab-todo" aria-controls="pane-todo" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>やること<span class="bd" id="todoBadge" hidden></span></button>
+  <button role="tab" id="tab-todo" aria-controls="pane-todo" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Todo<span class="bd" id="todoBadge" hidden></span></button>
   <button role="tab" id="tab-shop" aria-controls="pane-shop" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>買い物<span class="bd" id="shopBadge" hidden></span></button>
   <button role="tab" id="tab-more" aria-controls="pane-more" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg>その他</button>
 </div></nav>
@@ -1208,7 +1230,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   const eventsOn=k=>events.filter(e=>occursOn(e,k)).sort(evOrder);
   const todosOn=k=>todos.filter(t=>t.due===k);
   function dueText(t){
-    if(!t.due) return {txt:"締切なし",cls:""};
+    if(!t.due) return {txt:"期限なし",cls:""};
+    if(t.span==="week"&&!t.done){ const n0=dayDiff(todayKey,t.due); if(n0>=0) return {txt:(n0<=6?"今週中":"来週中")+"（〜"+md(t.due)+"）",cls:n0<=1?"soon-t":""}; }
     const n=dayDiff(todayKey,t.due);
     if(t.done) return {txt:md(t.due)+"まで",cls:""};
     if(n<0) return {txt:md(t.due)+"・期限切れ",cls:"late-t"};
@@ -2118,15 +2141,16 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   }
   const meNow=()=>(window.__koyomiMe?window.__koyomiMe():"papa");
   const inWeek=(t,s0)=>{const e0=addDays(s0,6);return (t.due&&t.due>=s0&&t.due<=e0)||(!t.due&&t.week===s0)};
+  const weekly=(t,s0)=>(t.span==="week"&&t.due===addDays(s0,6))||(!t.due&&t.week===s0);
   function weekNoteRows(s0,box,limit){
     const list=todos.filter(t=>inWeek(t,s0)).sort((a,b)=>(a.done-b.done)||((a.due||"9")).localeCompare(b.due||"9"));
-    list.slice(0,limit||99).forEach(t=>{ const r=el("div","wbli"+(t.done?" done":"")); const x=labelWith("tx",t,t.title); if(t.due) x.append(el("span","sb"," "+md(t.due)+"まで")); r.append(chk(t),x); x.addEventListener("click",()=>openSheet("todo",t)); box.append(r); });
+    list.slice(0,limit||99).forEach(t=>{ const r=el("div","wbli"+(t.done?" done":"")); const x=labelWith("tx",t,t.title); if(t.due&&!weekly(t,s0)) x.append(el("span","sb"," "+md(t.due)+"まで")); r.append(chk(t),x); x.addEventListener("click",()=>openSheet("todo",t)); box.append(r); });
     return list.length;
   }
   function quickAdd(box,s0,ph){
     const f=el("form","wbadd"); const i=document.createElement("input"); i.type="text"; i.placeholder=ph||"＋ 今週やることを書く"; i.setAttribute("aria-label","今週やること"); i.maxLength=80;
     const b=el("button","","追加"); b.type="submit"; f.append(i,b);
-    f.addEventListener("submit",async ev=>{ev.preventDefault();const v=i.value.trim();if(!v||!db)return;i.value="";try{await db.collection("todos").add({title:v,due:"",week:s0,who:[],memo:"",done:false,createdAt:new Date().toISOString()})}catch(e){status("追加できませんでした。",true)}});
+    f.addEventListener("submit",async ev=>{ev.preventDefault();const v=i.value.trim();if(!v||!db)return;i.value="";try{await db.collection("todos").add({title:v,due:addDays(s0,6),span:"week",who:[],memo:"",done:false,createdAt:new Date().toISOString()})}catch(e){status("追加できませんでした。",true)}});
     box.append(f);
   }
   function renderWeekBoard(){
@@ -2136,12 +2160,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     for(let i=0;i<7;i++){ const k=addDays(s0,i), dw=k2d(k).getDay();
       const d=el("div","wbd"+(k===todayKey?" today":"")+(k<todayKey?" past":"")+(dw===0?" sun":dw===6?" sat":""));
       const h=el("div","h"); h.append(DOW[dw],el("b","",k2d(k).getDate())); d.append(h);
-      todos.filter(t=>t.due===k).forEach(t=>{const b=el("button","wbt"+(t.done?" done":""),t.title);b.type="button";b.addEventListener("click",()=>openSheet("todo",t));d.append(b)});
+      todos.filter(t=>t.due===k&&!weekly(t,s0)).forEach(t=>{const b=el("button","wbt"+(t.done?" done":""),t.title);b.type="button";b.addEventListener("click",()=>openSheet("todo",t));d.append(b)});
       days.append(d); }
     box.append(days);
     const nt=el("div","wbnote"); nt.append(el("h4","","今週中に"));
-    const n=todos.filter(t=>!t.due&&t.week===s0).length; 
-    todos.filter(t=>!t.due&&t.week===s0).sort((a,b)=>a.done-b.done).forEach(t=>{ const r=el("div","wbli"+(t.done?" done":"")); r.append(chk(t),labelWith("tx",t,t.title)); r.querySelector(".tx").addEventListener("click",()=>openSheet("todo",t)); nt.append(r); });
+    const n=todos.filter(t=>weekly(t,s0)).length; 
+    todos.filter(t=>weekly(t,s0)).sort((a,b)=>a.done-b.done).forEach(t=>{ const r=el("div","wbli"+(t.done?" done":"")); r.append(chk(t),labelWith("tx",t,t.title)); r.querySelector(".tx").addEventListener("click",()=>openSheet("todo",t)); nt.append(r); });
     if(!n) nt.append(el("p","empty","締め切りのない「今週中に」はここに。"));
     quickAdd(nt,s0); box.append(nt);
   }
@@ -2149,48 +2173,112 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     renderWeekBoard();
     const s0=weekStart(todayKey), e0=addDays(s0,6);
     const open=todos.filter(t=>!t.done&&!inWeek(t,s0)).sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999"));
-    const G=[["すぎているもの",t=>t.due&&t.due<s0],["来週から",t=>t.due&&t.due>e0],["来週以降の今週分",t=>!t.due&&t.week&&t.week!==s0],["いつでも",t=>!t.due&&!t.week]];
+    const G=[["すぎているもの",t=>t.due&&t.due<s0],["来週から",t=>t.due&&t.due>e0],["来週以降の今週分",t=>!t.due&&t.week&&t.week!==s0],["期限なし",t=>!t.due&&!t.week]];
     const box=$("todoGroups"); box.replaceChildren();
     G.forEach(([n,f])=>{const it=open.filter(f);if(!it.length)return;box.append(el("div","tgh",n==="来週以降の今週分"?"前に書いた「今週中に」":n));const ul=el("ul","items");it.forEach(t=>ul.append(todoRow(t)));box.append(ul)});
     $("todoEmpty").hidden=open.length>0;
     const done=todos.filter(t=>t.done&&!inWeek(t,s0)); $("todoDoneBox").hidden=!done.length; $("todoDoneN").textContent=done.length;
     const du=$("todoDone"); du.replaceChildren(); done.forEach(t=>du.append(todoRow(t)));
   }
-  $("todoWhen").addEventListener("change",()=>{ $("todoDue").hidden=$("todoWhen").value!=="date"; if(!$("todoDue").hidden&&!$("todoDue").value) $("todoDue").value=todayKey; });
-  function setList(w){ $("lsTodo").setAttribute("aria-pressed",w==="todo"?"true":"false"); $("lsWish").setAttribute("aria-pressed",w==="wish"?"true":"false"); $("pgTodo").hidden=w!=="todo"; $("pgWish").hidden=w!=="wish"; $("listTitle").textContent=w==="todo"?"やること":"やりたいこと"; try{localStorage.setItem("koyomi-list",w)}catch(e){} }
+  (function(){ const box=$("todoWhen");
+    [["today","今日"],["tmr","明日"],["week","今週中"],["next","来週中"],["date","日付"],["none","なし"]].forEach(([v,l],i)=>{const lab=el("label");const inp=document.createElement("input");inp.type="radio";inp.name="twhen";inp.value=v;if(v==="week")inp.checked=true;lab.append(inp,l);box.append(lab)});
+    box.addEventListener("change",()=>{ const v=(box.querySelector("input:checked")||{}).value; $("todoDue").hidden=v!=="date"; if(v==="date"&&!$("todoDue").value) $("todoDue").value=addDays(todayKey,7); }); })();
+  function todoDeadline(){ const v=($("todoWhen").querySelector("input:checked")||{}).value, s0=weekStart(todayKey);
+    if(v==="today") return {due:todayKey}; if(v==="tmr") return {due:tmrKey};
+    if(v==="week") return {due:addDays(s0,6),span:"week"}; if(v==="next") return {due:addDays(s0,13),span:"week"};
+    if(v==="date") return {due:$("todoDue").value||""}; return {due:""}; }
+  function setList(w){ $("lsTodo").setAttribute("aria-pressed",w==="todo"?"true":"false"); $("lsWish").setAttribute("aria-pressed",w==="wish"?"true":"false"); $("pgTodo").hidden=w!=="todo"; $("pgWish").hidden=w!=="wish"; $("listTitle").textContent=w==="todo"?"Todo":"Wish"; $("listSub").textContent=w==="todo"?"やること":"やりたいこと"; try{localStorage.setItem("koyomi-list",w)}catch(e){} }
   $("lsTodo").addEventListener("click",()=>setList("todo")); $("lsWish").addEventListener("click",()=>setList("wish"));
   try{ if(localStorage.getItem("koyomi-list")==="wish") setList("wish"); }catch(e){}
   $("toWish").addEventListener("click",()=>{ selectTab("todo"); setList("wish"); });
   $("todoForm").addEventListener("submit",async ev=>{ev.preventDefault();const v=$("todoInput").value.trim();if(!v||!db)return;
-    const wh=$("todoWhen").value, due=wh==="date"?($("todoDue").value||""):"", week=wh==="week"?weekStart(todayKey):"";
-    try{await db.collection("todos").add({title:v,due,week,who:[],memo:"",done:false,createdAt:new Date().toISOString()});$("todoInput").value="";status("やることを追加しました")}catch(e){status("追加できませんでした。",true)}});
+    const dl=todoDeadline();
+    try{await db.collection("todos").add(Object.assign({title:v,due:"",span:"",who:[],memo:"",done:false,createdAt:new Date().toISOString()},dl));$("todoInput").value="";status("やることを追加しました")}catch(e){status("追加できませんでした。",true)}});
 
   /* ---------- shop ---------- */
+  // aisles, so the list reads in the order you walk the shop
+  const AISLES=[
+    ["veg","🥬 野菜・くだもの",/(キャベツ|レタス|白菜|ねぎ|ネギ|玉ねぎ|たまねぎ|にんじん|人参|じゃがいも|ジャガイモ|さつまいも|かぼちゃ|トマト|きゅうり|なす|ナス|ピーマン|ほうれん草|小松菜|ブロッコリー|もやし|大根|ごぼう|しめじ|えのき|しいたけ|まいたけ|きのこ|にんにく|しょうが|生姜|大葉|ねぎ|豆苗|アボカド|バナナ|りんご|みかん|いちご|ぶどう|キウイ|レモン|梨|柿|果物|野菜|サラダ)/],
+    ["meat","🍖 お肉・お魚",/(肉|豚|牛|鶏|とり|ひき|ミンチ|ベーコン|ハム|ウインナー|ソーセージ|魚|鮭|さけ|サーモン|さば|サバ|ぶり|まぐろ|刺身|えび|エビ|いか|たこ|しらす|ちくわ|かまぼこ)/],
+    ["dairy","🥛 たまご・乳製品・豆腐",/(卵|たまご|玉子|牛乳|ミルク|ヨーグルト|チーズ|バター|生クリーム|豆腐|とうふ|納豆|厚揚げ|油揚げ|豆乳)/],
+    ["staple","🍞 パン・お米・麺",/(パン|食パン|米|お米|ごはん|パックご飯|うどん|そば|パスタ|スパゲ|ラーメン|焼きそば|麺|シリアル|もち)/],
+    ["season","🧂 調味料・乾物",/(醤油|しょうゆ|味噌|みそ|砂糖|塩|酢|みりん|酒|油|オイル|マヨ|ケチャップ|ソース|だし|コンソメ|カレー|ルー|小麦粉|片栗粉|パン粉|ふりかけ|のり|海苔|ごま|ドレッシング|ツナ|缶)/],
+    ["frozen","🧊 冷凍・お惣菜",/(冷凍|アイス|餃子|ぎょうざ|からあげ|唐揚げ|コロッケ|惣菜|お弁当)/],
+    ["snack","🍪 おやつ・飲みもの",/(お菓子|おかし|チョコ|クッキー|せんべい|グミ|ジュース|お茶|麦茶|水|炭酸|コーヒー|紅茶|ビール|ワイン)/],
+    ["kids","🧸 ゆづのもの",/(おむつ|オムツ|おしりふき|子ども|こども|キッズ|幼児|ベビー|園)/],
+    ["daily","🧻 日用品・薬",/(ティッシュ|トイレット|ペーパー|キッチンペーパー|ラップ|アルミ|ホイル|ゴミ袋|ごみ袋|洗剤|柔軟剤|シャンプー|リンス|ボディ|石けん|せっけん|歯ブラシ|歯磨き|マスク|電池|薬|絆創膏|ばんそうこう|綿棒|スポンジ|ハンドソープ)/],
+  ];
+  const AISLE_CHECK=["dairy","kids","frozen","snack","season","staple","meat","veg","daily"];   // 牛乳 is dairy, not meat
+  function aisleOf(name){ for(const k of AISLE_CHECK){ const a=AISLES.find(x=>x[0]===k); if(a&&a[2].test(name)) return k; } return "other"; }
+  function splitQty(v){ const m=String(v).trim().match(/^(.*?)[\s　]*(?:[x×✕*]\s*)?(\d{1,3})(個|本|袋|パック|枚|缶|箱|玉)?$/); return m&&m[1]?{name:m[1].trim(),qty:m[2]+(m[3]||"")}:{name:String(v).trim(),qty:""}; }
+  let freqRec=null;   // shared "よく買うもの" counts live in one small note record
+  function bumpFreq(names){ if(!db||!names.length) return; const cur=Object.assign({},(freqRec&&freqRec.counts)||{}); names.forEach(n=>{ cur[n]=Math.min(999,(cur[n]||0)+1); });
+    const top=Object.entries(cur).sort((a,b)=>b[1]-a[1]).slice(0,40); const counts=Object.fromEntries(top);
+    const ref=db.collection("notes").doc("note-shopfreq"); (freqRec?ref.update({counts}):ref.set({key:"shopfreq",counts})).catch(()=>{}); }
   function renderShop(){
-    const ul=$("shopList"); ul.replaceChildren();
-    [...shop].sort((a,b)=>(a.done-b.done)||String(a.createdAt).localeCompare(String(b.createdAt))).forEach(s=>{
-      const li=el("li","item"+(s.done?" done":"")); const c=el("button","chk"+(s.done?" on":""),s.done?"✓":""); c.type="button"; c.setAttribute("aria-label",(s.done?"未購入に戻す：":"買った：")+s.name);
-      c.addEventListener("click",async()=>{c.disabled=true;try{await db.collection("shopping").doc(s.id).update({done:!s.done})}catch(e){status("更新できませんでした。",true)}c.disabled=false});
-      li.append(c,el("span","tx",s.name),armBtn("消す",()=>db.collection("shopping").doc(s.id).delete())); ul.append(li)});
-    $("shopEmpty").hidden=shop.length>0; $("shopClear").hidden=!shop.some(s=>s.done);
+    const box=$("shopAisles"); box.replaceChildren();
+    const order=[...AISLES.map(a=>a[0]),"other"], label=Object.fromEntries([...AISLES.map(a=>[a[0],a[1]]),["other","🛍 そのほか"]]);
+    const left=shop.filter(s=>!s.done);
+    const card=el("div","card aisle");
+    order.forEach(key=>{
+      const list=left.filter(s=>aisleOf(s.name)===key).sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
+      if(!list.length) return;
+      card.append(el("h4","",label[key]));
+      const ul=el("ul","items"); list.forEach(s=>ul.append(shopRow(s))); card.append(ul);
+    });
+    if(card.children.length) box.append(card);
+    const done=shop.filter(s=>s.done);
+    if(done.length){ const c=el("div","card aisle bought"); c.append(el("h4","","✓ カゴに入れた（"+done.length+"）")); const ul=el("ul","items"); done.forEach(s=>ul.append(shopRow(s))); c.append(ul); box.append(c); }
+    $("shopEmpty").hidden=shop.length>0; $("shopClear").hidden=!done.length;
+    // frequent items, one tap to add again
+    const fr=$("shopFreq"); fr.replaceChildren(); const have=new Set(left.map(s=>s.name));
+    const counts=(freqRec&&freqRec.counts)||{}; const top=Object.entries(counts).filter(([n])=>!have.has(n)).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    if(top.length){ fr.append(el("span","fl","よく買う：")); top.forEach(([n])=>{ const b=el("button","fchip","＋"+n); b.type="button"; b.addEventListener("click",()=>addShop(n)); fr.append(b); }); }
+    fr.hidden=!top.length;
+    $("shopGo").querySelector("small").textContent=left.length?"家族に通知します・いま"+left.length+"品":"家族に「ほしいものは今のうちに」と通知します";
   }
-  $("shopForm").addEventListener("submit",async ev=>{ev.preventDefault();const v=$("shopInput").value.trim();if(!v||!db)return;
-    try{await db.collection("shopping").add({name:v,done:false,createdAt:new Date().toISOString()});$("shopInput").value=""}catch(e){status("追加できませんでした。",true)}});
-  $("shopClear").addEventListener("click",async()=>{try{for(const s of shop.filter(s=>s.done))await db.collection("shopping").doc(s.id).delete();status("買ったものを消しました")}catch(e){status("一部消せませんでした。",true)}});
+  function shopRow(s){
+    const li=el("li","item"+(s.done?" done":"")); const c=el("button","chk"+(s.done?" on":""),s.done?"✓":""); c.type="button"; c.setAttribute("aria-label",(s.done?"カゴから戻す：":"カゴに入れた：")+s.name);
+    c.addEventListener("click",async()=>{c.disabled=true;try{await db.collection("shopping").doc(s.id).update({done:!s.done})}catch(e){status("更新できませんでした。",true)}c.disabled=false});
+    const tx=el("span","tx",s.name); if(s.qty) tx.append(el("span","qty","×"+s.qty)); if(s.note) tx.append(el("span","sb",s.note));
+    li.append(c,tx,armBtn("消す",()=>db.collection("shopping").doc(s.id).delete())); return li;
+  }
+  async function addShop(v){ if(!db) return; const {name,qty}=splitQty(v); if(!name) return;
+    const dup=shop.find(s=>!s.done&&s.name===name); if(dup){ status("「"+name+"」はもう入っています"); return; }
+    try{ await db.collection("shopping").add({name,qty,aisle:aisleOf(name),done:false,createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } }
+  $("shopForm").addEventListener("submit",async ev=>{ev.preventDefault();const v=$("shopInput").value.trim();if(!v)return;$("shopInput").value="";
+    for(const part of v.split(/[、,，]/).map(x=>x.trim()).filter(Boolean)) await addShop(part); });
+  $("shopClear").addEventListener("click",async()=>{ const d=shop.filter(s=>s.done); bumpFreq(d.map(s=>s.name)); try{for(const s of d)await db.collection("shopping").doc(s.id).delete();status("おつかれさま！買ったものを片づけました")}catch(e){status("一部消せませんでした。",true)}});
+  $("shopGo").addEventListener("click",async()=>{ const b=$("shopGo"); b.disabled=true; try{ await window.__koyomiApi("shop_go",{count:shop.filter(s=>!s.done).length}); status("家族に知らせました。いってらっしゃい！"); }catch(e){ status(e&&e.status===429?"さっき知らせたばかりです":"知らせられませんでした。",true); } setTimeout(()=>b.disabled=false,4000); });
+  $("shopShare").addEventListener("click",async()=>{
+    const left=shop.filter(s=>!s.done); if(!left.length){ status("買うものはありません"); return; }
+    const lines=["🛒 買い物リスト"]; const order=[...AISLES.map(a=>a[0]),"other"];
+    order.forEach(k=>{ const l=left.filter(s=>aisleOf(s.name)===k); if(l.length) l.forEach(s=>lines.push("・"+s.name+(s.qty?" ×"+s.qty:""))); });
+    const text=lines.join("\n");
+    try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+    try{ await navigator.clipboard.writeText(text); status("コピーしました。LINEに貼りつけてください"); }catch(e){ location.href="https://line.me/R/msg/text/?"+encodeURIComponent(text); }
+  });
 
   /* ---------- more ---------- */
   /* ---------- wishes: a family notebook, never a task list ---------- */
   const wishYear=()=>todayKey.slice(0,4), wishMonth=()=>todayKey.slice(0,7);
-  function wishBucket(w){ const v=String(w.when||""); if(/^\d{4}-\d{2}$/.test(v)) return v>=wishMonth()?(v===wishMonth()?"month":"later"):"year"; if(/^\d{4}$/.test(v)) return v>=wishYear()?"year":"someday"; return "someday"; }
+  const nextMonth=()=>{const d=k2d(todayKey);return ymd(new Date(d.getFullYear(),d.getMonth()+1,1)).slice(0,7)};
+  const nextYear=()=>String(+wishYear()+1);
+  function wishBucket(w){ const v=String(w.when||"");
+    if(/^\d{4}-\d{2}$/.test(v)){ if(v===wishMonth()) return "month"; if(v===nextMonth()) return "next"; if(v<wishMonth()) return "year"; return v.slice(0,4)===wishYear()?"year":"nexty"; }
+    if(/^\d{4}$/.test(v)){ if(v===wishYear()) return "year"; if(v>wishYear()) return "nexty"; }
+    return "someday"; }
+  const WHEN_OPTS=()=>[["m",(+todayKey.slice(5,7))+"月中",wishMonth()],["n","来月まで",nextMonth()],["y","今年中",wishYear()],["ny","来年",nextYear()],["s","いつか",""]];
+  const whenCode=w=>{const b=wishBucket(w);return b==="month"?"m":b==="next"?"n":b==="year"?"y":b==="nexty"?"ny":"s"};
   function wishSched(w){ const e=events.filter(x=>x.wishId===w.id&&x.date>=todayKey).sort((a,b)=>a.date.localeCompare(b.date))[0]; return e||null; }
   (function(){ const box=$("wishWhen"); const mm=+todayKey.slice(5,7);
-    [["m",mm+"月に"],["y",wishYear()+"年に"],["s","いつか"]].forEach(([v,l],i)=>{const lab=el("label");const inp=document.createElement("input");inp.type="radio";inp.name="wwhen";inp.value=v;if(i===1)inp.checked=true;lab.append(inp,l);box.append(lab)}); })();
+    WHEN_OPTS().forEach(([v,l])=>{const lab=el("label");const inp=document.createElement("input");inp.type="radio";inp.name="wwhen";inp.value=v;if(v==="y")inp.checked=true;lab.append(inp,l);box.append(lab)}); })();
   const whoName=m=>m==="mama"?"ママ":m==="papa"?"パパ":"";
   function planWish(w){ openSheet("ev",{title:w.title,note:w.note||"",cat:"outing",who:["family"]}); window.__wishLink=w.id; }
   function renderWish(){
     const board=$("wishBoard"); board.replaceChildren();
     const open=wishes.filter(w=>!w.done);
-    const groups=[["month",(+todayKey.slice(5,7))+"月にやりたい","this month"],["year",wishYear()+"年にやりたい","this year"],["later","来月からのお楽しみ","coming up"],["someday","いつかやりたい","someday"]];
+    const groups=[["month",(+todayKey.slice(5,7))+"月中にやりたい","this month"],["next","来月までに","next month"],["year","今年中に","this year"],["nexty","来年やりたい","next year"],["someday","いつかやりたい","someday"]];
     groups.forEach(([key,label,eng])=>{
       const list=open.filter(w=>wishBucket(w)===key).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
       if(!list.length) return;
@@ -2198,6 +2286,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       const grid=el("div","wnotes");
       list.forEach(w=>{
         const n=el("article","wnote"); n.append(el("b","",w.title)); if(w.note) n.append(el("span","nt",w.note));
+        const ws=document.createElement("select"); ws.className="wwhen"; ws.setAttribute("aria-label","いつまでに");
+        WHEN_OPTS().forEach(([v,l,val])=>{const o=document.createElement("option");o.value=val;o.textContent="⏳ "+l;ws.append(o)});
+        ws.value=(WHEN_OPTS().find(o=>o[0]===whenCode(w))||[])[2]??""; ws.addEventListener("change",()=>db.collection("wishes").doc(w.id).update({when:ws.value})); n.append(ws);
         const sc=wishSched(w); if(sc) n.append(el("span","sched","📅 "+md(sc.date)+"にやる予定"));
         const likes=Array.isArray(w.likes)?w.likes:[]; const by=whoName(w.by);
         const line=[by?by+"の案":"", likes.filter(x=>x!==w.by).map(whoName).filter(Boolean).map(x=>x+"も♡").join(" ")].filter(Boolean).join("・"); if(line) n.append(el("span","by",line));
@@ -2227,7 +2318,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     }
   }
   $("wishForm").addEventListener("submit",async ev=>{ev.preventDefault();const v=$("wishInput").value.trim();if(!v||!db)return;
-    const sel=($("wishWhen").querySelector("input:checked")||{}).value; const when=sel==="m"?wishMonth():sel==="y"?wishYear():"";
+    const sel=($("wishWhen").querySelector("input:checked")||{}).value; const when=(WHEN_OPTS().find(o=>o[0]===sel)||["","",""])[2];
     try{await db.collection("wishes").add({title:v,note:$("wishNote").value.trim(),when,by:meNow(),likes:[],done:false,createdAt:new Date().toISOString()});$("wishInput").value="";$("wishNote").value="";status("ためました")}catch(e){status("追加できませんでした。",true)}});
   // free weekend / holiday → gently suggest one wish (never more than one, never a reminder)
   function isFreeDay(k){
@@ -2239,7 +2330,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     if(k<todayKey||dayDiff(todayKey,k)>62||!isFreeDay(k)) return null;
     const mk=k.slice(0,7);
     const open=wishes.filter(w=>!w.done&&!wishSched(w));
-    const pool=[...open.filter(w=>w.when===mk),...open.filter(w=>w.when&&w.when!==mk&&(w.when===k.slice(0,4)||wishBucket(w)==="year")),...open.filter(w=>!w.when)];
+    const pool=[...open.filter(w=>w.when===mk),...open.filter(w=>w.when&&w.when!==mk&&w.when<=k.slice(0,7)),...open.filter(w=>w.when===k.slice(0,4)),...open.filter(w=>!w.when||w.when>k.slice(0,7))];
     const uniq=[...new Set(pool)]; if(!uniq.length) return null;
     const h=[...k].reduce((a,c)=>a*31+c.charCodeAt(0)>>>0,7);
     const first=Math.max(1,open.filter(w=>w.when===mk).length||open.filter(w=>w.when&&w.when!==mk).length||uniq.length);   // this month's wishes first
@@ -2352,7 +2443,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     return j;
   }
   window.__koyomiApi=(a,d)=>api(a,d);
-  const KIND={photos:"photo",events:"event",todos:"todo",shopping:"shop",wishes:"wish",garbage:"garbage",places:"place",outings:"outing"};
+  const KIND={notes:"note",photos:"photo",events:"event",todos:"todo",shopping:"shop",wishes:"wish",garbage:"garbage",places:"place",outings:"outing"};
   const recs=new Map(); const L={}; const DL={};
   const snapOf=c=>({docs:[...recs.values()].filter(r=>r.kind===KIND[c]).map(r=>({id:r.id,data:()=>r.payload}))});
   const infoOf=k=>{const r=[...recs.values()].find(x=>x.kind==="info"&&x.payload&&x.payload.key===k);return {exists:!!r,data:()=>r?r.payload:undefined}};
@@ -2453,6 +2544,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       started=true;
       db.collection("events").onSnapshot(s=>{events=rows(s);renderHome();renderCal();renderWish()});
       db.collection("todos").onSnapshot(s=>{todos=rows(s);renderAll()});
+      db.collection("notes").onSnapshot(s=>{const r=rows(s).find(x=>x.key==="shopfreq"); freqRec=r||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
