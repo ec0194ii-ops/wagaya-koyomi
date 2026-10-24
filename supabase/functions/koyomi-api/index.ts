@@ -280,11 +280,37 @@ async function morningText() {
   return parts.join('\n');
 }
 
+
+/* ---------- memories: one photo per day in a private bucket; only this function can read or write it ---------- */
+const BUCKET = 'koyomi-photos';
+const PHOTO_PATH = /^\d{4}-\d{2}-\d{2}\/[0-9a-f]{24}\.jpg$/;
+async function storage(method: string, path: string, body?: BodyInit, type = 'application/json', extra: Record<string, string> = {}) {
+  const r = await fetch(`${BASE}/storage/v1/${path}`, { method, headers: { apikey: ADMIN, Authorization: `Bearer ${ADMIN}`, 'Content-Type': type, ...extra }, body });
+  if (!r.ok) fail(503, 'photo_storage_unavailable');
+  return r;
+}
+function photoDate(x: unknown) {
+  const d = String(x || ''); if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || isNaN(Date.parse(d + 'T00:00:00Z'))) fail(400, 'invalid_date');
+  if (d > jstKey(1)) fail(400, 'future_date');
+  return d;
+}
+async function photoRow(date: string) { const [r] = await db('koyomi_items', 'GET', `id=eq.photo-${date}`); return r || null; }
+async function putPhotoRow(date: string, p: Record<string, unknown>, member: string, existing: any) {
+  const now = new Date().toISOString();
+  if (!existing) { const [r] = await db('koyomi_items', 'POST', '', { id: `photo-${date}`, kind: 'photo', payload: p, updated_by: member }); return r; }
+  const [r] = await db('koyomi_items', 'PATCH', `id=eq.photo-${date}&version=eq.${existing.version}`, { payload: p, version: existing.version + 1, updated_by: member, updated_at: now, deleted_at: null });
+  if (!r) fail(409, 'conflict');
+  return r;
+}
+async function removeObject(path: unknown) { if (typeof path === 'string' && PHOTO_PATH.test(path)) { try { await storage('DELETE', `object/${BUCKET}`, JSON.stringify({ prefixes: [path] })); } catch { /* leftover file is harmless; it is private */ } } }
+
 async function readBody(req: Request) {
   const reader = req.body?.getReader(); if (!reader) fail(400, 'body_required');
   const chunks: Uint8Array[] = []; let size = 0;
-  while (true) { const { done, value } = await reader!.read(); if (done) break; size += value.length; if (size > 200000) { await reader!.cancel(); fail(413, 'body_too_large'); } chunks.push(value); }
-  try { return JSON.parse(new TextDecoder().decode(cat(...chunks))); } catch { fail(400, 'invalid_json'); }
+  while (true) { const { done, value } = await reader!.read(); if (done) break; size += value.length; if (size > 1500000) { await reader!.cancel(); fail(413, 'body_too_large'); } chunks.push(value); }
+  let out: any; try { out = JSON.parse(new TextDecoder().decode(cat(...chunks))); } catch { fail(400, 'invalid_json'); }
+  if (size > 200000 && out?.action !== 'photo_upload') fail(413, 'body_too_large');   // only photos may be big
+  return out;
 }
 
 async function ogImage(target: string) {
@@ -382,6 +408,50 @@ Deno.serve(async req => {
     if (body.action === 'push_unsubscribe') { const ep = text(body.endpoint, 1000, true); await db('koyomi_push_subs', 'DELETE', `endpoint=eq.${encodeURIComponent(ep)}`); return response({ ok: true }); }
     if (body.action === 'push_test') { await limit(`push-test:${actor}`, 5); await sendPush(null, `${who}のスマホで通知が使えるようになりました`, 'koyomi-test'); return response({ ok: true }); }
     if (body.action === 'og_image') { await limit(`og:${actor}`, 120); return response({ image: await ogImage(httpsUrl(body.url)) }); }
+
+
+    if (body.action === 'photo_urls') {
+      const paths = Array.isArray(body.paths) ? body.paths.filter((x: unknown) => typeof x === 'string' && PHOTO_PATH.test(x as string)).slice(0, 80) : [];
+      if (!paths.length) return response({ urls: {} });
+      await limit(`photo-url:${actor}`, 300);
+      const r = await storage('POST', `object/sign/${BUCKET}`, JSON.stringify({ expiresIn: 600, paths }));
+      const list = await r.json(); const urls: Record<string, string> = {};
+      for (const x of list) if (x && x.signedURL && !x.error) urls[x.path] = `${BASE}/storage/v1${x.signedURL}`;
+      return response({ urls, expiresIn: 600 });
+    }
+    if (body.action === 'photo_upload') {
+      await limit(`photo:${actor}`, 40);
+      const date = photoDate(body.date);
+      const caption = text(body.caption ?? '', 120).trim();
+      const b64 = text(body.image, 1450000, true);
+      let bytes: Uint8Array; try { bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0)); } catch { fail(400, 'invalid_image'); }
+      if (bytes!.length > 1000000) fail(413, 'image_too_large');
+      if (!(bytes![0] === 0xff && bytes![1] === 0xd8 && bytes![2] === 0xff)) fail(400, 'jpeg_required');
+      const path = `${date}/${hex(crypto.getRandomValues(new Uint8Array(12)))}.jpg`;
+      await storage('POST', `object/${BUCKET}/${path}`, bytes! as any, 'image/jpeg', { 'x-upsert': 'false', 'cache-control': 'private, max-age=600' });
+      const old = await photoRow(date);
+      const w = Number.isSafeInteger(body.w) ? Math.min(body.w, 4000) : 0, h = Number.isSafeInteger(body.h) ? Math.min(body.h, 4000) : 0;
+      let r; try { r = await putPhotoRow(date, { date, caption, path, by: session.member, w, h, at: new Date().toISOString() }, session.member, old); }
+      catch (e) { await removeObject(path); throw e; }
+      if (old && !old.deleted_at) await removeObject(old.payload?.path);
+      await later(sendPush(session.member, `${who}が${md(date)}の思い出写真を${old && !old.deleted_at ? '変えました' : 'のせました'}${caption ? `「${caption.slice(0, 30)}」` : ''}`, 'koyomi-photo'));
+      return response({ record: r });
+    }
+    if (body.action === 'photo_caption') {
+      await limit(`write:${actor}`, 120, 60000);
+      const date = photoDate(body.date); const caption = text(body.caption ?? '', 120).trim();
+      const old = await photoRow(date); if (!old || old.deleted_at) fail(404, 'not_found');
+      return response({ record: await putPhotoRow(date, { ...old.payload, caption }, session.member, old) });
+    }
+    if (body.action === 'photo_delete') {
+      await limit(`write:${actor}`, 120, 60000);
+      const date = photoDate(body.date);
+      const old = await photoRow(date); if (!old || old.deleted_at) return response({ ok: true });
+      const [r] = await db('koyomi_items', 'PATCH', `id=eq.photo-${date}&version=eq.${old.version}`, { version: old.version + 1, updated_by: session.member, updated_at: new Date().toISOString(), deleted_at: new Date().toISOString(), payload: { date, caption: '', path: '' } });
+      if (!r) fail(409, 'conflict');
+      await removeObject(old.payload?.path);
+      return response({ record: r });
+    }
 
     await limit(`write:${actor}`, 120, 60000);
     if (body.action !== 'save') fail(400, 'invalid_action');

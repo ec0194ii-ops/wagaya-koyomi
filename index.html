@@ -178,6 +178,7 @@ h1,h2,h3,h4{margin:0;text-wrap:balance}
 .cc.sp.en{margin-right:2px;border-top-right-radius:5px;border-bottom-right-radius:5px}
 .cc.sp.st.en{border-radius:5px}
 .cc.sp.cont{color:transparent}
+.cc.sp.cont .ci{visibility:hidden}
 .cc.rep{background:transparent;color:color-mix(in srgb,var(--c) 40%,var(--fg));box-shadow:inset 0 0 0 1px var(--s)}
 .cc.todo{background:transparent;box-shadow:inset 0 0 0 1px var(--faint)}
 .cc.todo.done{color:var(--muted);text-decoration:line-through}
@@ -496,6 +497,68 @@ a.btn{text-decoration:none;display:inline-block}
 .day .wxl b{color:var(--hot);font-weight:600}
 .day .wxl .wet{color:var(--cold)}
 
+
+/* category line icons */
+.ci{display:inline-grid;place-items:center;width:1.25em;height:1.25em;border-radius:.42em;margin-right:.3em;vertical-align:-.22em;flex:none;color:var(--ic);background:color-mix(in srgb,var(--ic) 14%,transparent)}
+.ci svg{width:78%;height:78%}
+.ci-work{--ic:#56708a}.ci-school{--ic:#b9773a}.ci-health{--ic:#c0545e}.ci-lesson{--ic:#8869b8}
+.ci-outing{--ic:#3f8a77}.ci-event{--ic:#c56a90}.ci-home{--ic:#74884d}.ci-paper{--ic:#6b7280}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ci{background:color-mix(in srgb,var(--ic) 26%,transparent);color:color-mix(in srgb,var(--ic) 60%,#fff)}}
+.cc .ci{width:1.15em;height:1.15em;margin-right:.18em;border-radius:.35em;vertical-align:-.2em}
+.catpick label .ci{margin-right:.35em}
+.lgi .ci{margin-right:2px}
+
+
+/* memories */
+.layer{display:inline-grid;grid-template-columns:1fr 1fr;gap:2px;background:color-mix(in srgb,var(--sunk) 80%,var(--paper));border-radius:999px;padding:3px;margin-top:12px}
+.layer button{border:0;background:transparent;border-radius:999px;padding:6px 16px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.layer button[aria-pressed="true"]{background:var(--paper);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.mgrid.photo .day{min-height:0;aspect-ratio:3/4;padding:3px;border-top:1px solid var(--line)}
+.mgrid.photo .day .pic{position:absolute;inset:3px;border-radius:10px;background:var(--sunk) center/cover no-repeat;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.mgrid.photo .day .dh{position:relative;z-index:1;justify-content:flex-start;padding-left:2px}
+.mgrid.photo .day.has .dn{background:rgba(255,255,255,.9);color:#222!important;width:20px;height:20px;font-size:11px}
+.mgrid.photo .day.today.has .dn{background:#222;color:#fff!important}
+.mgrid.photo .day:not(.has) .dh{justify-content:center}
+.mgrid.photo .day.future{opacity:.35}
+.mgrid.photo .day .add{position:absolute;inset:auto 0 8px;text-align:center;font-size:14px;opacity:.35}
+.mem{position:relative;border-radius:24px;overflow:hidden;background:var(--paper);box-shadow:var(--shadow);margin:0 0 12px}
+.mem .img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--sunk)}
+.mem .cap{padding:12px 16px 14px;display:flex;flex-direction:column;gap:4px}
+.mem .cap b{font-family:var(--f-display);font-size:17px}
+.mem .cap .none{color:var(--muted);font-weight:400;font-size:14px}
+.mem .cap span{font-size:12px;color:var(--muted)}
+.mem .acts{position:absolute;top:10px;right:10px;display:flex;gap:6px}
+.mem .acts button{border:0;background:rgba(255,255,255,.92);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;color:#222}
+.mem .tag{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.92);color:#222;border-radius:999px;padding:4px 10px;font-family:var(--f-latin);font-style:italic;font-size:13px}
+.memadd{display:flex;align-items:center;gap:12px;width:100%;border:1.5px dashed color-mix(in srgb,var(--accent) 40%,var(--line));background:transparent;border-radius:20px;padding:14px 16px;margin-bottom:12px;text-align:left;color:var(--fg)}
+.memadd>span:first-child{font-size:24px}
+.memadd small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.memprev{width:100%;max-height:46vh;object-fit:contain;border-radius:18px;background:var(--sunk)}
+.mc.ph .n{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.mc.ph{background-size:cover;background-position:center;opacity:1!important}
+.mc.ph.today .n{box-shadow:0 0 0 2px #fff;background:transparent}
+/* home: magazine cover when today has a photo */
+.hero .hcov{position:absolute;inset:0;z-index:0;background:center/cover no-repeat;transition:opacity .4s}
+.hero .hcov::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,.05) 38%,rgba(0,0,0,.5) 100%)}
+.hero.cover{color:#fff;min-height:430px;display:flex;flex-direction:column}
+.hero.cover::before{opacity:0}
+.hero.cover .brand,.hero.cover .brand b,.hero.cover .hello,.hero.cover .hello b,.hero.cover .datebig .d,.hero.cover .meta *,.hero.cover .hwx *{color:#fff!important;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.hero.cover .hello{margin-top:auto}
+.hero .hcap{display:none}
+.hero.cover .hcap{display:block;font-family:var(--f-latin);font-style:italic;font-size:14px;opacity:.95;margin-top:6px;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+/* home: memories strip */
+.mstrip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 6px;scroll-snap-type:x proximity}
+.mstrip::-webkit-scrollbar{display:none}
+.mtile{flex:none;width:118px;scroll-snap-align:start;border:0;padding:0;background:transparent;text-align:left;color:var(--fg)}
+.mtile .im{display:block;width:118px;height:150px;border-radius:18px;background:var(--sunk) center/cover no-repeat;box-shadow:var(--shadow)}
+.mtile b{display:block;font-family:var(--f-latin);font-weight:400;font-size:13px;margin-top:6px}
+.mtile span{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtile.add .im{display:grid;place-items:center;background:transparent;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:none;font-size:26px;color:var(--accent)}
+.onthis{display:flex;gap:14px;align-items:center;border:0;width:100%;text-align:left;padding:10px;border-radius:22px;background:var(--paper);box-shadow:var(--shadow);margin-bottom:12px;color:var(--fg)}
+.onthis .im{width:84px;height:84px;border-radius:16px;background:var(--sunk) center/cover no-repeat;flex:none}
+.onthis small{font-family:var(--f-latin);font-style:italic;color:var(--accent);font-size:13px}
+.onthis b{display:block;font-size:15px;margin-top:2px}
+
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -667,7 +730,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= HOME ================= -->
 <section id="pane-home" role="tabpanel" aria-labelledby="tab-home">
-  <header class="hero">
+  <header class="hero" id="hero"><div class="hcov" id="hCov" aria-hidden="true"></div>
     <div class="hrow">
       <div class="brand">パパ・ママ・ゆづの <b>わが家のこよみ</b></div>
       <div class="fam" aria-label="家族">
@@ -680,6 +743,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <div class="hwx" id="hWx" hidden><div class="ic" id="hWxI"></div><div class="tt"><span class="hi" id="hWxH"></span> / <span class="lo" id="hWxL"></span></div><div class="pp2" id="hWxP"></div></div>
     </div>
     <p class="hello" id="hello"></p>
+    <p class="hcap" id="hCap"></p>
   </header>
 
   <div class="sec" id="monthSec">
@@ -707,6 +771,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <div class="wxfoot"><span id="wxMeta"></span><span class="wxhint">週間はカレンダーの「週」で</span></div>
     </div>
   </div>
+  <div class="sec" id="memSec">
+    <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
+    <div id="onThis"></div>
+    <div class="mstrip" id="mStrip"></div>
+  </div>
   <div class="sec" id="ogTodaySec" hidden>
     <div class="sech"><div><div class="eyebrow">Go out today</div><h2>今日のおでかけ候補</h2></div><span class="sub" id="ogTodaySub"></span></div>
     <div class="tiles" id="ogToday"></div>
@@ -727,13 +796,14 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <button class="ibtn" id="prevM" type="button" aria-label="前の月">‹</button>
     <button class="ibtn" id="nextM" type="button" aria-label="次へ">›</button>
   </div>
+  <div class="layer" role="group" aria-label="カレンダーに出すもの"><button type="button" id="lyPlan" aria-pressed="true">予定</button><button type="button" id="lyPhoto" aria-pressed="false">思い出</button></div>
   <div class="sec calwrap" id="calMonth">
     <div class="mgrid" id="grid" role="group" aria-label="カレンダー"></div>
     <button class="foldbtn" id="foldBtn" type="button" aria-expanded="true"><span class="grip" aria-hidden="true"></span><span id="foldTx"></span></button>
   </div>
   <div class="legend" id="calLegend">
     <span><span class="pp sm p-papa">パ</span><span class="pp sm p-mama">マ</span><span class="pp sm p-yuzu">ゆ</span><span class="pp sm p-family">家</span>&nbsp; 色＝だれの予定（紫は家族みんな）</span>
-    <span>💼🎒🏥🧸🚗🎉 アイコン＝種類</span>
+    <span class="lgi" id="lgIcons">アイコン＝種類</span>
     <span><i style="background:color-mix(in srgb,var(--mama) 62%,var(--paper))"></i>期間</span>
     <span><i style="box-shadow:inset 0 0 0 1px var(--family)"></i>毎週</span>
     <span><i style="box-shadow:inset 0 0 0 1px var(--faint)"></i>締め切り</span>
@@ -742,6 +812,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="sech"><div class="cdt"><button class="dnav" id="dPrev" type="button" aria-label="前の日">‹</button><h2 id="cdTitle"></h2><button class="dnav" id="dNext" type="button" aria-label="次の日">›</button></div>
       <div class="vt" role="group" aria-label="表示"><button type="button" id="vList" aria-pressed="true">リスト</button><button type="button" id="vTime" aria-pressed="false">24時間</button></div>
     </div>
+    <div id="cdMem"></div>
     <div id="cdWx"></div>
     <div class="strip" id="cdPills"></div>
     <div class="card" id="cdListBox">
@@ -908,6 +979,18 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </div>
 </div>
 
+<input type="file" accept="image/*" id="memFile" hidden>
+<div class="scrim" id="memScrim" hidden>
+  <form class="sheet" id="memForm" role="dialog" aria-modal="true" aria-labelledby="memTitle" autocomplete="off">
+    <div class="grab"></div>
+    <div class="shh"><h3 id="memTitle">思い出の1枚</h3><button type="button" class="lnk" id="memClose" style="font-size:14px">閉じる</button></div>
+    <img id="memPrev" class="memprev" alt="のせる写真">
+    <label class="f">ひとこと（なくてもOK）<input type="text" id="memCap" maxlength="60" placeholder="例：はじめての公園デビュー"></label>
+    <p class="phnote">家族だけが見られます。撮った場所などの情報は消してから保存します。</p>
+    <div class="phfoot" style="grid-template-columns:1fr"><button type="submit" class="btn" id="memSave">この写真をのせる</button></div>
+  </form>
+</div>
+
 <div class="status" id="status" role="status" hidden></div>
 
 <script>
@@ -945,9 +1028,26 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   const whoList=w=>{const a=Array.isArray(w)?w:[];if(a.includes("family"))return ["family"];const b=a.filter(x=>WHO[x]);return b.length?b:["family"]};
   const CATS=[["","なし",""],["work","仕事","💼"],["school","園・学校","🎒"],["health","病院・健診","🏥"],["lesson","習い事・ひろば","🧸"],["outing","おでかけ・旅行","🚗"],["event","行事・記念日","🎉"],["home","家のこと","🧺"],["paper","手続き・提出","📝"]];
   const CAT=Object.fromEntries(CATS.map(c=>[c[0],c]));
-  const catIcon=x=>((x&&CAT[x.cat])||CAT[""])[2];
+  const catIcon=x=>"";   // emoji icons retired; see catEl
+  const CATSVG={
+    work:'<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 12.5h18"/>',
+    school:'<path d="M6 10a6 6 0 0 1 12 0v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9.5 4.6V4a2.5 2.5 0 0 1 5 0v.6M9 21v-4.5h6V21M6 13h12"/>',
+    health:'<rect x="3.5" y="3.5" width="17" height="17" rx="5.5"/><path d="M12 8.2v7.6M8.2 12h7.6"/>',
+    lesson:'<path d="M12 3.5l2.3 5.2 5.6.6-4.2 3.8 1.2 5.5L12 15.8l-4.9 2.8 1.2-5.5-4.2-3.8 5.6-.6z"/>',
+    outing:'<path d="M12 21s-6.5-5.8-6.5-11A6.5 6.5 0 0 1 18.5 10c0 5.2-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+    event:'<rect x="3.5" y="8" width="17" height="4" rx="1.2"/><path d="M5 12v7.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V12M12 8v13M12 8C10.6 4.6 6.8 4 6.8 6.4 6.8 7.6 9 8 12 8zm0 0c1.4-3.4 5.2-4 5.2-1.6C17.2 7.6 15 8 12 8z"/>',
+    home:'<path d="M4 11l8-7 8 7v8.5A1.5 1.5 0 0 1 18.5 21h-13A1.5 1.5 0 0 1 4 19.5z"/><path d="M9.5 21v-5.5h5V21"/>',
+    paper:'<path d="M14 3H7.5A1.5 1.5 0 0 0 6 4.5v15A1.5 1.5 0 0 0 7.5 21h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M9.5 13h5M9.5 16.5h3.5"/>'
+  };
+  function catEl(x,cls){
+    const c=x&&x.cat&&CATSVG[x.cat]?x.cat:""; if(!c) return null;
+    const s=document.createElement("span"); s.className="ci ci-"+c+(cls?" "+cls:""); s.setAttribute("aria-hidden","true");
+    s.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+CATSVG[c]+'</svg>';
+    return s;
+  }
+  function labelWith(cls,x,text){ const n=el("span",cls); const i=catEl(x); if(i) n.append(i); n.append(text); return n; }
   const isFam=x=>whoList(x&&x.who)[0]==="family";
-  function ctag(x){const c=x&&CAT[x.cat];return c&&c[0]?el("span","ctag",c[2]+" "+c[1]):null}
+  function ctag(x){const c=x&&CAT[x.cat];if(!(c&&c[0]))return null;const t=el("span","ctag");const i=catEl(x);if(i)t.append(i);t.append(c[1]);return t}
   function ftag(x){return isFam(x)?el("span","ftag","家族"):null}
   const colorOf=w=>{const a=whoList(w);return a.length===1?a[0]:"family"};
   const whoText=w=>{const a=whoList(w);return a[0]==="family"?"家族みんな":a.map(k=>WHO[k].n).join("・")};
@@ -1004,7 +1104,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     // all-day & spans
     evs.filter(e=>!e.time).forEach(e=>{
       const kk=colorOf(e.who); const b=tapDiv("adi p-"+kk);
-      const tt0=el("span","tt");{const f=ftag(e);if(f)tt0.append(f)}tt0.append((catIcon(e)?catIcon(e)+" ":"")+e.title);
+      const tt0=el("span","tt");{const f=ftag(e);if(f)tt0.append(f)}{const i=catEl(e);if(i)tt0.append(i)}tt0.append(e.title);
       b.append(el("span","lab",isSpan(e)?"期間":e.repeat==="weekly"?"毎週":"終日"), tt0);
       if(isSpan(e)) b.append(el("span","rg",md(e.date)+"–"+md(e.endDate)));
       const ws=el("span","whos");whoList(e.who).forEach(x=>ws.append(badge(x,true)));b.append(ws);
@@ -1027,7 +1127,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     // todos due that day
     if(tds.length){
       const wrap=el("li"); wrap.style.marginTop="8px";
-      tds.forEach(t=>{const d=dueText(t);const r=el("div","todoi"+(t.done?" done":""));r.append(chk(t),el("span","tt",(catIcon(t)?catIcon(t)+" ":"")+t.title),el("span","dd "+d.cls,t.done?"完了":"締切"));r.addEventListener("click",()=>openSheet("todo",t));wrap.append(r)});
+      tds.forEach(t=>{const d=dueText(t);const r=el("div","todoi"+(t.done?" done":""));r.append(chk(t),labelWith("tt",t,t.title),el("span","dd "+d.cls,t.done?"完了":"締切"));r.addEventListener("click",()=>openSheet("todo",t));wrap.append(r)});
       listBox.append(wrap);
     }
     const ogAll=noOutings?[]:outings.filter(o=>o.start&&o.start<=k&&(o.end||o.start)>=k); const ogs=ogAll.slice(0,3);
@@ -1078,11 +1178,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     }
     $("agTitle").textContent = homeSel===todayKey?"今日の予定":homeSel===tmrKey?"明日の予定":fmtDay(homeSel);
     $("agSub").textContent = homeSel===todayKey?fmtDay(todayKey):"";
-    homeSel=todayKey; renderAgenda(homeSel,$("agAll"),$("agList"),$("agEmpty"),$("agPills"),false,true); renderOgToday(); renderMonth();
+    renderMemHome(); homeSel=todayKey; renderAgenda(homeSel,$("agAll"),$("agList"),$("agEmpty"),$("agPills"),false,true); renderOgToday(); renderMonth();
     // deadlines
     const soon=todos.filter(t=>!t.done&&t.due&&dayDiff(todayKey,t.due)<=3).sort((a,b)=>a.due.localeCompare(b.due));
     const dl=$("dlList"); dl.replaceChildren();
-    soon.forEach(t=>{const d2=dueText(t);const r=el("div","todoi");r.append(chk(t),el("span","tt",(catIcon(t)?catIcon(t)+" ":"")+t.title),el("span","dd "+d2.cls,d2.txt));dl.append(r)});
+    soon.forEach(t=>{const d2=dueText(t);const r=el("div","todoi");r.append(chk(t),labelWith("tt",t,t.title),el("span","dd "+d2.cls,d2.txt));dl.append(r)});
     $("dlSec").hidden=!soon.length;
     // weather: 7-day strip, tap a day for details; today shows the 3-hourly chart
     renderWx();
@@ -1158,6 +1258,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       const evs=eventsOn(k), tds=todosOn(k).filter(t=>!t.done), sp=evs.find(e=>isSpan(e));
       const c=el("button","mc"+(k<todayKey?" past":"")+(k===todayKey?" today":"")+(dw===0?" sun":dw===6?" sat":"")+(HOL[k]?" hol":"")+(sp?" span":"")); c.type="button";
       if(sp) c.style.setProperty("--c","var(--"+colorOf(sp.who)+")");
+      { const ph=photoOf(k); if(ph&&ph.src){ c.classList.add("ph"); c.style.backgroundImage="linear-gradient(rgba(0,0,0,.06),rgba(0,0,0,.24)),"+cssUrl(ph.src); } }
       c.append(el("span","n",dd));
       const dt=el("span","dt"); const seen=new Set(); evs.filter(e=>e.repeat!=="weekly").forEach(e=>seen.add(colorOf(e.who))); tds.forEach(t=>seen.add(colorOf(t.who)));
       [...seen].slice(0,3).forEach(x=>{const i=el("i");i.style.background="var(--"+x+")";dt.append(i)}); c.append(dt);
@@ -1167,6 +1268,27 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     }
   }
 
+  /* ---------- memories: one photo per day (private storage; short-lived signed links) ---------- */
+  let photos=[];
+  let calLayer=(()=>{try{return localStorage.getItem("koyomi-layer")==="photo"?"photo":"plan"}catch(e){return "plan"}})();
+  const phUrl=new Map(); let phPending=new Set(), phTimer=null;
+  function urlFor(path){
+    if(!path) return "";
+    const c=phUrl.get(path); const fresh=c&&c.exp>Date.now()+60000;
+    if(!fresh&&!phPending.has(path)){ phPending.add(path); clearTimeout(phTimer); phTimer=setTimeout(fetchPhotoUrls,30); }
+    return c&&c.exp>Date.now()?c.url:"";
+  }
+  async function fetchPhotoUrls(){
+    const paths=[...phPending].slice(0,80); if(!paths.length) return;
+    try{ const j=await window.__koyomiApi("photo_urls",{paths}); const exp=Date.now()+((j.expiresIn||600)*1000);
+      Object.entries(j.urls||{}).forEach(([p,u])=>phUrl.set(p,{url:u,exp})); }
+    catch(e){}
+    paths.forEach(p=>phPending.delete(p));
+    renderHome(); renderCal();
+    if(phPending.size) fetchPhotoUrls();
+  }
+  const photoOf=k=>{ const p=photos.find(x=>x.date===k&&x.path); return p?Object.assign({},p,{src:urlFor(p.path)}):null; };
+  const cssUrl=u=>"url('"+String(u).replace(/'/g,"%27")+"')";
   /* ---------- calendar views: month / week / day ---------- */
   let calView=(()=>{try{const v=localStorage.getItem("koyomi-calview");return v==="month"?"month":"week"}catch(e){return "month"}})();
   const weekStart=k=>{const d=k2d(k);return addDays(k,-((d.getDay()+6)%7))};
@@ -1175,6 +1297,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     const changed=v!==calView; calView=v; try{localStorage.setItem("koyomi-calview",v)}catch(e){}
     renderCal(changed);
   }
+  { const lg=$("lgIcons"); ["work","school","health","lesson","outing","event","home","paper"].forEach(c=>{const i=catEl({cat:c});if(i)lg.insertBefore(i,lg.lastChild)}); lg.lastChild.textContent=" ＝種類"; }
+  function setLayer(l){ calLayer=l; try{localStorage.setItem("koyomi-layer",l)}catch(e){} renderCal(); }
+  $("lyPlan").addEventListener("click",()=>setLayer("plan")); $("lyPhoto").addEventListener("click",()=>setLayer("photo"));
   $("foldBtn").addEventListener("click",()=>setCalView(calView==="month"?"week":"month"));
   // drag the handle up to fold into the week, down to open the month
   (function(){ let y0=null; const fb=$("foldBtn");
@@ -1187,16 +1312,24 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     const k=ymd(d), dw=d.getDay(), col=(dw+6)%7;
     const b=el("button","day"+(out?" out":"")+(k===todayKey?" today":"")+(dw===0?" sun":dw===6?" sat":"")+(HOL[k]?" hol":"")); b.type="button";
     b.setAttribute("aria-pressed",k===calSel?"true":"false");
+    if(calLayer==="photo"){
+      const ph=photoOf(k); if(ph) b.classList.add("has"); if(k>todayKey) b.classList.add("future");
+      if(ph){ const pi=el("span","pic"); if(ph.src) pi.style.backgroundImage=cssUrl(ph.src); b.append(pi); }
+      const dh=el("span","dh"); dh.append(el("span","dn",d.getDate())); b.append(dh);
+      if(!ph&&k<=todayKey&&!out) b.append(el("span","add","＋"));
+      b.setAttribute("aria-label",fmtDay(k)+(ph?"、思い出の写真あり"+(ph.caption?"："+ph.caption:""):""));
+      b.addEventListener("click",()=>{ if(calView==="month"){ calSel=k; setCalView("week"); } else selectDay(k); });
+      return b;
+    }
     const evs=eventsOn(k), tds=todosOn(k), w=wxFor(k);
     b.setAttribute("aria-label",fmtDay(k)+(HOL[k]?"、"+HOL[k]:"")+(evs.length?`、予定${evs.length}件`:"")+(tds.length?`、締切${tds.length}件`:""));
     const dh=el("span","dh"); dh.append(el("span","dn",d.getDate())); if(w&&w.icon){const wi=el("span","wi",w.icon);wi.setAttribute("aria-hidden","true");dh.append(wi)} b.append(dh);
     if(w&&calView==="week"){ const hi=hiOf(w); const wl=el("span","wxl"); if(hi!=null) wl.append(el("b","",hi+"°")); if(w.pop!=null) wl.append(el("span",w.pop>=50?"wet":"","☂"+w.pop+"%")); if(wl.childNodes.length) b.append(wl); }
     const chips=[];
     evs.forEach(e=>{const kk=colorOf(e.who);
-      const ic=catIcon(e)?catIcon(e):"";
-      if(isSpan(e)){const st=k===e.date,en=k===e.endDate,wk=col===0;chips.push(el("span","cc sp p-"+kk+(st?" st":"")+(en?" en":"")+(!st&&!wk?" cont":""),ic+e.title))}
-      else if(e.repeat==="weekly") chips.push(el("span","cc rep p-"+kk,ic+e.title));
-      else chips.push(el("span","cc p-"+kk,ic+(e.time?e.time.replace(/^0/,"")+" ":"")+e.title));
+      if(isSpan(e)){const st=k===e.date,en=k===e.endDate,wk=col===0;chips.push(labelWith("cc sp p-"+kk+(st?" st":"")+(en?" en":"")+(!st&&!wk?" cont":""),e,e.title))}
+      else if(e.repeat==="weekly") chips.push(labelWith("cc rep p-"+kk,e,e.title));
+      else chips.push(labelWith("cc p-"+kk,e,(e.time?e.time.replace(/^0/,"")+" ":"")+e.title));
     });
     tds.forEach(t=>chips.push(el("span","cc todo"+(t.done?" done":"")+(!t.done&&t.due<todayKey?" late":""),(t.done?"☑":"☐")+t.title)));
     const max=calView==="week"?4:(HOL[k]?2:3);
@@ -1225,7 +1358,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     $("foldBtn").setAttribute("aria-expanded",wk?"false":"true");
     $("calLegend").hidden=wk;
     const g=$("grid"); const h0=g.offsetHeight;
-    g.classList.toggle("wkmode",wk);
+    g.classList.toggle("wkmode",wk); g.classList.toggle("photo",calLayer==="photo");
+    $("lyPlan").setAttribute("aria-pressed",calLayer==="plan"?"true":"false"); $("lyPhoto").setAttribute("aria-pressed",calLayer==="photo"?"true":"false");
     g.replaceChildren();
     [1,2,3,4,5,6,0].forEach(i=>g.append(el("div","dow"+(i===0?" sun":i===6?" sat":""),DOW[i])));
     if(wk){
@@ -1251,6 +1385,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     $("vList").setAttribute("aria-pressed",dayMode==="list"?"true":"false"); $("vTime").setAttribute("aria-pressed",dayMode==="time"?"true":"false");
     $("cdListBox").hidden=dayMode!=="list"; $("cdTimeBox").hidden=dayMode!=="time";
     renderAgenda(calSel,$("cdAll"),$("cdList"),$("cdEmpty"),$("cdPills"),true);
+    renderMemCard($("cdMem"),calSel);
     const cw=$("cdWx"); cw.replaceChildren(); const wp=weather?wxPanel(calSel):null; if(wp) cw.append(wp);
     if(dayMode==="time") renderTimeline();
   }
@@ -1333,7 +1468,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   $("evSpan").addEventListener("change",()=>{if($("evSpan").checked){$("evRepeat").value="";if(!$("evEndDate").value)$("evEndDate").value=addDays($("evDate").value||todayKey,1)}syncBits()});
   $("evRepeat").addEventListener("change",()=>{if($("evRepeat").value==="weekly")$("evSpan").checked=false;syncBits()});
   const cp=$("catPick");
-  CATS.forEach(([k,l,i])=>{const lab=el("label");const inp=el("input");inp.type="radio";inp.name="cat";inp.value=k;inp.id="cat-"+(k||"none");lab.append(inp,(i?i+" ":"")+l);cp.append(lab)});
+  CATS.forEach(([k,l,i])=>{const lab=el("label");const inp=el("input");inp.type="radio";inp.name="cat";inp.value=k;inp.id="cat-"+(k||"none");lab.append(inp);{const ic=catEl({cat:k});if(ic)lab.append(ic)}lab.append(l);cp.append(lab)});
   const setCat=v=>{const r=document.getElementById("cat-"+(v||"none"));(r||document.getElementById("cat-none")).checked=true};
   const getCat=()=>{const r=cp.querySelector("input:checked");return r?r.value:""};
   $("w-family").addEventListener("change",()=>{if($("w-family").checked)["papa","mama","yuzu"].forEach(k=>$("w-"+k).checked=false)});
@@ -1532,7 +1667,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
         r.append(t1,t2);
       }
       f.append(r);
-      const meta=[]; if(x.kind==="ev"&&x.endDate) meta.push(md(x.date)+"〜"+md(x.endDate)+"の期間"); if(x.cat) meta.push(catIcon({cat:x.cat})+" "+(CATS.find(c=>c[0]===x.cat)||[])[1]);
+      const meta=[]; if(x.kind==="ev"&&x.endDate) meta.push(md(x.date)+"〜"+md(x.endDate)+"の期間"); if(x.cat) meta.push((CATS.find(c=>c[0]===x.cat)||[])[1]);
       if(x.src) meta.push("読み取り：「"+x.src+"」");
       if(meta.length) f.append(el("div","src",meta.join("　")));
       c.append(cb,f); box.append(c);
@@ -1560,9 +1695,87 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   });
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("phScrim").hidden)closePhoto()});
 
+
+  /* ---------- memories UI ---------- */
+  let memDate=null, memBlob=null, memSize=null, memEditOnly=false;
+  function renderMemCard(box,k){
+    box.replaceChildren(); const ph=photoOf(k);
+    if(ph){
+      const f=el("figure","mem");
+      const im=el("img","img"); if(ph.src) im.src=ph.src; im.alt=ph.caption||"この日の思い出の写真"; f.append(im);
+      f.append(el("span","tag","Memory"));
+      const ac=el("div","acts");
+      const b0=el("button","","ひとこと"); b0.type="button"; b0.addEventListener("click",()=>openMemSheet(k,true));
+      const b1=el("button","","変える"); b1.type="button"; b1.addEventListener("click",()=>pickMem(k));
+      const b2=armBtn("消す",async()=>{ try{ await window.__koyomiApi("photo_delete",{date:k}); status("写真を消しました"); await window.__koyomiRefresh(); }catch(e){ status("消せませんでした。",true); } });
+      ac.append(b0,b1,b2); f.append(ac);
+      const cap=el("figcaption","cap"); cap.append(ph.caption?el("b","",ph.caption):el("b","none","ひとことなし"), el("span","",(ph.by==="mama"?"ママ":"パパ")+"がのせました")); f.append(cap);
+      box.append(f);
+    } else if(k<=todayKey){
+      const a=el("button","memadd"); a.type="button"; a.append(el("span","","📷")); const t=el("span"); t.append(el("b","",(k===todayKey?"今日":md(k))+"の思い出を1枚のせる"), el("small","","家族だけが見られます・撮った場所の情報は消して保存")); a.append(t);
+      a.addEventListener("click",()=>pickMem(k)); box.append(a);
+    }
+  }
+  function pickMem(k){ memDate=k; $("memFile").value=""; $("memFile").click(); }
+  async function shrinkPhoto(file){
+    const url=URL.createObjectURL(file); const img=new Image();
+    try{ await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url}); } finally {}
+    const sc=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
+    const c=document.createElement("canvas"); c.width=Math.round(img.naturalWidth*sc); c.height=Math.round(img.naturalHeight*sc);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url);
+    // re-encoding through a canvas drops EXIF (GPS location, camera) entirely
+    for(const q of [0.82,0.72,0.6]){ const b=await new Promise(r=>c.toBlob(r,"image/jpeg",q)); if(b&&b.size<=950000) return {blob:b,w:c.width,h:c.height}; }
+    throw new Error("too_big");
+  }
+  $("memFile").addEventListener("change",async()=>{
+    const f=$("memFile").files&&$("memFile").files[0]; if(!f||!memDate) return;
+    try{ const r=await shrinkPhoto(f); memBlob=r.blob; memSize=[r.w,r.h]; }catch(e){ status("この写真は使えませんでした。別の写真でお試しください。",true); return; }
+    openMemSheet(memDate,false);
+  });
+  function openMemSheet(k,editOnly){
+    memDate=k; memEditOnly=editOnly;
+    const ph=photoOf(k);
+    $("memTitle").textContent=md(k)+"（"+DOW[k2d(k).getDay()]+"）の思い出";
+    $("memPrev").src=editOnly?(ph&&ph.src||""):URL.createObjectURL(memBlob);
+    $("memCap").value=ph&&(editOnly||memEditOnly)?ph.caption||"":(ph?ph.caption||"":"");
+    $("memSave").textContent=editOnly?"ひとことを保存":"この写真をのせる";
+    $("memScrim").hidden=false;
+  }
+  function closeMem(){ $("memScrim").hidden=true; memBlob=null; }
+  $("memClose").addEventListener("click",closeMem);
+  $("memScrim").addEventListener("click",e=>{if(e.target===$("memScrim"))closeMem()});
+  const toB64=b=>new Promise((r,j)=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(",")[1]);fr.onerror=j;fr.readAsDataURL(b)});
+  $("memForm").addEventListener("submit",async ev=>{
+    ev.preventDefault(); const btn=$("memSave"); btn.disabled=true; const cap=$("memCap").value.trim();
+    try{
+      if(memEditOnly) await window.__koyomiApi("photo_caption",{date:memDate,caption:cap});
+      else { btn.textContent="のせています…"; await window.__koyomiApi("photo_upload",{date:memDate,caption:cap,image:await toB64(memBlob),w:memSize[0],h:memSize[1]}); }
+      status(memEditOnly?"ひとことを保存しました":"思い出の写真をのせました"); closeMem(); await window.__koyomiRefresh();
+    }catch(e){ status(e&&e.status===429?"少し時間をおいてお試しください。":"のせられませんでした。電波のよいところでもう一度。",true); }
+    finally{ btn.disabled=false; }
+  });
+  function renderMemHome(){
+    // cover: today's photo turns the top of the home screen into a magazine cover
+    const tp=photoOf(todayKey), hero=$("hero");
+    hero.classList.toggle("cover",!!(tp&&tp.src)); $("hCov").style.backgroundImage=tp&&tp.src?cssUrl(tp.src):"";
+    $("hCap").textContent=tp&&tp.caption?"“"+tp.caption+"”":"";
+    // one year ago today, else the same day last month
+    const oy=addDays(todayKey,0).replace(/^(\d{4})/,y=>String(+y-1)); const lm=(()=>{const d=k2d(todayKey);const t=new Date(d.getFullYear(),d.getMonth()-1,d.getDate());return t.getMonth()===(d.getMonth()+11)%12?ymd(t):""})();
+    const ot=$("onThis"); ot.replaceChildren();
+    const past=[[oy,"1年前の今日"],[lm,"ひと月前の今日"]].map(([k,l])=>k&&photoOf(k)?[photoOf(k),l]:null).find(Boolean);
+    if(past){ const [ph,l]=past; const b=el("button","onthis"); b.type="button"; const im=el("span","im"); if(ph.src) im.style.backgroundImage=cssUrl(ph.src); const tx=el("span"); tx.append(el("small","",l), el("b","",ph.caption||md(ph.date)+"の1枚"), el("span","sub",fmtDay(ph.date))); b.append(im,tx); b.addEventListener("click",()=>goCal(ph.date)); ot.append(b); }
+    // recent strip, newest first, with a slot for today's photo
+    const st=$("mStrip"); st.replaceChildren();
+    if(!tp){ const a=el("button","mtile add"); a.type="button"; a.append(el("span","im","＋"), el("b","","今日の1枚"), el("span","","のせる")); a.addEventListener("click",()=>pickMem(todayKey)); st.append(a); }
+    const list=photos.filter(p=>p.path&&p.date<=todayKey).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
+    list.forEach(p=>{ const ph=photoOf(p.date); const b=el("button","mtile"); b.type="button"; const im=el("span","im"); if(ph&&ph.src) im.style.backgroundImage=cssUrl(ph.src); b.append(im, el("b","",md(p.date)+" "+DOW[k2d(p.date).getDay()]), el("span","",p.caption||"")); b.addEventListener("click",()=>goCal(p.date)); st.append(b); });
+    const n=photos.filter(p=>p.path&&p.date.slice(0,7)===todayKey.slice(0,7)).length;
+    $("memSub").textContent=n?(+todayKey.slice(5,7))+"月は"+n+"枚":"";
+  }
+
   /* ---------- todo tab ---------- */
   function todoRow(t){
-    const li=el("li","item"+(t.done?" done":"")); const tx=el("span","tx",(catIcon(t)?catIcon(t)+" ":"")+t.title);
+    const li=el("li","item"+(t.done?" done":"")); const tx=labelWith("tx",t,t.title);
     const d=dueText(t); const sb=el("span","sb"); sb.append(el("span",d.cls,d.txt)); if((t.who||[]).length) sb.append("・"+whoText(t.who)); if(t.memo) sb.append("・"+t.memo); tx.append(sb);
     const ed=el("button","lnk","直す"); ed.type="button"; ed.addEventListener("click",()=>openSheet("todo",t));
     li.append(chk(t),tx,ed,armBtn("消す",()=>db.collection("todos").doc(t.id).delete())); return li;
@@ -1700,12 +1913,14 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     if(!r.ok){const e=new Error(j.error||"error");e.status=r.status;e.body=j;throw e}
     return j;
   }
-  const KIND={events:"event",todos:"todo",shopping:"shop",wishes:"wish",garbage:"garbage",places:"place",outings:"outing"};
+  window.__koyomiApi=(a,d)=>api(a,d);
+  const KIND={photos:"photo",events:"event",todos:"todo",shopping:"shop",wishes:"wish",garbage:"garbage",places:"place",outings:"outing"};
   const recs=new Map(); const L={}; const DL={};
   const snapOf=c=>({docs:[...recs.values()].filter(r=>r.kind===KIND[c]).map(r=>({id:r.id,data:()=>r.payload}))});
   const infoOf=k=>{const r=[...recs.values()].find(x=>x.kind==="info"&&x.payload&&x.payload.key===k);return {exists:!!r,data:()=>r?r.payload:undefined}};
   function emit(){ for(const c in L) L[c].forEach(fn=>fn(snapOf(c))); for(const k in DL) DL[k].forEach(fn=>fn(infoOf(k))); }
   const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
+  window.__koyomiRefresh=()=>refresh();
   async function refresh(){ const j=await api("snapshot"); recs.clear(); (j.items||[]).forEach(r=>recs.set(r.id,r)); if(j.member){me=j.member;LS.set("koyomi-member",me)} emit(); }
   async function save(kind,id,version,payload,deleted){
     const prev=recs.get(id);
@@ -1804,6 +2019,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
       db.collection("places").onSnapshot(s=>{places=rows(s);renderPlaces()});
+      db.collection("photos").onSnapshot(s=>{photos=rows(s);renderHome();renderCal()});
       db.collection("outings").onSnapshot(s=>{outings=rows(s);renderOutings();renderHome();renderCal()});
       db.doc("info/outings").onSnapshot(s=>{ogMeta=s.exists?s.data():null;renderOutings()});
       db.doc("info/weather").onSnapshot(s=>{weather=s.exists?s.data():null;renderHome();renderCal()});
