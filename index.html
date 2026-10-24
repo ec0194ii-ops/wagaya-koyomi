@@ -403,6 +403,33 @@ a.btn{text-decoration:none;display:inline-block}
 #cdWx .wxpanel{margin:0 0 4px}
 .wit .og{font-size:11px;color:var(--accent);font-weight:700}
 
+
+/* quick week / day jumping */
+.wjump{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:2px 16px 4px;scroll-snap-type:x proximity}
+.wjump::-webkit-scrollbar,.dstrip::-webkit-scrollbar{display:none}
+.wchip{flex:none;scroll-snap-align:center;border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:7px 12px 6px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;color:var(--fg);min-width:84px}
+.wchip b{font-size:13px;font-weight:700}
+.wchip span{font-family:var(--f-latin);font-size:12px;color:var(--muted)}
+.wchip .dots{display:flex;gap:3px;height:5px;margin-top:3px}
+.wchip .dots i{width:5px;height:5px;border-radius:50%}
+.wchip.cur b{color:var(--accent)}
+.wchip[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--paper)}
+.wchip[aria-pressed="true"] span,.wchip[aria-pressed="true"] b{color:var(--paper)}
+.dstrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:12px}
+.dchip{border:0;background:transparent;border-radius:14px;padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--fg);min-width:0}
+.dchip .w{font-size:11px;font-weight:700;color:var(--muted)}
+.dchip .n{font-family:var(--f-latin);font-size:17px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%}
+.dchip.sun .w,.dchip.sun .n,.dchip.hol .n{color:var(--hot)} .dchip.sat .w,.dchip.sat .n{color:var(--cold)}
+.dchip.today .n{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.dchip[aria-pressed="true"] .n{background:var(--fg);color:var(--paper)!important}
+.dchip .dots{display:flex;gap:2px;height:5px}
+.dchip .dots i{width:5px;height:5px;border-radius:50%}
+@keyframes slideL{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.slideL{animation:slideL .22s ease-out} .slideR{animation:slideR .22s ease-out}
+@media (prefers-reduced-motion:reduce){.slideL,.slideR{animation:none}}
+.swipehint{text-align:center;font-size:11px;color:var(--faint);margin-top:6px}
+
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -635,6 +662,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <button class="ibtn" id="nextM" type="button" aria-label="次へ">›</button>
   </div>
   <div class="vseg" role="group" aria-label="表示の切り替え"><button type="button" id="cvMonth" aria-pressed="true">月</button><button type="button" id="cvWeek" aria-pressed="false">週</button><button type="button" id="cvDay" aria-pressed="false">日</button></div>
+  <div class="wjump" id="wJump" role="group" aria-label="週を選ぶ"></div>
+  <div class="dstrip" id="dStrip" role="group" aria-label="この週の日" hidden></div>
   <div class="sec" id="calMonth" style="margin-top:12px">
     <div class="mgrid" id="grid"></div>
   </div>
@@ -648,7 +677,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <span><i style="box-shadow:inset 0 0 0 1px var(--family)"></i>毎週</span>
     <span><i style="box-shadow:inset 0 0 0 1px var(--faint)"></i>締め切り</span>
   </div>
-  <div class="sec">
+  <p class="swipehint" id="swipeHint"></p>
+  <div class="sec" id="cdBody">
     <div class="sech"><h2 id="cdTitle"></h2>
       <div class="vt" role="group" aria-label="表示"><button type="button" id="vList" aria-pressed="true">リスト</button><button type="button" id="vTime" aria-pressed="false">24時間</button></div>
     </div>
@@ -1077,11 +1107,60 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       if(ogn){const og=el("div","wmeta");og.append(el("span","og","📍 おでかけ候補 "+ogn+"件"));wi.append(og)}
       r.setAttribute("aria-label",fmtDay(k)+"、予定"+evs.length+"件"+(tds.length?"、締切"+tds.length+"件":""));
       r.append(wd,wi);
-      r.addEventListener("click",()=>{calSel=k;renderCal()});
+      r.addEventListener("click",()=>{ if(calSel===k){setCalView("day");return} calSel=k;renderCal()});
       box.append(r);
     }
   }
+  function colorDots(k,max){
+    const dots=el("span","dots"); const seen=new Set();
+    eventsOn(k).filter(e=>e.repeat!=="weekly").forEach(e=>seen.add(colorOf(e.who))); todosOn(k).filter(t=>!t.done).forEach(t=>seen.add(colorOf(t.who)));
+    [...seen].slice(0,max).forEach(c=>{const x=el("i");x.style.background="var(--"+c+")";dots.append(x)});
+    return dots;
+  }
+  function renderJump(){
+    const wj=$("wJump"), ds=$("dStrip");
+    wj.hidden=calView==="day"; ds.hidden=calView!=="day";
+    if(calView==="day"){
+      ds.replaceChildren(); const s0=weekStart(calSel);
+      for(let i=0;i<7;i++){
+        const k=addDays(s0,i), dw=k2d(k).getDay();
+        const b=el("button","dchip"+(k===todayKey?" today":"")+(dw===0?" sun":dw===6?" sat":"")+(HOL[k]?" hol":"")); b.type="button";
+        b.setAttribute("aria-pressed",k===calSel?"true":"false"); b.setAttribute("aria-label",fmtDay(k));
+        b.append(el("span","w",DOW[dw]),el("span","n",k2d(k).getDate()),colorDots(k,3));
+        b.addEventListener("click",()=>{calSel=k;renderCal()});
+        ds.append(b);
+      }
+      return;
+    }
+    // weeks around the one being looked at
+    const tw=weekStart(todayKey);
+    const focus=calView==="week"?weekStart(calSel):weekStart(ymd(view));
+    const selW=weekStart(calSel);
+    let from=addDays(tw,-14), to=addDays(tw,7*12);
+    if(focus<from) from=addDays(focus,-14); if(focus>to) to=addDays(focus,7*4);
+    renderJump.sl=wj.children.length?wj.scrollLeft:null; wj.replaceChildren(); let selEl=null;
+    for(let s0=from; s0<=to; s0=addDays(s0,7)){
+      const n=Math.round(dayDiff(tw,s0)/7);
+      const lab=n===0?"今週":n===1?"来週":n===2?"再来週":n===-1?"先週":(k2d(s0).getMonth()+1)+"月"+(Math.floor((k2d(s0).getDate()-1)/7)+1)+"週目";
+      const b=el("button","wchip"+(n===0?" cur":"")); b.type="button";
+      const on=calView==="week"&&s0===selW;
+      b.setAttribute("aria-pressed",on?"true":"false");
+      const dots=el("span","dots"); const seen=new Set();
+      for(let i=0;i<7;i++){const k=addDays(s0,i);eventsOn(k).filter(e=>e.repeat!=="weekly").forEach(e=>seen.add(colorOf(e.who)));todosOn(k).filter(t=>!t.done).forEach(t=>seen.add(colorOf(t.who)))}
+      [...seen].slice(0,4).forEach(c=>{const x=el("i");x.style.background="var(--"+c+")";dots.append(x)});
+      b.append(el("b","",lab),el("span","",md(s0)+"–"+md(addDays(s0,6))),dots);
+      b.setAttribute("aria-label",lab+"（"+md(s0)+"から）を週で見る");
+      b.addEventListener("click",()=>{ calSel=(todayKey>=s0&&todayKey<=addDays(s0,6))?todayKey:s0; setCalView("week"); });
+      if(s0===(calView==="week"?selW:(focus<=tw&&addDays(focus,35)>tw?tw:focus))) selEl=b;
+      wj.append(b);
+    }
+    const ck=calView+"|"+(calView==="week"?selW:focus);
+    if(selEl&&renderJump.last!==ck){ renderJump.last=ck; const keep=selEl; requestAnimationFrame(()=>{ wj.scrollLeft=Math.max(0,keep.offsetLeft-wj.offsetLeft-(wj.clientWidth-keep.offsetWidth)/2); }); }
+    else if(renderJump.sl!=null) wj.scrollLeft=renderJump.sl;
+  }
   function renderCal(){
+    renderJump();
+    $("swipeHint").textContent="左右にスワイプで"+(calView==="month"?"前後の月":calView==="week"?"前後の週":"前後の日")+"へ"+(calView==="day"?"":"・選んだ日をもう一度タップで日の表示");
     ["Month","Week","Day"].forEach(n=>$("cv"+n).setAttribute("aria-pressed",calView===n.toLowerCase()?"true":"false"));
     $("calMonth").hidden=calView!=="month"; $("calWeek").hidden=calView!=="week"; $("calLegend").hidden=calView==="day";
     if(calView!=="month"){
@@ -1116,7 +1195,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       chips.slice(0,max).forEach(c=>b.append(c)); if(chips.length>max) b.append(el("span","more","+"+(chips.length-max)));
       const gr=garbageFor(k); if(gr.length&&chips.length<max) b.append(el("span","gm",gr[0].short||gr[0].kind.slice(0,2)));
       if(HOL[k]){const hn=el("span","hname",HOL[k]);hn.style.marginTop="auto";b.append(hn)}
-      b.addEventListener("click",()=>{calSel=k;renderCal()});
+      b.addEventListener("click",()=>{ if(calSel===k){setCalView("day");return} calSel=k;renderCal()});
       g.append(b);
     }
     renderCalDay();
@@ -1155,7 +1234,23 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     if(calView==="month"){view=new Date(view.getFullYear(),view.getMonth()+n,1)}
     else {calSel=addDays(calSel,calView==="week"?7*n:n)}
     renderCal();
+    const box=calView==="month"?$("calMonth"):calView==="week"?$("calWeek"):$("cdBody");
+    if(box){box.classList.remove("slideL","slideR");void box.offsetWidth;box.classList.add(n>0?"slideL":"slideR")}
   }
+  // swipe left/right anywhere on the calendar to go to the next/previous month, week or day
+  (function(){
+    let sx=0, sy=0, ok=false;
+    const pane=$("pane-cal");
+    pane.addEventListener("touchstart",e=>{
+      const t=e.touches[0]; ok=e.touches.length===1&&!e.target.closest(".wjump,.hscroll,input,textarea,select");
+      sx=t.clientX; sy=t.clientY;
+    },{passive:true});
+    pane.addEventListener("touchend",e=>{
+      if(!ok) return; ok=false;
+      const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+      if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6) stepCal(dx<0?1:-1);
+    },{passive:true});
+  })();
   $("prevM").addEventListener("click",()=>stepCal(-1));
   $("nextM").addEventListener("click",()=>stepCal(1));
   $("goToday").addEventListener("click",()=>{view=new Date(now.getFullYear(),now.getMonth(),1);calSel=todayKey;renderCal()});
