@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Outfit:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Outfit:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&display=swap">
 <style>
 /* Layout: family planner app — pastel aurora hero with big date, today-first week ribbon, agenda as a time column,
    bottom tab bar + floating add button that opens a sheet. One bold move: the aurora wash behind the date. */
@@ -433,6 +433,108 @@ img{max-width:100%}
 .set small{color:var(--muted);font-size:12px;line-height:1.6}
 /* outing photos */
 .ogr .th{width:52px;height:52px;border-radius:12px;object-fit:cover;flex:none;background:var(--line)}
+
+/* =====================================================================
+   Magazine planner theme — misty pastels on paper, Fraunces italics for
+   the Latin accents, Shippori Mincho for Japanese headings, floating nav.
+   ===================================================================== */
+:root{
+  --bg:#f5f4f0;--paper:#ffffff;--sunk:#efeee9;--fg:#24262b;--muted:#85878d;--faint:#b9babd;--line:#e7e5df;
+  --accent:#4a6b5f;--accent-ink:#ffffff;
+  --papa:#8fb3d7;--papa-soft:#e4eef7;--mama:#e2a6a6;--mama-soft:#f8e6e4;--yuzu:#dcbd70;--yuzu-soft:#f7efd8;--family:#aaa1d5;--family-soft:#ece9f6;
+  --hot:#cf7f6c;--cold:#6c95be;--danger:#c4596a;
+  --glass:rgba(255,255,255,.72);--shadow:0 1px 0 rgba(30,30,40,.04),0 14px 34px -24px rgba(40,40,70,.45);
+  --f-latin:"Fraunces","Shippori Mincho B1",Georgia,serif;
+  --r:28px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17181b;--paper:#212226;--sunk:#2a2b30;--fg:#ecebe7;--muted:#a3a4a9;--faint:#6d6e74;--line:#34353b;
+  --accent:#9cc4b4;--accent-ink:#14211c;
+  --papa:#90b6dc;--papa-soft:#24303c;--mama:#e3aaaa;--mama-soft:#3a2b2c;--yuzu:#dec27e;--yuzu-soft:#37311f;--family:#b3abdd;--family-soft:#2d2a3b;
+  --hot:#e09a8a;--cold:#90b3da;--danger:#eb8c9b;--glass:rgba(33,34,38,.78);--shadow:0 14px 34px -22px rgba(0,0,0,.8);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17181b;--paper:#212226;--sunk:#2a2b30;--fg:#ecebe7;--muted:#a3a4a9;--faint:#6d6e74;--line:#34353b;
+  --accent:#9cc4b4;--accent-ink:#14211c;
+  --papa:#90b6dc;--papa-soft:#24303c;--mama:#e3aaaa;--mama-soft:#3a2b2c;--yuzu:#dec27e;--yuzu-soft:#37311f;--family:#b3abdd;--family-soft:#2d2a3b;
+  --hot:#e09a8a;--cold:#90b3da;--danger:#eb8c9b;--glass:rgba(33,34,38,.78);--shadow:0 14px 34px -22px rgba(0,0,0,.8);color-scheme:dark}
+
+/* paper grain over everything (very faint) */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* hero = magazine cover */
+.hero{border-radius:0 0 40px 40px;padding-block:24px 22px}
+.hero::before{background:
+    radial-gradient(42% 38% at 12% 22%, var(--mama-soft), transparent 70%),
+    radial-gradient(40% 44% at 92% 10%, var(--papa-soft), transparent 70%),
+    radial-gradient(34% 36% at 78% 92%, var(--yuzu-soft), transparent 72%),
+    radial-gradient(55% 60% at 45% 75%, var(--family-soft), transparent 76%);filter:saturate(1.05)}
+.brand{letter-spacing:.06em}
+.brand b{font-family:var(--f-display);font-size:14px;letter-spacing:.1em}
+.datebig{align-items:flex-end;gap:16px;margin-top:18px}
+.datebig .d{font-family:var(--f-latin);font-weight:300;font-size:104px;line-height:.8;letter-spacing:-.04em;font-variation-settings:"opsz" 144}
+.datebig .mm{font-family:var(--f-latin);font-style:italic;font-weight:300;font-size:19px;letter-spacing:0;text-transform:none;color:var(--fg)}
+.datebig .dw{font-size:15px;font-weight:600;color:var(--muted)}
+.hwx .ic{font-size:34px}
+.hello{font-size:14.5px;margin-top:16px}
+.ribbon{gap:6px;margin-top:18px}
+.rday{border-radius:999px;padding:10px 0 8px;background:var(--glass);box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+.rday .n{font-family:var(--f-latin);font-size:19px;font-weight:400}
+.rday[aria-pressed="true"]{background:var(--fg)}
+
+/* section headings: italic serif kicker + mincho title */
+.sec{margin-top:30px}
+.eyebrow{font-family:var(--f-latin);font-style:italic;font-weight:300;font-size:16px;letter-spacing:0;color:var(--accent);margin-bottom:0}
+.sech h2{font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:.02em}
+.sech .sub{font-size:12px}
+
+/* cards */
+.card{border-radius:var(--r);box-shadow:var(--shadow);border:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.pill{background:var(--paper);box-shadow:inset 0 0 0 1px var(--line)}
+.pill.trash{background:var(--yuzu-soft);box-shadow:none}
+.ag .blk{border-radius:18px}
+.ag .tm{font-family:var(--f-latin);font-size:16px;font-weight:400}
+.adi{border-radius:16px}
+
+/* weather card: misty gradient */
+.wxcard{background:linear-gradient(160deg,color-mix(in srgb,var(--papa-soft) 70%,var(--paper)) 0%,var(--paper) 55%)}
+.wx .wxd{border-radius:20px;padding:9px 2px;background:var(--paper);box-shadow:inset 0 0 0 1px var(--line)}
+.wx .wxd[aria-pressed="true"]{background:var(--fg);color:var(--paper);box-shadow:none}
+.wx .wxd .wt{font-family:var(--f-latin)}
+.wxpanel{background:var(--paper);box-shadow:inset 0 0 0 1px var(--line);border-radius:22px}
+.hgrid .hh{font-family:var(--f-latin);font-style:italic}
+
+/* photos: framed like prints */
+.tiles{gap:12px}
+.tile{border-radius:26px;border:5px solid var(--paper);box-shadow:var(--shadow)}
+.tile .tx b{font-family:var(--f-display);font-size:15px}
+.og{gap:14px}
+.oc2{border-radius:30px;border:1px solid var(--line)}
+.oc2 .ph2{margin:6px 6px 0;border-radius:24px;aspect-ratio:5/4}
+.oc2 h3{font-family:var(--f-display);font-size:17px;line-height:1.45}
+.oc2 .when{font-family:var(--f-latin);font-style:italic;color:var(--accent);font-size:13px}
+.sticker{background:rgba(255,255,255,.92);color:#2b2b30;box-shadow:0 4px 12px -6px rgba(0,0,0,.35)}
+.oc2 .ph2 .datechip{font-family:var(--f-latin);font-style:italic;font-weight:400;font-size:13px;border-radius:999px}
+
+/* buttons */
+.btn{background:var(--fg)}
+.btn.ghost{box-shadow:inset 0 0 0 1px var(--line);background:var(--paper)}
+
+/* floating pill navigation + accent add button */
+.nav{left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 10px);padding:0 6px;border:1px solid color-mix(in srgb,var(--line) 80%,transparent);border-radius:26px;box-shadow:0 18px 40px -22px rgba(30,30,60,.55)}
+.nav .in{max-width:540px}
+.nav button{padding:9px 0 8px}
+.nav button[aria-selected="true"]{color:var(--accent)}
+.nav button[aria-selected="true"] svg{stroke-width:2}
+.fab{background:var(--accent);color:var(--accent-ink);bottom:calc(env(safe-area-inset-bottom,0px) + 86px);box-shadow:0 14px 28px -12px color-mix(in srgb,var(--accent) 80%,transparent)}
+.wrap{padding-block:0 170px}
+
+/* month grid & week rows pick up the softer surfaces */
+.mgrid,.wk{border-radius:var(--r);border:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.mhead h2{font-family:var(--f-display)}
+.mhead h2 .y{font-family:var(--f-latin);font-style:italic;font-size:15px}
+.wd .n{font-family:var(--f-latin);font-weight:400}
+.vseg,.seg,.vt{background:color-mix(in srgb,var(--sunk) 80%,var(--paper))}
 </style>
 </head>
 <body>
@@ -458,7 +560,7 @@ img{max-width:100%}
   </header>
 
   <div class="sec">
-    <div class="sech"><div><div class="eyebrow">TODAY</div><h2 id="agTitle">今日の予定</h2></div><span class="sub" id="agSub"></span></div>
+    <div class="sech"><div><div class="eyebrow">Today’s plan</div><h2 id="agTitle">今日の予定</h2></div><span class="sub" id="agSub"></span></div>
     <div class="strip" id="agPills"></div>
     <div class="card" id="agCard">
       <div class="allday" id="agAll"></div>
@@ -467,11 +569,11 @@ img{max-width:100%}
     </div>
   </div>
   <div class="sec" id="dlSec">
-    <div class="sech"><div><div class="eyebrow">DEADLINE</div><h2>近い締め切り</h2></div><span class="sub">3日以内と期限切れ</span></div>
+    <div class="sech"><div><div class="eyebrow">Due soon</div><h2>近い締め切り</h2></div><span class="sub">3日以内と期限切れ</span></div>
     <div class="card"><div id="dlList"></div></div>
   </div>
   <div class="sec" id="wxSec" hidden>
-    <div class="sech"><div><div class="eyebrow">THIS WEEK</div><h2>今週の天気</h2></div><span class="sub">大津市</span></div>
+    <div class="sech"><div><div class="eyebrow">This week</div><h2>今週の天気</h2></div><span class="sub">大津市</span></div>
     <div class="card wxcard">
       <div class="wx" id="wx" role="group" aria-label="日付を選ぶ"></div>
       <a class="wxpanel" id="wxPanel" href="https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html" target="_blank" rel="noopener"></a>
@@ -479,11 +581,11 @@ img{max-width:100%}
     </div>
   </div>
   <div class="sec" id="ogTodaySec" hidden>
-    <div class="sech"><div><div class="eyebrow">GO OUT TODAY</div><h2>今日のおでかけ候補</h2></div><span class="sub" id="ogTodaySub"></span></div>
+    <div class="sech"><div><div class="eyebrow">Go out today</div><h2>今日のおでかけ候補</h2></div><span class="sub" id="ogTodaySub"></span></div>
     <div class="tiles" id="ogToday"></div>
   </div>
   <div class="sec" id="ogSec" hidden>
-    <div class="sech"><div><div class="eyebrow">AROUND OTSU</div><h2>大津周辺のおでかけ</h2></div><span class="sub" id="ogSub"></span></div>
+    <div class="sech"><div><div class="eyebrow">Around Otsu</div><h2>大津周辺のおでかけ</h2></div><span class="sub" id="ogSub"></span></div>
     <div class="og" id="ogList"></div>
     <div class="ogfoot" id="ogFoot"></div>
   </div>
@@ -739,7 +841,7 @@ img{max-width:100%}
     // pills: holiday, garbage, weather
     if(HOL[k]) pillBox.append(el("span","pill","🎌 "+HOL[k]));
     const g=garbageFor(k); if(g.length){const p=el("span","pill trash");p.append("🗑 ",el("b","",g.map(r=>r.kind).join("・")),"の日");const st=sampleTag(g.some(r=>r.sample));if(st)p.append(st);pillBox.append(p)}
-    const w=wxFor(k); if(w){const p=el("span","pill num");p.append((w.icon||"")+" "+(w.text||"")+"　");p.append(el("span","",(w.hi??"-")+"° / "+(w.lo??"-")+"°"));if(w.pop!=null)p.append("　☂"+w.pop+"%");pillBox.append(p)}
+    const w=wxFor(k); if(w){const p=el("span","pill num");p.append((w.icon||"")+" "+(w.text||"")+"　");p.append(el("span","",(hiOf(w)??"-")+"° / "+(loOf(w)??"-")+"°"));if(w.pop!=null)p.append("　☂"+w.pop+"%");pillBox.append(p)}
     pillBox.hidden=!pillBox.children.length;
     // all-day & spans
     evs.filter(e=>!e.time).forEach(e=>{
@@ -794,7 +896,7 @@ img{max-width:100%}
 
   /* ---------- home ---------- */
   function renderHome(){
-    const d=now; $("hD").textContent=d.getDate(); $("hM").textContent=MON[d.getMonth()]+" "+d.getFullYear();
+    const d=now; $("hD").textContent=d.getDate(); $("hM").textContent=["January","February","March","April","May","June","July","August","September","October","November","December"][d.getMonth()]+" "+d.getFullYear();
     $("hW").textContent=DOW[d.getDay()]+"曜日"; $("hHol").textContent=HOL[todayKey]||"";
     const h=d.getHours(); const greet=h<10?"おはようございます":h<17?"こんにちは":"こんばんは";
     const nE=eventsOn(todayKey).length, nD=todos.filter(t=>!t.done&&t.due&&t.due<=todayKey).length;
