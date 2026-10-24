@@ -271,6 +271,42 @@ a.btn{text-decoration:none;display:inline-block}
 .ogr .tx span{font-size:12px;color:var(--muted)}
 .ogr a{font-size:12px;font-weight:700;color:var(--accent);text-decoration:none;white-space:nowrap}
 
+/* categories & family */
+.catpick{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px;flex:none;min-height:40px}
+.catpick::-webkit-scrollbar{display:none}
+.catpick label{flex:none;display:flex;align-items:center;gap:4px;border-radius:999px;padding:6px 12px;font-size:13px;box-shadow:inset 0 0 0 1.5px var(--line);cursor:pointer;white-space:nowrap;user-select:none}
+.catpick input{position:absolute;opacity:0;pointer-events:none}
+.catpick label:has(input:checked){background:var(--fg);color:var(--paper);box-shadow:none}
+.catpick label:has(input:focus-visible){outline:2.5px solid var(--accent);outline-offset:2px}
+.ctag{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.ftag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:6px;padding:0 6px;background:var(--family-soft);color:color-mix(in srgb,var(--family) 50%,var(--fg));box-shadow:inset 0 0 0 1px var(--family);margin-right:6px;vertical-align:1px;white-space:nowrap}
+.vseg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--sunk);border-radius:999px;padding:3px;gap:2px;margin-top:12px}
+.vseg button{border:0;background:transparent;border-radius:999px;padding:7px;font-weight:700;color:var(--muted);font-size:13px}
+.vseg button[aria-pressed="true"]{background:var(--paper);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.legend .pp{margin-right:-4px}
+/* week view */
+.wk{display:flex;flex-direction:column;background:var(--paper);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.wrow{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;border:0;border-top:1px solid var(--line);background:transparent;text-align:left;padding:10px 12px 10px 6px;min-height:64px;width:100%;color:var(--fg)}
+.wrow:first-child{border-top:0}
+.wrow.today{background:color-mix(in srgb,var(--family-soft) 55%,var(--paper))}
+.wrow[aria-pressed="true"]{box-shadow:inset 3px 0 0 var(--fg)}
+.wd{display:flex;flex-direction:column;align-items:center}
+.wd .w{font-size:11px;font-weight:700;color:var(--muted)}
+.wd .n{font-family:var(--f-num);font-size:22px;font-weight:500;line-height:1.2}
+.wd .x{font-size:10px;color:var(--muted);font-family:var(--f-num);white-space:nowrap}
+.wrow.sun .w,.wrow.sun .n,.wrow.hol .w,.wrow.hol .n{color:var(--hot)} .wrow.sat .w,.wrow.sat .n{color:var(--cold)}
+.wi2{display:flex;flex-direction:column;gap:4px;min-width:0}
+.wit{display:flex;align-items:center;gap:6px;font-size:13px;min-width:0;border-radius:8px;padding:3px 8px;background:var(--s)}
+.wit .t{font-family:var(--f-num);font-size:12px;color:var(--muted);flex:none}
+.wit .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.wit.sp{background:color-mix(in srgb,var(--c) 55%,var(--paper))}
+.wit.rep{background:transparent;box-shadow:inset 0 0 0 1px var(--s)}
+.wit.todo{background:transparent;box-shadow:inset 0 0 0 1px var(--faint)}
+.wit.todo.late{box-shadow:inset 0 0 0 1px var(--danger);color:var(--danger)}
+.wnone{font-size:12px;color:var(--faint);padding-top:8px}
+.wmeta{display:flex;gap:8px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.wmeta .h{color:var(--hot);font-weight:700}
+
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -395,16 +431,21 @@ img{max-width:100%}
     <h2><span class="y num" id="mY"></span><span id="mM"></span></h2>
     <button class="tbtn" id="goToday" type="button">今日</button>
     <button class="ibtn" id="prevM" type="button" aria-label="前の月">‹</button>
-    <button class="ibtn" id="nextM" type="button" aria-label="次の月">›</button>
+    <button class="ibtn" id="nextM" type="button" aria-label="次へ">›</button>
   </div>
-  <div class="sec" style="margin-top:12px">
+  <div class="vseg" role="group" aria-label="表示の切り替え"><button type="button" id="cvMonth" aria-pressed="true">月</button><button type="button" id="cvWeek" aria-pressed="false">週</button><button type="button" id="cvDay" aria-pressed="false">日</button></div>
+  <div class="sec" id="calMonth" style="margin-top:12px">
     <div class="mgrid" id="grid"></div>
-    <div class="legend">
-      <span><i style="background:var(--family-soft)"></i>予定</span>
-      <span><i style="background:color-mix(in srgb,var(--mama) 62%,var(--paper))"></i>期間</span>
-      <span><i style="box-shadow:inset 0 0 0 1px var(--family)"></i>毎週</span>
-      <span><i style="box-shadow:inset 0 0 0 1px var(--faint)"></i>締め切り</span>
-    </div>
+  </div>
+  <div class="sec" id="calWeek" style="margin-top:12px" hidden>
+    <div class="wk" id="wkList"></div>
+  </div>
+  <div class="legend" id="calLegend" style="margin-top:10px">
+    <span><span class="pp sm p-papa">パ</span><span class="pp sm p-mama">マ</span><span class="pp sm p-yuzu">ゆ</span><span class="pp sm p-family">家</span>&nbsp; 色＝だれの予定（紫は家族みんな）</span>
+    <span>💼🎒🏥🧸🚗🎉 アイコン＝種類</span>
+    <span><i style="background:color-mix(in srgb,var(--mama) 62%,var(--paper))"></i>期間</span>
+    <span><i style="box-shadow:inset 0 0 0 1px var(--family)"></i>毎週</span>
+    <span><i style="box-shadow:inset 0 0 0 1px var(--faint)"></i>締め切り</span>
   </div>
   <div class="sec">
     <div class="sech"><h2 id="cdTitle"></h2>
@@ -521,6 +562,8 @@ img{max-width:100%}
     <div class="shh"><h3 id="evFormTitle">予定を追加</h3><button type="button" class="lnk" id="evClose" style="font-size:14px">閉じる</button></div>
     <div class="seg" role="group" aria-label="追加するもの"><button type="button" id="mEv" aria-pressed="true">予定</button><button type="button" id="mTodo" aria-pressed="false">やること</button></div>
     <label class="f">なにする？<input type="text" id="evTitle" required></label>
+    <div style="font-size:12px;color:var(--muted);font-weight:700">種類</div>
+    <div class="catpick" id="catPick" role="radiogroup" aria-label="種類"></div>
     <div id="evOnly" style="display:flex;flex-direction:column;gap:12px">
       <div class="row"><label class="f">日にち<input type="date" id="evDate"></label><label class="f" id="endDateWrap" hidden>おわりの日<input type="date" id="evEndDate"></label></div>
       <label class="toggle"><input type="checkbox" id="evSpan">何日か続く予定（期間）</label>
@@ -530,6 +573,7 @@ img{max-width:100%}
     <div id="todoOnly" hidden><label class="f">締め切り<input type="date" id="tdDue"></label></div>
     <div style="font-size:12px;color:var(--muted);font-weight:700">だれの？</div>
     <div class="whopick">
+      <label class="p-family"><input type="checkbox" id="w-family"><span class="pp sm p-family">家</span>家族みんな</label>
       <label class="p-papa"><input type="checkbox" id="w-papa"><span class="pp sm p-papa">パ</span>パパ</label>
       <label class="p-mama"><input type="checkbox" id="w-mama"><span class="pp sm p-mama">マ</span>ママ</label>
       <label class="p-yuzu"><input type="checkbox" id="w-yuzu"><span class="pp sm p-yuzu">ゆ</span>ゆづ</label>
@@ -573,7 +617,13 @@ img{max-width:100%}
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
 
   /* ---------- model helpers ---------- */
-  const whoList=w=>{const a=Array.isArray(w)?w.filter(x=>WHO[x]):[];return a.length?a:["family"]};
+  const whoList=w=>{const a=Array.isArray(w)?w:[];if(a.includes("family"))return ["family"];const b=a.filter(x=>WHO[x]);return b.length?b:["family"]};
+  const CATS=[["","なし",""],["work","仕事","💼"],["school","園・学校","🎒"],["health","病院・健診","🏥"],["lesson","習い事・ひろば","🧸"],["outing","おでかけ・旅行","🚗"],["event","行事・記念日","🎉"],["home","家のこと","🧺"],["paper","手続き・提出","📝"]];
+  const CAT=Object.fromEntries(CATS.map(c=>[c[0],c]));
+  const catIcon=x=>((x&&CAT[x.cat])||CAT[""])[2];
+  const isFam=x=>whoList(x&&x.who)[0]==="family";
+  function ctag(x){const c=x&&CAT[x.cat];return c&&c[0]?el("span","ctag",c[2]+" "+c[1]):null}
+  function ftag(x){return isFam(x)?el("span","ftag","家族"):null}
   const colorOf=w=>{const a=whoList(w);return a.length===1?a[0]:"family"};
   const whoText=w=>{const a=whoList(w);return a[0]==="family"?"家族みんな":a.map(k=>WHO[k].n).join("・")};
   function badge(k,sm){const s=el("span","pp "+(sm?"sm ":"")+"p-"+k,k==="family"?"家":WHO[k].c);s.title=k==="family"?"家族":WHO[k].n;return s}
@@ -629,7 +679,8 @@ img{max-width:100%}
     // all-day & spans
     evs.filter(e=>!e.time).forEach(e=>{
       const kk=colorOf(e.who); const b=tapDiv("adi p-"+kk);
-      b.append(el("span","lab",isSpan(e)?"期間":e.repeat==="weekly"?"毎週":"終日"), el("span","tt",e.title));
+      const tt0=el("span","tt");{const f=ftag(e);if(f)tt0.append(f)}tt0.append((catIcon(e)?catIcon(e)+" ":"")+e.title);
+      b.append(el("span","lab",isSpan(e)?"期間":e.repeat==="weekly"?"毎週":"終日"), tt0);
       if(isSpan(e)) b.append(el("span","rg",md(e.date)+"–"+md(e.endDate)));
       const ws=el("span","whos");whoList(e.who).forEach(x=>ws.append(badge(x,true)));b.append(ws);
       b.addEventListener("click",()=>openSheet("ev",e));
@@ -641,8 +692,8 @@ img{max-width:100%}
       const kk=colorOf(e.who); const li=el("li","ag");
       const tm=el("div","tm",e.time); if(e.end) tm.append(el("small","","〜"+e.end));
       const b=tapDiv("blk p-"+kk);
-      b.append(el("span","tt",e.title));
-      const mt=el("span","mt"); const ws=el("span","whos"); whoList(e.who).forEach(x=>ws.append(badge(x,true))); mt.append(ws, whoText(e.who)); if(e.repeat==="weekly") mt.append("・毎週");
+      const tt1=el("span","tt");{const f=ftag(e);if(f)tt1.append(f)}tt1.append(e.title); b.append(tt1);
+      const mt=el("span","mt"); const ws=el("span","whos"); whoList(e.who).forEach(x=>ws.append(badge(x,true))); mt.append(ws, whoText(e.who)); if(e.repeat==="weekly") mt.append("・毎週"); {const c=ctag(e);if(c)mt.append(c)}
       b.append(mt); if(e.memo) b.append(el("span","memo","📝 "+e.memo));
       b.addEventListener("click",()=>openSheet("ev",e));
       if(withActions) b.append(delGroup(e,k));
@@ -651,7 +702,7 @@ img{max-width:100%}
     // todos due that day
     if(tds.length){
       const wrap=el("li"); wrap.style.marginTop="8px";
-      tds.forEach(t=>{const d=dueText(t);const r=el("div","todoi"+(t.done?" done":""));r.append(chk(t),el("span","tt",t.title),el("span","dd "+d.cls,t.done?"完了":"締切"));r.addEventListener("click",()=>openSheet("todo",t));wrap.append(r)});
+      tds.forEach(t=>{const d=dueText(t);const r=el("div","todoi"+(t.done?" done":""));r.append(chk(t),el("span","tt",(catIcon(t)?catIcon(t)+" ":"")+t.title),el("span","dd "+d.cls,t.done?"完了":"締切"));r.addEventListener("click",()=>openSheet("todo",t));wrap.append(r)});
       listBox.append(wrap);
     }
     const ogAll=outings.filter(o=>o.start&&o.start<=k&&(o.end||o.start)>=k); const ogs=ogAll.slice(0,3);
@@ -706,7 +757,7 @@ img{max-width:100%}
     // deadlines
     const soon=todos.filter(t=>!t.done&&t.due&&dayDiff(todayKey,t.due)<=3).sort((a,b)=>a.due.localeCompare(b.due));
     const dl=$("dlList"); dl.replaceChildren();
-    soon.forEach(t=>{const d2=dueText(t);const r=el("div","todoi");r.append(chk(t),el("span","tt",t.title),el("span","dd "+d2.cls,d2.txt));dl.append(r)});
+    soon.forEach(t=>{const d2=dueText(t);const r=el("div","todoi");r.append(chk(t),el("span","tt",(catIcon(t)?catIcon(t)+" ":"")+t.title),el("span","dd "+d2.cls,d2.txt));dl.append(r)});
     $("dlSec").hidden=!soon.length;
     // weather week
     const days=weather&&Array.isArray(weather.days)?weather.days.filter(x=>!x.date||x.date>=todayKey).slice(0,7):[];
@@ -724,8 +775,51 @@ img{max-width:100%}
     const left=shop.filter(s=>!s.done).length; $("shopBadge").hidden=!left; $("shopBadge").textContent=left;
   }
 
-  /* ---------- month ---------- */
+  /* ---------- calendar views: month / week / day ---------- */
+  let calView=(()=>{try{const v=localStorage.getItem("koyomi-calview");return ["month","week","day"].includes(v)?v:"month"}catch(e){return "month"}})();
+  const weekStart=k=>{const d=k2d(k);return addDays(k,-((d.getDay()+6)%7))};
+  function setCalView(v){
+    calView=v; try{localStorage.setItem("koyomi-calview",v)}catch(e){}
+    if(v==="month"){const d=k2d(calSel);view=new Date(d.getFullYear(),d.getMonth(),1)}
+    if(v==="day"&&dayMode==="list"&&!setCalView.touched){dayMode="time"}
+    renderCal();
+  }
+  $("cvMonth").addEventListener("click",()=>setCalView("month"));
+  $("cvWeek").addEventListener("click",()=>setCalView("week"));
+  $("cvDay").addEventListener("click",()=>setCalView("day"));
+  function renderWeek(){
+    const s0=weekStart(calSel), box=$("wkList"); box.replaceChildren();
+    for(let i=0;i<7;i++){
+      const k=addDays(s0,i), d=k2d(k), dw=d.getDay();
+      const r=el("button","wrow"+(k===todayKey?" today":"")+(dw===0?" sun":dw===6?" sat":"")+(HOL[k]?" hol":"")); r.type="button";
+      r.setAttribute("aria-pressed",k===calSel?"true":"false");
+      const wd=el("div","wd"); wd.append(el("span","w",DOW[dw]),el("span","n",d.getDate()));
+      const w=wxFor(k); if(w) wd.append(el("span","x",(w.icon||"")+" "+(w.hi??"-")+"°"));
+      const wi=el("div","wi2");
+      const meta=el("div","wmeta"); if(HOL[k]) meta.append(el("span","h",HOL[k])); const g=garbageFor(k); if(g.length) meta.append("🗑 "+g.map(x=>x.kind).join("・"));
+      if(meta.children.length||meta.textContent) wi.append(meta);
+      const evs=eventsOn(k), tds=todosOn(k);
+      evs.forEach(e=>{const kk=colorOf(e.who);const it=el("div","wit p-"+kk+(isSpan(e)?" sp":e.repeat==="weekly"?" rep":""));if(isSpan(e))it.style.setProperty("--c","var(--"+kk+")");
+        it.append(el("span","t",isSpan(e)?md(e.date)+"–"+md(e.endDate):e.time?e.time+(e.end?"–"+e.end:""):"終日"));
+        const tt=el("span","tt");{const f=ftag(e);if(f)tt.append(f)}tt.append((catIcon(e)?catIcon(e)+" ":"")+e.title);it.append(tt);wi.append(it)});
+      tds.forEach(t=>{const it=el("div","wit todo"+(!t.done&&t.due<todayKey?" late":""));it.append(el("span","t",t.done?"☑":"☐"),el("span","tt",(catIcon(t)?catIcon(t)+" ":"")+t.title+"（締切）"));wi.append(it)});
+      if(!evs.length&&!tds.length) wi.append(el("div","wnone","予定なし"));
+      r.setAttribute("aria-label",fmtDay(k)+"、予定"+evs.length+"件"+(tds.length?"、締切"+tds.length+"件":""));
+      r.append(wd,wi);
+      r.addEventListener("click",()=>{calSel=k;renderCal()});
+      box.append(r);
+    }
+  }
   function renderCal(){
+    ["Month","Week","Day"].forEach(n=>$("cv"+n).setAttribute("aria-pressed",calView===n.toLowerCase()?"true":"false"));
+    $("calMonth").hidden=calView!=="month"; $("calWeek").hidden=calView!=="week"; $("calLegend").hidden=calView==="day";
+    if(calView!=="month"){
+      const d=k2d(calSel); $("mY").textContent=d.getFullYear();
+      if(calView==="week"){const s0=weekStart(calSel);$("mM").textContent=md(s0)+"〜"+md(addDays(s0,6));$("prevM").setAttribute("aria-label","前の週");$("nextM").setAttribute("aria-label","次の週");renderWeek()}
+      else {$("mM").textContent=(d.getMonth()+1)+"月"+d.getDate()+"日";$("prevM").setAttribute("aria-label","前の日");$("nextM").setAttribute("aria-label","次の日")}
+      renderCalDay(); return;
+    }
+    $("prevM").setAttribute("aria-label","前の月");$("nextM").setAttribute("aria-label","次の月");
     $("mY").textContent=view.getFullYear(); $("mM").textContent=(view.getMonth()+1)+"月";
     const g=$("grid"); g.replaceChildren();
     [1,2,3,4,5,6,0].forEach(i=>g.append(el("div","dow"+(i===0?" sun":i===6?" sat":""),DOW[i])));
@@ -741,9 +835,10 @@ img{max-width:100%}
       const dh=el("span","dh"); dh.append(el("span","dn",d.getDate())); if(w&&w.icon){const wi=el("span","wi",w.icon);wi.setAttribute("aria-hidden","true");dh.append(wi)} b.append(dh);
       const chips=[];
       evs.forEach(e=>{const kk=colorOf(e.who);
-        if(isSpan(e)){const st=k===e.date,en=k===e.endDate,wk=col===0;const c=el("span","cc sp p-"+kk+(st?" st":"")+(en?" en":"")+(!st&&!wk?" cont":""),e.title);chips.push(c)}
-        else if(e.repeat==="weekly") chips.push(el("span","cc rep p-"+kk,e.title));
-        else chips.push(el("span","cc p-"+kk,(e.time?e.time.replace(/^0/,"")+" ":"")+e.title));
+        const ic=catIcon(e)?catIcon(e):"";
+        if(isSpan(e)){const st=k===e.date,en=k===e.endDate,wk=col===0;const c=el("span","cc sp p-"+kk+(st?" st":"")+(en?" en":"")+(!st&&!wk?" cont":""),ic+e.title);chips.push(c)}
+        else if(e.repeat==="weekly") chips.push(el("span","cc rep p-"+kk,ic+e.title));
+        else chips.push(el("span","cc p-"+kk,ic+(e.time?e.time.replace(/^0/,"")+" ":"")+e.title));
       });
       tds.forEach(t=>chips.push(el("span","cc todo"+(t.done?" done":"")+(!t.done&&t.due<todayKey?" late":""),(t.done?"☑":"☐")+t.title)));
       const max=HOL[k]?2:3;
@@ -781,11 +876,16 @@ img{max-width:100%}
     const first=timed.length?timed[0].s:(calSel===todayKey?now.getHours()*60-60:7*60);
     requestAnimationFrame(()=>{$("tlwrap").scrollTop=Math.max(0,first/60*HH-20)});
   }
-  function setDayMode(m){dayMode=m;try{localStorage.setItem("wagaya-daymode",m)}catch(e){}renderCalDay()}
+  function setDayMode(m){setCalView.touched=true;dayMode=m;try{localStorage.setItem("wagaya-daymode",m)}catch(e){}renderCalDay()}
   $("vList").addEventListener("click",()=>setDayMode("list"));
   $("vTime").addEventListener("click",()=>setDayMode("time"));
-  $("prevM").addEventListener("click",()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCal()});
-  $("nextM").addEventListener("click",()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderCal()});
+  function stepCal(n){
+    if(calView==="month"){view=new Date(view.getFullYear(),view.getMonth()+n,1)}
+    else {calSel=addDays(calSel,calView==="week"?7*n:n)}
+    renderCal();
+  }
+  $("prevM").addEventListener("click",()=>stepCal(-1));
+  $("nextM").addEventListener("click",()=>stepCal(1));
   $("goToday").addEventListener("click",()=>{view=new Date(now.getFullYear(),now.getMonth(),1);calSel=todayKey;renderCal()});
 
   /* ---------- sheet form ---------- */
@@ -801,6 +901,12 @@ img{max-width:100%}
   $("mTodo").addEventListener("click",()=>{if(!editing)setFormMode("todo")});
   $("evSpan").addEventListener("change",()=>{if($("evSpan").checked){$("evRepeat").value="";if(!$("evEndDate").value)$("evEndDate").value=addDays($("evDate").value||todayKey,1)}syncBits()});
   $("evRepeat").addEventListener("change",()=>{if($("evRepeat").value==="weekly")$("evSpan").checked=false;syncBits()});
+  const cp=$("catPick");
+  CATS.forEach(([k,l,i])=>{const lab=el("label");const inp=el("input");inp.type="radio";inp.name="cat";inp.value=k;inp.id="cat-"+(k||"none");lab.append(inp,(i?i+" ":"")+l);cp.append(lab)});
+  const setCat=v=>{const r=document.getElementById("cat-"+(v||"none"));(r||document.getElementById("cat-none")).checked=true};
+  const getCat=()=>{const r=cp.querySelector("input:checked");return r?r.value:""};
+  $("w-family").addEventListener("change",()=>{if($("w-family").checked)["papa","mama","yuzu"].forEach(k=>$("w-"+k).checked=false)});
+  ["papa","mama","yuzu"].forEach(k=>$("w-"+k).addEventListener("change",()=>{if($("w-"+k).checked)$("w-family").checked=false}));
   let lastFocus=null;
   function curSel(){ return !$("pane-cal").hidden?calSel:homeSel; }
   function openSheet(kind,x,prefill){
@@ -811,9 +917,12 @@ img{max-width:100%}
     if(x){
       $("evTitle").value=x.title||""; $("evMemo").value=x.memo||x.note||"";
       ["papa","mama","yuzu"].forEach(k=>$("w-"+k).checked=(x.who||[]).includes(k));
+      $("w-family").checked = x.id ? isFam(x) : (x.who||[]).includes("family");
+      setCat(x.cat||"");
       if(kind==="ev"&&x.id){$("evDate").value=x.date;$("evTime").value=x.time||"";$("evEnd").value=x.end||"";$("evSpan").checked=isSpan(x);$("evEndDate").value=x.endDate||"";$("evRepeat").value=x.repeat==="weekly"?"weekly":"";$("evUntil").value=x.until||""}
       if(kind==="todo"&&x.id){$("tdDue").value=x.due||""}
     }
+    if(!x) setCat("");
     syncBits(); $("scrim").hidden=false; setTimeout(()=>$("evTitle").focus(),60);
   }
   function closeSheet(){ $("scrim").hidden=true; editing=null; if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
@@ -823,14 +932,14 @@ img{max-width:100%}
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("scrim").hidden)closeSheet()});
   $("evForm").addEventListener("submit",async ev=>{
     ev.preventDefault(); if(!db){status("いまは保存できません。claude.aiにログインして開き直してください。",true);return}
-    const who=["papa","mama","yuzu"].filter(k=>$("w-"+k).checked); const title=$("evTitle").value.trim(); if(!title) return;
+    const who=$("w-family").checked?["family"]:["papa","mama","yuzu"].filter(k=>$("w-"+k).checked); const cat=getCat(); const title=$("evTitle").value.trim(); if(!title) return;
     let coll,data,jump;
     if(formMode==="ev"){
       const date=$("evDate").value; if(!date){status("日にちを入れてください。",true);return}
       const span=$("evSpan").checked&&$("evEndDate").value>date, rep=$("evRepeat").value==="weekly"&&!span, t=$("evTime").value||"";
-      data={title,date,endDate:span?$("evEndDate").value:"",time:t,end:(t&&$("evEnd").value>t)?$("evEnd").value:"",repeat:rep?"weekly":"",until:rep?($("evUntil").value||""):"",who,memo:$("evMemo").value.trim()};
+      data={title,date,endDate:span?$("evEndDate").value:"",time:t,end:(t&&$("evEnd").value>t)?$("evEnd").value:"",repeat:rep?"weekly":"",until:rep?($("evUntil").value||""):"",who,cat,memo:$("evMemo").value.trim()};
       coll="events"; jump=date;
-    } else { data={title,due:$("tdDue").value||"",who,memo:$("evMemo").value.trim()}; coll="todos"; jump=data.due||curSel(); }
+    } else { data={title,due:$("tdDue").value||"",who,cat,memo:$("evMemo").value.trim()}; coll="todos"; jump=data.due||curSel(); }
     $("evSubmit").disabled=true;
     try{
       if(editing){await db.collection(coll).doc(editing.id).update(data);status("保存しました")}
@@ -843,7 +952,7 @@ img{max-width:100%}
 
   /* ---------- todo tab ---------- */
   function todoRow(t){
-    const li=el("li","item"+(t.done?" done":"")); const tx=el("span","tx",t.title);
+    const li=el("li","item"+(t.done?" done":"")); const tx=el("span","tx",(catIcon(t)?catIcon(t)+" ":"")+t.title);
     const d=dueText(t); const sb=el("span","sb"); sb.append(el("span",d.cls,d.txt)); if((t.who||[]).length) sb.append("・"+whoText(t.who)); if(t.memo) sb.append("・"+t.memo); tx.append(sb);
     const ed=el("button","lnk","直す"); ed.type="button"; ed.addEventListener("click",()=>openSheet("todo",t));
     li.append(chk(t),tx,ed,armBtn("消す",()=>db.collection("todos").doc(t.id).delete())); return li;
@@ -928,7 +1037,7 @@ img{max-width:100%}
       ac.append(pl,wi); c.append(ac); box.append(c);
     });
     $("ogSub").textContent=list.length+"件";
-    $("ogFoot").textContent=ogMeta&&ogMeta.updated?ogMeta.updated+" にClaudeが調べました。日程は変わることがあるので、出かける前に詳細ページで確認してください。":"";
+    $("ogFoot").textContent=ogMeta&&ogMeta.updated?"大津市イベント情報（otsu-event.site）から "+ogMeta.updated+" にClaudeが選びました。毎週月曜に更新します。日程は変わることがあるので、出かける前に詳細ページで確認してください。":"";
   }
 
   /* ---------- tabs ---------- */

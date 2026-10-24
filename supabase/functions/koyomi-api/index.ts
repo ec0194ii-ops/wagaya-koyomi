@@ -140,6 +140,48 @@ function describe(kind: string, p: any, old: any, created: boolean, deleted: boo
   return '';
 }
 
+
+/* ---------- weather (気象庁 open data for 滋賀県南部 / 大津) ---------- */
+function codeInfo(code: unknown): [string, string] {
+  const c = Number(code);
+  if (!c) return ['', ''];
+  if (c >= 400) return ['❄️', '雪'];
+  if (c >= 300) return c === 301 ? ['🌦', '雨時々晴れ'] : ['☔', '雨'];
+  if (c >= 200) return [200, 209, 231].includes(c) ? ['☁️', 'くもり'] : [201, 210, 211, 223].includes(c) ? ['⛅', 'くもり時々晴れ'] : ['🌧', 'くもり一時雨'];
+  return [100, 123, 124, 130, 131].includes(c) ? ['☀️', '晴れ'] : [101, 110, 111, 132].includes(c) ? ['⛅', '晴れ時々くもり'] : ['🌦', '晴れ一時雨'];
+}
+async function saveInfo(id: string, p: Record<string, unknown>) {
+  const [cur] = await db('koyomi_items', 'GET', `id=eq.${id}&select=version`);
+  if (cur) await db('koyomi_items', 'PATCH', `id=eq.${id}`, { payload: p, version: cur.version + 1, updated_at: new Date().toISOString(), updated_by: 'system', deleted_at: null });
+  else await db('koyomi_items', 'POST', '', { id, kind: 'info', payload: p, updated_by: 'system' });
+}
+async function updateWeather() {
+  const r = await fetch('https://www.jma.go.jp/bosai/forecast/data/forecast/250000.json', { headers: { Accept: 'application/json' } });
+  if (!r.ok) fail(502, 'jma_unavailable');
+  const j = await r.json();
+  const days: Record<string, any> = {};
+  const day = (t: string) => { const k = t.slice(0, 10); return days[k] = days[k] || { date: k }; };
+  const pick = (areas: any[], code: string) => areas.find((a: any) => a.area?.code === code) || areas[0];
+  const short = j[0].timeSeries;
+  const w = pick(short[0].areas, '250010');
+  short[0].timeDefines.forEach((t: string, i: number) => { const d = day(t); if (w.weatherCodes?.[i]) d.code = w.weatherCodes[i]; if (w.weathers?.[i]) d.detail = String(w.weathers[i]).replace(/[\s　]+/g, ' ').trim(); });
+  const pp = pick(short[1].areas, '250010');
+  short[1].timeDefines.forEach((t: string, i: number) => { const v = pp.pops?.[i]; if (v === '' || v == null) return; const d = day(t); d.pop = Math.max(d.pop ?? 0, Number(v)); });
+  const tt = pick(short[2].areas, '60216');
+  short[2].timeDefines.forEach((t: string, i: number) => { const v = tt.temps?.[i]; if (v === '' || v == null) return; const d = day(t); if (t.slice(11, 13) === '00') d.lo = Number(v); else d.hi = Number(v); });
+  const wk = j[1]?.timeSeries || [];
+  if (wk[0]) { const a = wk[0].areas[0]; wk[0].timeDefines.forEach((t: string, i: number) => { const d = day(t); if (!d.code && a.weatherCodes?.[i]) d.code = a.weatherCodes[i]; if (d.pop == null && a.pops?.[i]) d.pop = Number(a.pops[i]); if (a.reliabilities?.[i]) d.rel = a.reliabilities[i]; }); }
+  if (wk[1]) { const a = pick(wk[1].areas, '60216'); wk[1].timeDefines.forEach((t: string, i: number) => { const d = day(t); if (d.lo == null && a.tempsMin?.[i]) d.lo = Number(a.tempsMin[i]); if (d.hi == null && a.tempsMax?.[i]) d.hi = Number(a.tempsMax[i]); }); }
+  const today = jstKey(0);
+  const list = Object.values(days).filter((d: any) => d.date >= today && d.code).sort((a: any, b: any) => a.date.localeCompare(b.date)).slice(0, 7)
+    .map((d: any) => { const [icon, text] = codeInfo(d.code); return { date: d.date, icon, text, hi: d.hi ?? null, lo: d.lo ?? null, pop: d.pop ?? null, ...(d.detail ? { detail: d.detail } : {}), ...(d.rel ? { rel: d.rel } : {}) }; });
+  if (!list.length) fail(502, 'jma_empty');
+  const now = new Date(Date.now() + 9 * 3600000);
+  const updated = `${now.getUTCMonth() + 1}/${now.getUTCDate()} ${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
+  await saveInfo('weather', { key: 'weather', area: '大津市', source: '気象庁', updated, url: 'https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html', days: list });
+  return list.length;
+}
+
 /* ---------- morning summary ---------- */
 const DOW = ['日', '月', '火', '水', '木', '金', '土'];
 function jstKey(offsetDays = 0) { const d = new Date(Date.now() + 9 * 3600000 + offsetDays * 86400000); return d.toISOString().slice(0, 10); }
@@ -211,11 +253,13 @@ Deno.serve(async req => {
     const body = await readBody(req);
     if (!body || typeof body !== 'object') fail(400, 'invalid_body');
 
-    if (body.action === 'morning') {
-      // Called once a day by the database scheduler (pg_cron); authorised by a secret whose hash is in koyomi_config.
+    if (body.action === 'morning' || body.action === 'weather') {
+      // Called by the database scheduler (pg_cron); authorised by a secret whose hash is in koyomi_config.
       const secret = req.headers.get('x-koyomi-cron') || '';
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=cron_hash');
       if (!cfg?.cron_hash || !/^[0-9a-f]{64}$/.test(secret) || !equal(await sha(secret), cfg.cron_hash)) fail(401, 'not_allowed');
+      let wx = 0; try { wx = await updateWeather(); } catch { /* keep yesterday's forecast */ }
+      if (body.action === 'weather') return response({ ok: true, days: wx });
       const msg = await morningText();
       if (msg) await sendPush(null, msg, 'koyomi-morning');
       return response({ ok: true, msg });
