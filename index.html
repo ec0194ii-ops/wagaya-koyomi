@@ -443,8 +443,8 @@ a.btn{text-decoration:none;display:inline-block}
 .foldbtn .grip{width:38px;height:5px;border-radius:999px;background:var(--faint);opacity:.7}
 #calLegend{margin-top:4px}
 .cdt{display:flex;align-items:center;gap:2px;min-width:0}
-.cdt h2{white-space:nowrap}
-.dnav{border:0;background:transparent;color:var(--muted);font-size:22px;width:30px;height:34px;border-radius:10px;line-height:1}
+.cdt h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dnav{border:0;background:transparent;color:var(--muted);font-size:22px;width:26px;height:34px;border-radius:10px;line-height:1}
 .dnav:active{background:var(--sunk)}
 #pane-cal{touch-action:pan-y}
 .adi{flex-wrap:wrap;row-gap:4px}
@@ -453,7 +453,48 @@ a.btn{text-decoration:none;display:inline-block}
 #cdBody .sech{gap:6px}
 #cdBody .vt{flex:none}
 #cdBody .vt button{white-space:nowrap;padding:4px 10px}
-.cdt h2{font-size:21px}
+.cdt h2{font-size:18px}
+
+
+/* photo → schedule */
+.phbtn{display:flex;align-items:center;gap:12px;width:100%;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--paper));border-radius:18px;padding:12px 14px;text-align:left;color:var(--fg)}
+.phbtn>span:first-child{font-size:24px}
+.phbtn>span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:2px}
+.phbtn b{font-size:14.5px} .phbtn small{font-size:12px;color:var(--muted)}
+.phbtn>span:last-child{color:var(--muted);font-size:20px}
+.phlead{margin:0;font-size:14px;line-height:1.7}
+.phpick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 8px}
+.phl{display:flex;justify-content:center;align-items:center;gap:6px;cursor:pointer;padding:14px 10px;font-size:15px}
+.btn.ghost{background:var(--sunk);color:var(--fg)}
+.phnote{margin:0;font-size:11.5px;color:var(--muted);line-height:1.6}
+.phwork,.phhead{display:flex;align-items:center;gap:14px}
+.phwork img,.phhead img{width:72px;height:72px;object-fit:cover;border-radius:14px;background:var(--sunk);flex:none}
+.phwork>div{flex:1}
+.phbar{height:8px;border-radius:999px;background:var(--sunk);overflow:hidden;margin-top:8px}
+.phbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .3s}
+.phhead p{margin:0;font-size:14px;line-height:1.6}
+.phlist{display:flex;flex-direction:column;gap:10px}
+.phc{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:18px;padding:10px 12px;background:var(--paper)}
+.phc.off{opacity:.45}
+.phc>input{width:22px;height:22px;margin-top:8px;accent-color:var(--accent);flex:none}
+.phf{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.phf input,.phf select{font:inherit;font-size:15px;border:1px solid var(--line);border-radius:12px;padding:7px 9px;background:var(--bg);color:var(--fg);min-width:0;width:100%}
+.phf .r{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.phf .r input[type=date]{grid-column:1/-1}
+.phf .r.todo{grid-template-columns:1fr}
+.phf .top{display:grid;grid-template-columns:auto 1fr;gap:6px}
+.phf .top select{width:auto}
+.phf .src{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phf .lab{font-size:10.5px;color:var(--muted);font-weight:700}
+.phraw summary{font-size:12px;color:var(--muted);cursor:pointer}
+.phraw pre{white-space:pre-wrap;font-size:12px;background:var(--sunk);border-radius:12px;padding:10px;max-height:200px;overflow:auto}
+.phfoot{display:grid;grid-template-columns:auto 1fr;gap:10px;position:sticky;bottom:-20px;background:var(--paper);padding:10px 0 4px}
+/* weather inside the calendar */
+.mgrid .day .wi{font-size:11px}
+.mgrid.wkmode .day .wi{font-size:14px}
+.day .wxl{display:flex;flex-direction:column;align-items:center;text-align:center;font-family:var(--f-num);font-size:10.5px;color:var(--muted);line-height:1.2;margin-bottom:2px;white-space:nowrap}
+.day .wxl b{color:var(--hot);font-weight:600}
+.day .wxl .wet{color:var(--cold)}
 
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
@@ -811,6 +852,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <form class="sheet" id="evForm" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="evFormTitle">
     <div class="grab"></div>
     <div class="shh"><h3 id="evFormTitle">予定を追加</h3><button type="button" class="lnk" id="evClose" style="font-size:14px">閉じる</button></div>
+    <button type="button" class="phbtn" id="phOpen"><span aria-hidden="true">📷</span><span><b>写真から予定にする</b><small>おたよりや紙の予定表を撮るだけ</small></span><span aria-hidden="true">›</span></button>
     <div class="seg" role="group" aria-label="追加するもの"><button type="button" id="mEv" aria-pressed="true">予定</button><button type="button" id="mTodo" aria-pressed="false">やること</button></div>
     <label class="f">なにする？<input type="text" id="evTitle" required></label>
     <div style="font-size:12px;color:var(--muted);font-weight:700">種類</div>
@@ -832,6 +874,38 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <label class="f">メモ・持ち物<textarea id="evMemo" rows="2" placeholder="例：保険証、上履き"></textarea></label>
     <div style="display:flex;justify-content:flex-end;gap:8px"><button type="submit" class="btn" id="evSubmit">追加する</button></div>
   </form>
+</div>
+
+<div class="scrim" id="phScrim" hidden>
+  <div class="sheet" id="phSheet" role="dialog" aria-modal="true" aria-labelledby="phTitle">
+    <div class="grab"></div>
+    <div class="shh"><h3 id="phTitle">写真から予定に</h3><button type="button" class="lnk" id="phClose" style="font-size:14px">閉じる</button></div>
+    <div id="phPick">
+      <p class="phlead">園のおたよりや予定表の写真から、日にち・時間・内容を読み取ります。追加する前に、内容を確認・修正できます。</p>
+      <div class="phpick">
+        <label class="btn phl"><input type="file" accept="image/*" capture="environment" id="phCam" hidden>📷 撮る</label>
+        <label class="btn ghost phl"><input type="file" accept="image/*" id="phLib" hidden>🖼 写真を選ぶ</label>
+      </div>
+      <p class="phnote">読み取りはこのスマホの中で行います（写真はどこにも送りません）。はじめの1回は読み取り用のデータを準備するので少し時間がかかります。</p>
+    </div>
+    <div id="phWork" hidden>
+      <div class="phwork"><img id="phThumb" alt="読み取り中の写真"><div><b id="phMsg">読み取り中…</b><div class="phbar"><i id="phBar"></i></div></div></div>
+    </div>
+    <div id="phResult" hidden>
+      <div class="phhead"><img id="phThumb2" alt="読み取った写真"><p id="phSum"></p></div>
+      <div style="font-size:12px;color:var(--muted);font-weight:700">だれの予定？</div>
+      <div class="whopick" id="phWho">
+        <label class="p-family"><input type="checkbox" value="family" checked><span class="pp sm p-family">家</span>家族みんな</label>
+        <label class="p-papa"><input type="checkbox" value="papa"><span class="pp sm p-papa">パ</span>パパ</label>
+        <label class="p-mama"><input type="checkbox" value="mama"><span class="pp sm p-mama">マ</span>ママ</label>
+        <label class="p-yuzu"><input type="checkbox" value="yuzu"><span class="pp sm p-yuzu">ゆ</span>ゆづ</label>
+      </div>
+      <div id="phList" class="phlist"></div>
+      <button type="button" class="lnk" id="phAddRow" style="align-self:flex-start">＋ 読み取れなかった予定を足す</button>
+      <details class="phraw"><summary>読み取った文字を見る</summary><pre id="phRaw"></pre></details>
+      <div class="phfoot"><button type="button" class="btn ghost" id="phRetry">撮り直す</button><button type="button" class="btn" id="phSave">この内容で予定にします</button></div>
+    </div>
+  </div>
 </div>
 
 <div class="status" id="status" role="status" hidden></div>
@@ -1116,6 +1190,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     const evs=eventsOn(k), tds=todosOn(k), w=wxFor(k);
     b.setAttribute("aria-label",fmtDay(k)+(HOL[k]?"、"+HOL[k]:"")+(evs.length?`、予定${evs.length}件`:"")+(tds.length?`、締切${tds.length}件`:""));
     const dh=el("span","dh"); dh.append(el("span","dn",d.getDate())); if(w&&w.icon){const wi=el("span","wi",w.icon);wi.setAttribute("aria-hidden","true");dh.append(wi)} b.append(dh);
+    if(w&&calView==="week"){ const hi=hiOf(w); const wl=el("span","wxl"); if(hi!=null) wl.append(el("b","",hi+"°")); if(w.pop!=null) wl.append(el("span",w.pop>=50?"wet":"","☂"+w.pop+"%")); if(wl.childNodes.length) b.append(wl); }
     const chips=[];
     evs.forEach(e=>{const kk=colorOf(e.who);
       const ic=catIcon(e)?catIcon(e):"";
@@ -1172,7 +1247,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     renderCalDay();
   }
   function renderCalDay(){
-    $("cdTitle").textContent=fmtDay(calSel)+(calSel===todayKey?"・今日":"");
+    $("cdTitle").textContent=(calSel===todayKey?"今日 ":"")+md(calSel)+"（"+DOW[k2d(calSel).getDay()]+"）";
     $("vList").setAttribute("aria-pressed",dayMode==="list"?"true":"false"); $("vTime").setAttribute("aria-pressed",dayMode==="time"?"true":"false");
     $("cdListBox").hidden=dayMode!=="list"; $("cdTimeBox").hidden=dayMode!=="time";
     renderAgenda(calSel,$("cdAll"),$("cdList"),$("cdEmpty"),$("cdPills"),true);
@@ -1305,6 +1380,185 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     }catch(e){status("保存できませんでした。もう一度押してください。",true)}
     finally{$("evSubmit").disabled=false}
   });
+
+  /* ---------- photo → schedule: pull dates, times and titles out of OCR text ---------- */
+  function parseSchedule(raw, todayK){
+    const ty=+todayK.slice(0,4);
+    const pad2=n=>String(n).padStart(2,"0");
+    const keyOf=(y,m,d)=>y+"-"+pad2(m)+"-"+pad2(d);
+    const valid=(m,d)=>m>=1&&m<=12&&d>=1&&d<=31;
+    const pickYear=(m,d)=>{ let y=ty; if(keyOf(y,m,d)<shift(todayK,-60)) y++; return y; };
+    function shift(k,n){const [y,m,d]=k.split("-").map(Number);const t=new Date(y,m-1,d+n);return keyOf(t.getFullYear(),t.getMonth()+1,t.getDate())}
+    let txt=String(raw||"").normalize("NFKC")
+      .replace(/[〜～]/g,"~").replace(/[−–—―ー－](?=\s*\d)/g,"-")
+      .replace(/(?<![A-Za-z])[ \t　]+|[ \t　]+(?![A-Za-z])/g,"");
+    const lines=txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const DATE=/(?:(\d{4})年|令和(\d{1,2})年)?(\d{1,2})月(\d{1,2})日|(?<![\d\/])(?:(\d{4})\/)?(\d{1,2})\/(\d{1,2})(?![\d\/])/g;
+    const WD=/[(\[]?[月火水木金土日祝](?:・祝)?(?:曜日?)?[)\]]/g;
+    const TIME=/(午前|午後|AM|PM|am|pm)?(\d{1,2})(?::(\d{2})|時(?:(\d{1,2})分|(半))?)/g;
+    const TODO=/(締切|締め切り|〆切|しめきり|提出|期限|までに|申込|申し込み)/;
+    const out=[];
+    const clean=s=>s.replace(DATE,"").replace(WD,"").replace(TIME,"")
+      .replace(/(\d{1,2}日)/g,"").replace(/[~\-から迄まで]+$/,"").replace(/^[~\-]+/,"")
+      .replace(/^(日時|日程|日にち|期日|期間|時間|場所|とき|ところ|内容|行事|予定)[:：]?/,"")
+      .replace(/^[\s・:：、。,.()（）【】「」『』\[\]*●○◆◇■□▼▲※〇♪☆★\-~]+|[\s・:：、。,.()（）【】「」『』\[\]*●○◆◇■□▼▲※〇♪☆★\-~]+$/g,"")
+      .replace(/\s+/g," ").trim();
+    const hasDate=s=>{DATE.lastIndex=0;return DATE.test(s)};
+    lines.forEach((ln,i)=>{
+      DATE.lastIndex=0; const m=DATE.exec(ln); if(!m) return;
+      let y,mo,d;
+      if(m[3]){ mo=+m[3]; d=+m[4]; y=m[1]?+m[1]:m[2]?2018+(+m[2]):null; }
+      else { mo=+m[6]; d=+m[7]; y=m[5]?+m[5]:null; }
+      if(!valid(mo,d)) return;
+      if(!y) y=pickYear(mo,d);
+      const date=keyOf(y,mo,d);
+      // a range like 10月26日(月)~30日(金) or 10/26~10/30
+      let endDate="";
+      const rest=ln.slice(m.index+m[0].length).replace(WD,"");
+      const r=rest.match(/^\s*(?:~|-|から)\s*(?:(\d{1,2})月|(\d{1,2})\/)?(\d{1,2})日?/);
+      if(r){ const em=r[1]?+r[1]:r[2]?+r[2]:mo, ed=+r[3]; if(valid(em,ed)){ let ey=y; if(em<mo) ey++; const ek=keyOf(ey,em,ed); if(ek>date&&dayGap(date,ek)<=60) endDate=ek; } }
+      // times (only the part after the date so "10/26" is not taken as a time)
+      let time="", end="";
+      const tsOf=tpart=>{ const ts=[]; TIME.lastIndex=0; let t;
+      while((t=TIME.exec(tpart))){
+        if(!t[3]&&!/時/.test(t[0])) continue;
+        let h=+t[2], mi=t[3]?+t[3]:t[4]?+t[4]:t[5]?30:0;
+        if(/午後|PM|pm/.test(t[1]||"")&&h<12) h+=12;
+        if(h>23||mi>59) continue;
+        ts.push(pad2(h)+":"+pad2(mi));
+      } return ts; };
+      let ts=tsOf(ln.slice(m.index+m[0].length));
+      // title: same line, else the next line without a date, else the previous one
+      let title=clean(ln);
+      if(title.length<2){ const nx=lines[i+1]; if(nx&&!hasDate(nx)){ title=clean(nx); if(!ts.length) ts=tsOf(nx); } }
+      if(title.length<2){ const pv=lines[i-1]; if(pv&&!hasDate(pv)) title=clean(pv); }
+      if(ts[0]) time=ts[0]; if(ts[1]&&ts[1]>ts[0]) end=ts[1];
+      title=title.replace(/(の場合|について|のお知らせ)?[はがをにのへ]$/,"").replace(/(から|より)$/,"").trim();
+      if(title.length<2) title="";
+      title=title.slice(0,40);
+      const kind=TODO.test(ln)?"todo":"ev";
+      if(kind==="todo") title=title.replace(/(まで(に)?|迄)$/,"").trim();
+      out.push({kind,title,date,endDate,time,end,cat:guessCat(ln+" "+title,kind),src:ln});
+    });
+    const seen=new Set();
+    return out.filter(x=>{const k=x.date+"|"+x.title;if(seen.has(k))return false;seen.add(k);return true}).slice(0,20);
+    function dayGap(a,b){const p=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};return Math.round((p(b)-p(a))/86400000)}
+  }
+  function guessCat(s,kind){
+    if(/(病院|医院|クリニック|健診|検診|歯科|予防接種|小児科|眼科|耳鼻)/.test(s)) return "health";
+    if(kind==="todo"||/(提出|申込|申し込み|手続|締切|振込|支払)/.test(s)) return "paper";
+    if(/(運動会|発表会|参観|遠足|入園|卒園|始業|終業|保育|幼稚園|園|学校|懇談|面談|PTA)/.test(s)) return "school";
+    if(/(誕生日|記念日|七五三|お祝い|祭|クリスマス|ハロウィン|正月)/.test(s)) return "event";
+    if(/(教室|レッスン|スイミング|ひろば|習い事|体操)/.test(s)) return "lesson";
+    if(/(旅行|おでかけ|帰省|ホテル|動物園|水族館)/.test(s)) return "outing";
+    if(/(会議|出張|研修|仕事|打ち合わせ)/.test(s)) return "work";
+    return "";
+  }
+
+  const TESS_URL="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+  function loadTess(){ return new Promise((res,rej)=>{ if(window.Tesseract) return res(); const sc=document.createElement("script"); sc.src=TESS_URL; sc.crossOrigin="anonymous"; sc.onload=()=>res(); sc.onerror=()=>rej(new Error("load")); document.head.append(sc); }); }
+  async function prepImage(file){
+    const url=URL.createObjectURL(file); const img=new Image();
+    await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url});
+    const sc=Math.min(1,2400/Math.max(img.naturalWidth,img.naturalHeight));
+    const c=document.createElement("canvas"); c.width=Math.round(img.naturalWidth*sc); c.height=Math.round(img.naturalHeight*sc);
+    const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height);
+    try{ x.filter="grayscale(1) contrast(1.3)"; }catch(e){}
+    x.drawImage(img,0,0,c.width,c.height);
+    return {canvas:c,url};
+  }
+  let phItems=[], phBusy=false;
+  function phStep(n){ $("phPick").hidden=n!=="pick"; $("phWork").hidden=n!=="work"; $("phResult").hidden=n!=="result"; }
+  function openPhoto(){ closeSheet(); phStep("pick"); $("phScrim").hidden=false; }
+  function closePhoto(){ if(phBusy) return; $("phScrim").hidden=true; }
+  $("phOpen").addEventListener("click",openPhoto);
+  $("phClose").addEventListener("click",()=>{phBusy=false;closePhoto()});
+  $("phScrim").addEventListener("click",e=>{if(e.target===$("phScrim"))closePhoto()});
+  $("phRetry").addEventListener("click",()=>phStep("pick"));
+  [$("phCam"),$("phLib")].forEach(inp=>inp.addEventListener("change",async()=>{
+    const f=inp.files&&inp.files[0]; inp.value=""; if(!f) return;
+    phBusy=true; phStep("work"); $("phBar").style.width="4%"; $("phMsg").textContent="写真を準備しています…";
+    let prepared;
+    try{ prepared=await prepImage(f); }catch(e){ phBusy=false; phStep("pick"); status("この写真は開けませんでした。別の写真で試してください。",true); return; }
+    $("phThumb").src=prepared.url; $("phThumb2").src=prepared.url;
+    let text="";
+    try{
+      $("phMsg").textContent="読み取りの準備中…（はじめは少しかかります）";
+      await loadTess();
+      const w=await Tesseract.createWorker("jpn",1,{logger:m=>{
+        if(m.status==="recognizing text"){ $("phMsg").textContent="文字を読み取っています… "+Math.round(m.progress*100)+"%"; $("phBar").style.width=(30+m.progress*70)+"%"; }
+        else if(typeof m.progress==="number"){ $("phBar").style.width=(4+m.progress*26)+"%"; }
+      }});
+      try{ const r=await w.recognize(prepared.canvas); text=(r&&r.data&&r.data.text)||""; } finally { w.terminate(); }
+    }catch(e){
+      phBusy=false; phStep("pick"); status("読み取りの準備ができませんでした。電波のよいところでもう一度お試しください。",true); return;
+    }
+    phBusy=false;
+    phItems=parseSchedule(text,todayKey).map(x=>Object.assign({on:true},x));
+    $("phRaw").textContent=text.trim()||"（文字が見つかりませんでした）";
+    // guess who: kindergarten letters are usually about ゆづ
+    const yz=phItems.some(x=>x.cat==="school"||x.cat==="lesson");
+    [...$("phWho").querySelectorAll("input")].forEach(i=>i.checked=yz?i.value==="yuzu":i.value==="family");
+    renderPhoto(); phStep("result");
+  }));
+  $("phWho").addEventListener("change",e=>{
+    const t=e.target; if(!t.checked) return;
+    [...$("phWho").querySelectorAll("input")].forEach(i=>{ if(t.value==="family"&&i!==t) i.checked=false; if(t.value!=="family"&&i.value==="family") i.checked=false; });
+  });
+  $("phAddRow").addEventListener("click",()=>{ phItems.push({on:true,kind:"ev",title:"",date:curSel(),endDate:"",time:"",end:"",cat:"",src:""}); renderPhoto(); const ins=$("phList").querySelectorAll(".phc input[type=text]"); if(ins.length) ins[ins.length-1].focus(); });
+  function renderPhoto(){
+    const box=$("phList"); box.replaceChildren();
+    const n=phItems.filter(x=>x.on).length;
+    $("phSum").textContent=phItems.length?("写真から "+phItems.length+" 件見つけました。内容を確かめて、ちがうところは直してください。"):"日にちが見つかりませんでした。下の「＋」から手で足すか、撮り直してください。";
+    $("phSave").textContent=n?"この内容で予定にします（"+n+"件）":"追加するものを選んでください";
+    $("phSave").disabled=!n;
+    phItems.forEach((x,i)=>{
+      const c=el("div","phc"+(x.on?"":" off"));
+      const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=x.on; cb.setAttribute("aria-label","この予定を追加する");
+      cb.addEventListener("change",()=>{x.on=cb.checked;renderPhoto()});
+      const f=el("div","phf");
+      const top=el("div","top");
+      const sel=document.createElement("select"); [["ev","予定"],["todo","締切"]].forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;sel.append(o)}); sel.value=x.kind;
+      sel.addEventListener("change",()=>{x.kind=sel.value;renderPhoto()});
+      const ti=document.createElement("input"); ti.type="text"; ti.value=x.title; ti.placeholder="なにする？"; ti.setAttribute("aria-label","内容");
+      ti.addEventListener("input",()=>{x.title=ti.value});
+      top.append(sel,ti); f.append(top);
+      const r=el("div","r"+(x.kind==="todo"?" todo":""));
+      const di=document.createElement("input"); di.type="date"; di.value=x.date; di.setAttribute("aria-label",x.kind==="todo"?"締め切り":"日にち"); di.addEventListener("change",()=>{x.date=di.value});
+      r.append(di);
+      if(x.kind==="ev"){
+        const t1=document.createElement("input"); t1.type="time"; t1.value=x.time; t1.setAttribute("aria-label","はじまり"); t1.addEventListener("change",()=>{x.time=t1.value});
+        const t2=document.createElement("input"); t2.type="time"; t2.value=x.end; t2.setAttribute("aria-label","おわり"); t2.addEventListener("change",()=>{x.end=t2.value});
+        r.append(t1,t2);
+      }
+      f.append(r);
+      const meta=[]; if(x.kind==="ev"&&x.endDate) meta.push(md(x.date)+"〜"+md(x.endDate)+"の期間"); if(x.cat) meta.push(catIcon({cat:x.cat})+" "+(CATS.find(c=>c[0]===x.cat)||[])[1]);
+      if(x.src) meta.push("読み取り：「"+x.src+"」");
+      if(meta.length) f.append(el("div","src",meta.join("　")));
+      c.append(cb,f); box.append(c);
+    });
+  }
+  $("phSave").addEventListener("click",async()=>{
+    if(!db){status("いまは保存できません。",true);return}
+    const list=phItems.filter(x=>x.on);
+    const bad=list.find(x=>!x.date); if(bad){status("日にちが入っていないものがあります。",true);return}
+    const whoSel=[...$("phWho").querySelectorAll("input:checked")].map(i=>i.value);
+    const who=whoSel.includes("family")||!whoSel.length?["family"]:whoSel;
+    $("phSave").disabled=true; let ok=0;
+    for(const x of list){
+      const title=(x.title||"").trim()||"（写真から）";
+      const now2=new Date().toISOString();
+      try{
+        if(x.kind==="todo") await db.collection("todos").add({title,due:x.date,who,cat:x.cat||"paper",memo:"",done:false,createdAt:now2});
+        else await db.collection("events").add({title,date:x.date,endDate:x.endDate&&x.endDate>x.date?x.endDate:"",time:x.time||"",end:(x.time&&x.end>x.time)?x.end:"",repeat:"",until:"",who,cat:x.cat||"",memo:"",createdAt:now2});
+        ok++;
+      }catch(e){}
+    }
+    $("phSave").disabled=false;
+    if(ok){ status(ok+"件を予定に追加しました"); $("phScrim").hidden=true; const first=list.map(x=>x.date).sort()[0]; renderAll(); if(first) goCal(first); }
+    else status("追加できませんでした。もう一度押してください。",true);
+  });
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("phScrim").hidden)closePhoto()});
 
   /* ---------- todo tab ---------- */
   function todoRow(t){
