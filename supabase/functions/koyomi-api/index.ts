@@ -111,8 +111,9 @@ async function encryptPush(p256dh: string, authSecret: string, body: string) {
   const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, k, cat(enc.encode(body), new Uint8Array([2]))));
   return cat(salt, new Uint8Array([0, 0, 16, 0]), new Uint8Array([65]), asPub, ct);
 }
-async function sendPush(exceptMember: string | null, body: string, tag = 'koyomi-change') {
+async function sendPush(exceptMember: string | null, body: string, tag = 'koyomi-change', only?: string[]) {
   let subs = await db('koyomi_push_subs', 'GET', 'select=endpoint,member,p256dh,auth' + (exceptMember ? `&member=neq.${exceptMember}` : ''));
+  if (only) subs = subs.filter((x: any) => only.includes(x.member));
   if (!subs.length) return;
   const ok: string[] = [];
   for (const m of [...new Set(subs.map((x: any) => x.member))] as string[]) { try { await limit(`push:${m}:${tag}`, 30); ok.push(m); } catch { /* quiet when flooded */ } }
@@ -304,6 +305,59 @@ async function putPhotoRow(date: string, p: Record<string, unknown>, member: str
 }
 async function removeObject(path: unknown) { if (typeof path === 'string' && PHOTO_PATH.test(path)) { try { await storage('DELETE', `object/${BUCKET}`, JSON.stringify({ prefixes: [path] })); } catch { /* leftover file is harmless; it is private */ } } }
 
+
+/* ---------- reminders: shortly before timed events, and a digest the evening before ---------- */
+const LEADS: Record<string, number> = { '10': 10, '30': 30, '60': 60, '120': 120 };
+function targets(who: unknown) {   // papa → パパ's phones, mama → ママ's, ゆづ / family → both
+  const a = Array.isArray(who) ? who as string[] : [];
+  const m = a.filter(x => x === 'papa' || x === 'mama');
+  return a.includes('family') || a.includes('yuzu') || !m.length ? ['papa', 'mama'] : m;
+}
+const whoJa = (who: unknown) => { const a = Array.isArray(who) ? who as string[] : []; if (!a.length || a.includes('family')) return '家族'; return a.map(x => ({ papa: 'パパ', mama: 'ママ', yuzu: 'ゆづ' } as any)[x] || '').filter(Boolean).join('・'); };
+async function claim(key: string) {
+  try { await db('koyomi_sent', 'POST', '', { key }); return true; } catch (e) { if ((e as any).status === 409) return false; throw e; }
+}
+async function runReminders() {
+  const nowMs = Date.now(); const jst = new Date(nowMs + 9 * 3600000);
+  const today = jstKey(0), tmr = jstKey(1);
+  const minNow = jst.getUTCHours() * 60 + jst.getUTCMinutes();
+  const rows = await db('koyomi_items', 'GET', 'select=id,kind,payload&deleted_at=is.null&kind=in.(event,todo,garbage)&limit=5000');
+  let sent = 0;
+  // 1) shortly before each timed event (default 30 min), to the people it belongs to
+  for (const day of [today, tmr]) {
+    const base = day === today ? 0 : 1440;
+    for (const r of rows) {
+      if (r.kind !== 'event') continue; const e = r.payload || {};
+      if (!e.time || !/^\d{2}:\d{2}$/.test(e.time) || !occursOn(e, day)) continue;
+      const lead = e.remind === 'none' ? 0 : (LEADS[String(e.remind || '30')] || 30); if (!lead) continue;
+      const startMin = base + Number(e.time.slice(0, 2)) * 60 + Number(e.time.slice(3, 5));
+      const fire = startMin - lead;
+      if (!(fire <= minNow && minNow - fire < 15)) continue;        // cron runs every 5 min; allow a little slack
+      if (!(await claim(`ev|${r.id}|${day}|${lead}`))) continue;
+      const left = lead >= 60 ? `${lead / 60}時間後` : `${lead}分後`;
+      const body = `⏰ ${left}：${e.title}（${e.time}${e.end ? '〜' + e.end : ''}・${whoJa(e.who)}）${e.memo ? '\n持ち物・メモ：' + String(e.memo).slice(0, 60) : ''}`;
+      await sendPush(null, body, 'koyomi-remind-' + r.id, targets(e.who)); sent++;
+    }
+  }
+  // 2) the evening before (20:30): tomorrow at a glance, plus deadlines and garbage
+  if (minNow >= 20 * 60 + 30 && minNow < 21 * 60 + 30 && await claim(`eve|${tmr}`)) {
+    const evs = rows.filter((r: any) => r.kind === 'event' && occursOn(r.payload, tmr)).map((r: any) => r.payload).sort((a: any, b: any) => (a.time || '00').localeCompare(b.time || '00'));
+    const due = rows.filter((r: any) => r.kind === 'todo' && !r.payload.done && r.payload.due === tmr).map((r: any) => r.payload);
+    const d = new Date(tmr + 'T00:00:00Z'), nth = Math.ceil(d.getUTCDate() / 7), dow = d.getUTCDay();
+    const garb = rows.filter((r: any) => r.kind === 'garbage' && Array.isArray(r.payload.weekdays) && r.payload.weekdays.includes(dow) && (!Array.isArray(r.payload.weeks) || !r.payload.weeks.length || r.payload.weeks.includes(nth))).map((r: any) => r.payload.kind);
+    const notable = evs.filter((e: any) => e.repeat !== 'weekly' || e.time);
+    if (notable.length || due.length || garb.length) {
+      const parts = [`🌙 明日 ${+tmr.slice(5, 7)}/${+tmr.slice(8, 10)}（${DOW[dow]}）`];
+      if (notable.length) parts.push(notable.slice(0, 5).map((e: any) => `・${e.time ? e.time + ' ' : ''}${e.title}${e.memo ? '（' + String(e.memo).slice(0, 24) + '）' : ''}`).join('\n') + (notable.length > 5 ? `\nほか${notable.length - 5}件` : ''));
+      if (due.length) parts.push('📝 締切：' + due.map((t: any) => t.title).join('、'));
+      if (garb.length) parts.push('🗑 ' + garb.join('・') + 'の日');
+      await sendPush(null, parts.join('\n'), 'koyomi-evening'); sent++;
+    }
+  }
+  if (Math.random() < 0.02) await db('koyomi_sent', 'DELETE', `sent_at=lt.${encodeURIComponent(new Date(nowMs - 14 * 86400000).toISOString())}`);
+  return sent;
+}
+
 async function readBody(req: Request) {
   const reader = req.body?.getReader(); if (!reader) fail(400, 'body_required');
   const chunks: Uint8Array[] = []; let size = 0;
@@ -348,12 +402,13 @@ Deno.serve(async req => {
     const body = await readBody(req);
     if (!body || typeof body !== 'object') fail(400, 'invalid_body');
 
-    if (body.action === 'morning' || body.action === 'weather' || body.action === 'outing_images') {
+    if (body.action === 'morning' || body.action === 'weather' || body.action === 'outing_images' || body.action === 'reminders') {
       // Called by the database scheduler (pg_cron); authorised by a secret whose hash is in koyomi_config.
       const secret = req.headers.get('x-koyomi-cron') || '';
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=cron_hash');
       if (!cfg?.cron_hash || !/^[0-9a-f]{64}$/.test(secret) || !equal(await sha(secret), cfg.cron_hash)) fail(401, 'not_allowed');
       if (body.action === 'outing_images') return response({ ok: true, photos: await fillOutingImages() });
+      if (body.action === 'reminders') return response({ ok: true, sent: await runReminders() });
       let wx = 0; try { wx = await updateWeather(); } catch { /* keep yesterday's forecast */ }
       if (body.action === 'weather') return response({ ok: true, days: wx });
       const msg = await morningText();

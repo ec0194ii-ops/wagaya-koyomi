@@ -973,6 +973,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <div class="row"><label class="f">日にち<input type="date" id="evDate"></label><label class="f" id="endDateWrap" hidden>おわりの日<input type="date" id="evEndDate"></label></div>
       <label class="toggle"><input type="checkbox" id="evSpan">何日か続く予定（期間）</label>
       <div class="row"><label class="f">はじまり<input type="time" id="evTime"></label><label class="f">おわり<input type="time" id="evEnd"></label></div>
+      <label class="f" id="remindWrap" hidden>通知<select id="evRemind"><option value="">30分前（おすすめ）</option><option value="10">10分前</option><option value="60">1時間前</option><option value="120">2時間前</option><option value="none">通知しない</option></select></label>
       <div class="row"><label class="f">くりかえし<select id="evRepeat"><option value="">しない</option><option value="weekly">毎週おなじ曜日</option></select></label><label class="f" id="untilWrap" hidden>いつまで<input type="date" id="evUntil"></label></div>
     </div>
     <div id="todoOnly" hidden><label class="f">締め切り<input type="date" id="tdDue"></label></div>
@@ -1530,10 +1531,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     $("evFormTitle").textContent=(m==="ev"?"予定":"やること")+(editing?"を直す":"を追加");
     $("evTitle").placeholder=m==="ev"?"例：歯医者、七五三":"例：申込用紙を提出";
   }
-  function syncBits(){ $("endDateWrap").hidden=!$("evSpan").checked; $("untilWrap").hidden=$("evRepeat").value!=="weekly"; }
+  function syncBits(){ $("remindWrap").hidden=!$("evTime").value; $("endDateWrap").hidden=!$("evSpan").checked; $("untilWrap").hidden=$("evRepeat").value!=="weekly"; }
   $("mEv").addEventListener("click",()=>{if(!editing)setFormMode("ev")});
   $("mTodo").addEventListener("click",()=>{if(!editing)setFormMode("todo")});
   $("evSpan").addEventListener("change",()=>{if($("evSpan").checked){$("evRepeat").value="";if(!$("evEndDate").value)$("evEndDate").value=addDays($("evDate").value||todayKey,1)}syncBits()});
+  $("evTime").addEventListener("input",()=>syncBits());
   $("evRepeat").addEventListener("change",()=>{if($("evRepeat").value==="weekly")$("evSpan").checked=false;syncBits()});
   const cp=$("catPick");
   CATS.forEach(([k,l,i])=>{const lab=el("label");const inp=el("input");inp.type="radio";inp.name="cat";inp.value=k;inp.id="cat-"+(k||"none");lab.append(inp);{const ic=catEl({cat:k});if(ic)lab.append(ic)}lab.append(l);cp.append(lab)});
@@ -1553,7 +1555,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       ["papa","mama","yuzu"].forEach(k=>$("w-"+k).checked=(x.who||[]).includes(k));
       $("w-family").checked = x.id ? isFam(x) : (x.who||[]).includes("family");
       setCat(x.cat||"");
-      if(kind==="ev"&&x.id){$("evDate").value=x.date;$("evTime").value=x.time||"";$("evEnd").value=x.end||"";$("evSpan").checked=isSpan(x);$("evEndDate").value=x.endDate||"";$("evRepeat").value=x.repeat==="weekly"?"weekly":"";$("evUntil").value=x.until||""}
+      if(kind==="ev"&&x.id){$("evDate").value=x.date;$("evTime").value=x.time||"";$("evEnd").value=x.end||"";$("evSpan").checked=isSpan(x);$("evEndDate").value=x.endDate||"";$("evRepeat").value=x.repeat==="weekly"?"weekly":"";$("evRemind").value=["10","60","120","none"].includes(x.remind)?x.remind:"";$("evUntil").value=x.until||""}
       if(kind==="todo"&&x.id){$("tdDue").value=x.due||""}
     }
     if(!x) setCat("");
@@ -1571,7 +1573,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     if(formMode==="ev"){
       const date=$("evDate").value; if(!date){status("日にちを入れてください。",true);return}
       const span=$("evSpan").checked&&$("evEndDate").value>date, rep=$("evRepeat").value==="weekly"&&!span, t=$("evTime").value||"";
-      data={title,date,endDate:span?$("evEndDate").value:"",time:t,end:(t&&$("evEnd").value>t)?$("evEnd").value:"",repeat:rep?"weekly":"",until:rep?($("evUntil").value||""):"",who,cat,memo:$("evMemo").value.trim()};
+      data={title,date,remind:t?$("evRemind").value:"",endDate:span?$("evEndDate").value:"",time:t,end:(t&&$("evEnd").value>t)?$("evEnd").value:"",repeat:rep?"weekly":"",until:rep?($("evUntil").value||""):"",who,cat,memo:$("evMemo").value.trim()};
       coll="events"; jump=date;
     } else { data={title,due:$("tdDue").value||"",who,cat,memo:$("evMemo").value.trim()}; coll="todos"; jump=data.due||curSel(); }
     $("evSubmit").disabled=true;
