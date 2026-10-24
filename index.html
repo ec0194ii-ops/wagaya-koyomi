@@ -604,12 +604,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="card"><div id="dlList"></div></div>
   </div>
   <div class="sec" id="monthSec">
-    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div><span class="sub num" id="moCount"></span></div>
+    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div></div>
     <div class="card mocard">
-      <div class="mobar" aria-hidden="true"><i id="moFill"></i></div>
-      <div class="mometa"><span id="moLeft"></span><span id="moPct" class="num"></span></div>
       <div class="mogrid" id="moGrid" role="group" aria-label="今月のカレンダー"></div>
-      <div class="cdown" id="cdown"></div>
     </div>
   </div>
   <div class="sec" id="wxSec" hidden>
@@ -1030,10 +1027,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   function renderMonth(){
     const y=now.getFullYear(), m=now.getMonth(), dim=new Date(y,m+1,0).getDate(), day=now.getDate();
     $("moTitle").textContent=(m+1)+"月";
-    $("moCount").textContent=day+" / "+dim+"日";
-    const pct=Math.round(day/dim*100);
-    $("moFill").style.width=pct+"%"; $("moPct").textContent=pct+"%";
-    $("moLeft").textContent=day===dim?"今日で今月もおしまい":"今月は残り"+(dim-day)+"日";
     const g=$("moGrid"); g.replaceChildren();
     [1,2,3,4,5,6,0].forEach(i=>g.append(el("span","h"+(i===0?" sun":i===6?" sat":""),DOW[i])));
     const first=new Date(y,m,1), off=(first.getDay()+6)%7;
@@ -1050,24 +1043,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       c.addEventListener("click",()=>goCal(k,"month"));
       g.append(c);
     }
-    // countdown to the notable things ahead (not the weekly routines)
-    const until=addDays(todayKey,90), seenT=new Set(), list=[];
-    events.filter(e=>e.date&&e.repeat!=="weekly"&&(isSpan(e)?e.endDate:e.date)>=todayKey&&e.date<=until)
-      .sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{ if(seenT.has(e.title)) return; seenT.add(e.title); list.push(e); });
-    const cd=$("cdown"); cd.replaceChildren();
-    const up=list.filter(e=>e.date>todayKey).slice(0,4);
-    if(up.length){
-      cd.append(el("h4","","Coming up"));
-      up.forEach(e=>{
-        const kk=colorOf(e.who); const b=el("button","cdi p-"+kk); b.type="button";
-        b.append(el("span","ic",catIcon(e)||"📅"));
-        const tx=el("span","tx"); tx.append(el("b","",e.title), el("span","",md(e.date)+(isSpan(e)?"〜"+md(e.endDate):"")+"・"+whoText(e.who))); b.append(tx);
-        const n=dayDiff(todayKey,e.date); const lf=el("span","left"); if(n===1) lf.append("明日"); else lf.append("あと",el("b","",n),"日"); b.append(lf);
-        b.addEventListener("click",()=>goCal(e.date,"day"));
-        cd.append(b);
-      });
-    }
-    cd.hidden=!up.length;
   }
 
   /* ---------- calendar views: month / week / day ---------- */
