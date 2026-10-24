@@ -178,8 +178,71 @@ async function updateWeather() {
   if (!list.length) fail(502, 'jma_empty');
   const now = new Date(Date.now() + 9 * 3600000);
   const updated = `${now.getUTCMonth() + 1}/${now.getUTCDate()} ${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
-  await saveInfo('weather', { key: 'weather', area: '大津市', source: '気象庁', updated, url: 'https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html', days: list });
+  let hourly: unknown[] = [];
+  try { hourly = await hourlyForecast(); } catch { /* the daily forecast still goes out */ }
+  await saveInfo('weather', { key: 'weather', area: '大津市', source: '気象庁・Open-Meteo', updated, url: 'https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html', days: list, hourly });
   return list.length;
+}
+function wmo(c: number): [string, string] {
+  if (c === 0) return ['☀️', '晴れ'];
+  if (c === 1 || c === 2) return ['⛅', '晴れ時々くもり'];
+  if (c === 3) return ['☁️', 'くもり'];
+  if (c === 45 || c === 48) return ['🌫', '霧'];
+  if (c >= 51 && c <= 57) return ['🌦', '霧雨'];
+  if ((c >= 61 && c <= 67) || (c >= 80 && c <= 82)) return ['☔', '雨'];
+  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return ['❄️', '雪'];
+  if (c >= 95) return ['⛈', '雷雨'];
+  return ['☁️', 'くもり'];
+}
+// 3-hourly temperature, weather and rain chance for the next ~27 hours (大津市役所付近).
+async function hourlyForecast() {
+  const u = 'https://api.open-meteo.com/v1/forecast?latitude=35.0045&longitude=135.8686&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Asia%2FTokyo&forecast_days=3';
+  const r = await fetch(u); if (!r.ok) fail(502, 'hourly_unavailable');
+  const j = await r.json(); const h = j.hourly || {};
+  const nowJst = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 13);   // YYYY-MM-DDTHH
+  const out: unknown[] = [];
+  (h.time || []).forEach((t: string, i: number) => {
+    const hh = Number(t.slice(11, 13));
+    if (hh % 3 !== 0 || t.slice(0, 13) < nowJst.slice(0, 11) + String(Math.floor(Number(nowJst.slice(11, 13)) / 3) * 3).padStart(2, '0')) return;
+    if (out.length >= 10) return;
+    const [icon, text] = wmo(Number(h.weather_code?.[i]));
+    out.push({ t, h: hh, temp: h.temperature_2m?.[i] != null ? Math.round(h.temperature_2m[i]) : null, pop: h.precipitation_probability?.[i] ?? null, icon, text });
+  });
+  return out;
+}
+
+
+/* ---------- outing photos: the event's own picture from its otsu-event.site page ---------- */
+async function eventImage(url: string) {
+  const m = url.match(/^https:\/\/otsu-event\.site\/events\/([0-9A-Za-z]+)$/); if (!m) return '';
+  const id = m[1];
+  const c = new AbortController(); const timer = setTimeout(() => c.abort(), 8000);
+  try {
+    const r = await fetch(url, { signal: c.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; KoyomiPhoto/1.0)', Accept: 'text/html' } });
+    if (!r.ok) return '';
+    const html = await r.text();
+    const at = html.indexOf(id + '\\",\\"title\\"');
+    if (at < 0) return '';
+    const seg = html.slice(at, at + 4000);
+    const mm = seg.match(/\\"imageUrl\\":\\"(https:[^"\\]+)/);
+    if (!mm) return '';
+    let img = mm[1].replace(/\\u0026/g, '&').replace(/&amp;?$/, '').replace(/&$/, '');
+    if (!/^https:\/\//.test(img) || img.length > 2000 || /otsu-event\.site\/logo/.test(img)) return '';
+    return img;
+  } catch { return ''; } finally { clearTimeout(timer); }
+}
+async function fillOutingImages() {
+  const rows = await db('koyomi_items', 'GET', 'select=id,payload,version&kind=eq.outing&deleted_at=is.null&limit=200');
+  let n = 0;
+  for (const row of rows) {
+    const p = row.payload || {};
+    if (p.img || p.imgChecked || typeof p.url !== 'string') continue;
+    const img = await eventImage(p.url);
+    const next = { ...p, ...(img ? { img } : {}), imgChecked: new Date().toISOString().slice(0, 10) };
+    await db('koyomi_items', 'PATCH', `id=eq.${row.id}&version=eq.${row.version}`, { payload: next, version: row.version + 1, updated_at: new Date().toISOString() });
+    if (img) n++;
+  }
+  return n;
 }
 
 /* ---------- morning summary ---------- */
@@ -253,11 +316,12 @@ Deno.serve(async req => {
     const body = await readBody(req);
     if (!body || typeof body !== 'object') fail(400, 'invalid_body');
 
-    if (body.action === 'morning' || body.action === 'weather') {
+    if (body.action === 'morning' || body.action === 'weather' || body.action === 'outing_images') {
       // Called by the database scheduler (pg_cron); authorised by a secret whose hash is in koyomi_config.
       const secret = req.headers.get('x-koyomi-cron') || '';
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=cron_hash');
       if (!cfg?.cron_hash || !/^[0-9a-f]{64}$/.test(secret) || !equal(await sha(secret), cfg.cron_hash)) fail(401, 'not_allowed');
+      if (body.action === 'outing_images') return response({ ok: true, photos: await fillOutingImages() });
       let wx = 0; try { wx = await updateWeather(); } catch { /* keep yesterday's forecast */ }
       if (body.action === 'weather') return response({ ok: true, days: wx });
       const msg = await morningText();
