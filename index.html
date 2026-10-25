@@ -406,7 +406,7 @@ a.btn{text-decoration:none;display:inline-block}
 
 
 /* quick week / day jumping */
-#calMonth,#calWeek,#cdBody{touch-action:pan-y}
+#calMonth,#calWeek{touch-action:pan-y}
 .wjump{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:2px 16px 4px;scroll-snap-type:x proximity}
 .wjump::-webkit-scrollbar,.dstrip::-webkit-scrollbar{display:none}
 .wchip{flex:none;scroll-snap-align:center;border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:7px 12px 6px;display:flex;flex-direction:column;align-items:flex-start;gap:1px;color:var(--fg);min-width:84px}
@@ -447,7 +447,7 @@ a.btn{text-decoration:none;display:inline-block}
 .cdt h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .dnav{border:0;background:transparent;color:var(--muted);font-size:22px;width:26px;height:34px;border-radius:10px;line-height:1}
 .dnav:active{background:var(--sunk)}
-#pane-cal{touch-action:pan-y}
+
 .adi{flex-wrap:wrap;row-gap:4px}
 .adi .tt{min-width:8em}
 .adi .dact{margin-left:auto;white-space:nowrap}
@@ -730,7 +730,7 @@ a.btn{text-decoration:none;display:inline-block}
 .yw .dcard .tt small{font-size:12px}
 .yw .hrs{border-top:1px solid var(--line);display:flex}
 .yw .hrs .lab{flex:none;width:44px;display:grid;grid-template-rows:26px 34px 24px 22px;font-size:11px;color:var(--muted);padding:6px 0 8px 10px;align-items:center}
-.yw .hscroll2{overflow-x:auto;scrollbar-width:none;flex:1}
+.yw .hscroll2{overflow-x:auto;scrollbar-width:none;flex:1;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch}
 .yw .hscroll2::-webkit-scrollbar{display:none}
 .yw .hcols{display:flex}
 .yw .hc{flex:none;width:58px;display:grid;grid-template-rows:26px 34px 24px 22px;justify-items:center;align-items:center;padding:6px 0 8px;font-family:var(--f-num)}
@@ -740,6 +740,8 @@ a.btn{text-decoration:none;display:inline-block}
 .yw .hc .d{font-size:9.5px;color:var(--muted);display:block;line-height:1}
 .yw .hc .wi{width:30px;height:26px}
 .yw .hc .t{font-size:14px}
+.yw .hrs.mm .lab,.yw .hrs.mm .hc{grid-template-rows:26px 34px 24px 22px 22px}
+.yw .hc .m{font-size:12.5px;color:var(--muted)} .yw .hc .m.wet{color:var(--cold);font-weight:700} .yw .hc .m small{font-size:9px;margin-left:1px}
 .yw .hc .p{font-size:12.5px;color:var(--cold)}
 .yw .week{border-top:1px solid var(--line)}
 .yw .wr{display:grid;grid-template-columns:62px 54px 1fr 1fr 48px 22px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);font-family:var(--f-num);font-size:15px}
@@ -773,6 +775,15 @@ a.btn{text-decoration:none;display:inline-block}
 .quick{display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,var(--accent) 6%,var(--paper));border-radius:18px;padding:10px 12px}
 .quick input{font:inherit;font-size:16px;border:0;background:var(--paper);border-radius:12px;padding:10px 12px;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
 .qprev{font-size:12.5px;color:var(--accent);font-weight:700}
+.qmulti{display:flex;flex-direction:column;gap:6px}
+.qmulti .qr{display:flex;align-items:center;gap:8px;background:var(--paper);border-radius:12px;padding:7px 10px;box-shadow:inset 0 0 0 1px var(--line)}
+.qmulti .qd{flex:none;border:0;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;background:var(--sunk);color:var(--fg)}
+.qmulti .qd.shop{background:color-mix(in srgb,var(--accent) 16%,var(--paper));color:var(--accent)}
+.qmulti .qd.todo{background:color-mix(in srgb,var(--mama) 22%,var(--paper))}
+.qmulti .qt{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qmulti .qs{flex:none;font-size:11.5px;color:var(--muted)}
+.qmulti .qgo{margin-top:2px}
+.qmulti .qn{font-size:11.5px;color:var(--muted)}
 .favs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .favs::-webkit-scrollbar{display:none}
 .favs button{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 10px;font-size:12.5px;color:var(--fg);display:inline-flex;align-items:center}
@@ -996,7 +1007,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </div>
   <div id="homeSuggest"></div>
   <div class="sec" id="dlSec">
-    <div class="sech"><div><div class="eyebrow">Todo</div><h2>今日・今週やること</h2></div><button type="button" class="lnk" id="dlAll">すべて ›</button></div>
+    <div class="sech"><div><div class="eyebrow">Todo</div><h2>今日・今週のTodo</h2></div><button type="button" class="lnk" id="dlAll">すべて ›</button></div>
     <div class="card"><div id="dlList"></div></div>
   </div>
   <div class="sec" id="wxSec" hidden>
@@ -1066,22 +1077,22 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= TODO ================= -->
 <section id="pane-todo" role="tabpanel" aria-labelledby="tab-todo" hidden>
-  <div class="mhead"><h2><span class="y">やること</span>Todo</h2><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  <div class="mhead"><h2>Todo</h2><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div id="pgTodo">
     <div class="sec" style="margin-top:14px">
-      <div class="sech"><div><div class="eyebrow">This week</div><h2>今週やること</h2></div><span class="sub" id="twRange"></span></div>
+      <div class="sech"><div><div class="eyebrow">This week</div><h2>今週のTodo</h2></div><span class="sub" id="twRange"></span></div>
       <div class="card weekboard" id="weekBoard"></div>
     </div>
     <div class="sec">
       <div class="card">
         <form id="todoForm" autocomplete="off" style="display:grid;grid-template-columns:1fr auto;gap:8px">
-          <input style="grid-column:1/-1" type="text" id="todoInput" placeholder="やること（例：申込用紙を提出）" aria-label="やること" required>
+          <input style="grid-column:1/-1" type="text" id="todoInput" placeholder="Todo（例：申込用紙を提出）" aria-label="Todo" required>
           <div class="whenpick" id="todoWhen" role="radiogroup" aria-label="期限" style="grid-column:1/-1"></div>
           <input type="date" id="todoDue" aria-label="期限の日にち" hidden>
           <button class="btn" type="submit" style="grid-column:2">追加</button>
         </form>
       </div>
-      <div class="card"><div id="todoGroups"></div><p class="empty" id="todoEmpty">やることはありません。</p></div>
+      <div class="card"><div id="todoGroups"></div><p class="empty" id="todoEmpty">Todoはありません。</p></div>
       <details class="card" id="todoDoneBox" hidden><summary>終わったもの（<span class="num" id="todoDoneN">0</span>）</summary><ul class="items" id="todoDone"></ul></details>
     </div>
   </div>
@@ -1089,13 +1100,13 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= WISH ================= -->
 <section id="pane-wish" role="tabpanel" aria-labelledby="tab-wish" hidden>
-  <div class="mhead"><h2><span class="y">やりたいこと</span>Wish</h2><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  <div class="mhead"><h2>Wish</h2><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div id="pgWish">
     <div class="sec" style="margin-top:14px">
       <p class="wlead">「今年こんなことしたいね」を家族でためておくノートです。予定があいている日に、カレンダーがそっと提案します。</p>
       <div class="card">
         <form id="wishForm" autocomplete="off" style="display:flex;flex-direction:column;gap:10px">
-          <input type="text" id="wishInput" placeholder="やりたいこと（例：水族館に行く）" aria-label="やりたいこと" required>
+          <input type="text" id="wishInput" placeholder="Wish（例：水族館に行く）" aria-label="Wish" required>
           <div class="whenpick" id="wishWhen" role="radiogroup" aria-label="いつごろ"></div>
           <div class="addrow"><input type="text" id="wishNote" placeholder="ひとこと（場所・メモ）" aria-label="ひとこと"><button class="btn" type="submit">ためる</button></div>
         </form>
@@ -1178,8 +1189,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="card"><ul class="rules" id="garbRules"></ul><p class="empty" id="garbEmpty">ゴミ出しカレンダーの写真をClaudeに送ると登録されます。</p></div>
   </div>
   <div class="sec">
-    <div class="sech"><h2>やりたいこと</h2></div>
-    <div class="card"><button type="button" class="btn ghost" id="toWish" style="width:100%">Wish（やりたいことノート）を開く ›</button></div>
+    <div class="sech"><h2>Wish</h2></div>
+    <div class="card"><button type="button" class="btn ghost" id="toWish" style="width:100%">Wishを開く ›</button></div>
   </div>
   <div class="sec">
     <div class="sech"><h2>このスマホの設定</h2><span class="sub" id="whoami"></span></div>
@@ -1209,7 +1220,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </form>
 </div>
 
-<button class="fab" id="fab" type="button" aria-label="予定ややることを追加">＋</button>
+<button class="fab" id="fab" type="button" aria-label="予定やTodoを追加">＋</button>
 
 <nav class="nav" aria-label="メニュー"><div class="in" role="tablist">
   <button role="tab" id="tab-home" aria-controls="pane-home" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z"/></svg>ホーム</button>
@@ -1225,11 +1236,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="shh"><h3 id="evFormTitle">予定を追加</h3><button type="button" class="lnk" id="evClose" style="font-size:14px">閉じる</button></div>
     <button type="button" class="phbtn" id="phOpen"><span aria-hidden="true">📷</span><span><b>写真から予定にする</b><small>おたよりや紙の予定表を撮るだけ</small></span><span aria-hidden="true">›</span></button>
     <div class="quick" id="quickBox">
-      <input type="text" id="qText" placeholder="ひとことで：明日10時 歯医者 ゆづ" aria-label="ひとことで入力" enterkeyhint="done">
+      <input type="text" id="qText" placeholder="ひとことで：明日10時 歯医者／牛乳と卵、金曜までに書類" aria-label="ひとことで入力" enterkeyhint="done">
       <div class="qprev" id="qPrev" hidden></div>
+      <div class="qmulti" id="qMulti" hidden></div>
       <div class="favs" id="favs"></div>
     </div>
-    <div class="seg" role="group" aria-label="追加するもの"><button type="button" id="mEv" aria-pressed="true">予定</button><button type="button" id="mTodo" aria-pressed="false">やること</button></div>
+    <div class="seg" role="group" aria-label="追加するもの"><button type="button" id="mEv" aria-pressed="true">予定</button><button type="button" id="mTodo" aria-pressed="false">Todo</button></div>
     <label class="f">なにする？<input type="text" id="evTitle" required></label>
     <div style="font-size:12px;color:var(--muted);font-weight:700">種類</div>
     <div class="catpick" id="catPick" role="radiogroup" aria-label="種類"></div>
@@ -1528,7 +1540,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const row=t=>{const d2=dueText(t);const r=el("div","todoi");r.append(chk(t),labelWith("tt",t,t.title),el("span","dd "+d2.cls,t.due===todayKey?"今日":d2.txt));r.addEventListener("click",ev=>{if(!ev.target.closest(".chk"))openSheet("todo",t)});return r};
     if(todayL.length){ dl.append(el("div","tgh","今日まで")); todayL.slice(0,5).forEach(t=>dl.append(row(t))); }
     if(weekL.length){ dl.append(el("div","tgh","今週（〜"+md(e0h)+"）")); weekL.slice(0,6).forEach(t=>dl.append(row(t))); if(weekL.length>6) dl.append(el("p","empty","ほか"+(weekL.length-6)+"件")); }
-    if(!todayL.length&&!weekL.length) dl.append(el("p","empty",doneToday?"今週の分はぜんぶ終わりました！":"今週やることはありません。"));
+    if(!todayL.length&&!weekL.length) dl.append(el("p","empty",doneToday?"今週の分はぜんぶ終わりました！":"今週のTodoはありません。"));
     $("dlSec").hidden=false;
     // weather: 7-day strip, tap a day for details; today shows the 3-hourly chart
     renderWx();
@@ -1612,12 +1624,12 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function hourlyStrip(k){
     const hs=(Array.isArray(weather&&weather.hourly)?weather.hourly:[]).filter(h=>h&&h.t&&h.temp!=null);
     if(!hs.length) return null;
-    const wrap=el("div","hrs"); const lab=el("div","lab"); lab.append(el("span","","時刻"),el("span",""),el("span","","気温"),el("span","","降水")); wrap.append(lab);
+    const wrap=el("div","hrs"); const lab=el("div","lab"); const hasMm=hs.some(h=>h.mm!=null); if(hasMm) wrap.classList.add("mm"); lab.append(el("span","","時刻"),el("span",""),el("span","","気温"),el("span","","降水"));if(hasMm)lab.append(el("span","","雨量")); wrap.append(lab);
     const sc=el("div","hscroll2"); const cols=el("div","hcols");
     const nowH=now.getHours();
     hs.forEach((h,i)=>{ const d=h.t.slice(0,10); const c=el("div","hc"+(d===todayKey&&h.h<=nowH&&nowH<h.h+3?" now":""));
       const hh=el("span","h",String(h.h)); if(i===0||h.h===0) hh.append(el("span","d",d===todayKey?"今日":d===tmrKey?"明日":md(d))); c.append(hh);
-      c.append(wxIcon(h.text||h.icon||"")); c.append(el("span","t",h.temp+"°")); c.append(el("span","p",h.pop!=null?h.pop+"%":"—")); cols.append(c); });
+      c.append(wxIcon(h.text||h.icon||"")); c.append(el("span","t",h.temp+"°")); c.append(el("span","p",h.pop!=null?h.pop+"%":"—")); if(hasMm){ const v=h.mm; const q=el("span","m"+(v>=1?" wet":""),v==null?"—":(v<0.5?"0":v<10?String(Math.round(v*2)/2).replace(/\.0$/,""):String(Math.round(v)))); if(v!=null) q.append(el("small","","mm")); c.append(q); } cols.append(c); });
     sc.append(cols); wrap.append(sc); return wrap;
   }
   function renderWx(){
@@ -1781,7 +1793,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     }
     // this week's note, like the right margin of the wall calendar
     const wn=$("calWeekNote"); wn.replaceChildren();
-    if(wk){ const s0=weekStart(calSel); const note=el("div","wknote"); const h=el("h4"); h.append(s0===weekStart(todayKey)?"今週やること":md(s0)+"の週にやること");
+    if(wk){ const s0=weekStart(calSel); const note=el("div","wknote"); const h=el("h4"); h.append(s0===weekStart(todayKey)?"今週のTodo":md(s0)+"の週のTodo");
       const go=el("button","","一覧 ›"); go.type="button"; go.addEventListener("click",()=>{selectTab("todo");setList("todo")}); h.append(go); note.append(h);
       weekNoteRows(s0,note,6); quickAdd(note,s0,"＋ 書く"); wn.append(note); }
     renderCalDay();
@@ -1879,7 +1891,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     formMode=m;
     $("mEv").setAttribute("aria-pressed",m==="ev"?"true":"false"); $("mTodo").setAttribute("aria-pressed",m==="todo"?"true":"false");
     $("evOnly").hidden=m!=="ev"; $("todoOnly").hidden=m!=="todo";
-    $("evFormTitle").textContent=(m==="ev"?"予定":"やること")+(editing?"を直す":"を追加");
+    $("evFormTitle").textContent=(m==="ev"?"予定":"Todo")+(editing?"を直す":"を追加");
     $("evTitle").placeholder=m==="ev"?"例：歯医者、七五三":"例：申込用紙を提出";
   }
   function syncBits(){ $("remindWrap").hidden=!$("evTime").value; $("endDateWrap").hidden=!$("evSpan").checked; $("untilWrap").hidden=$("evRepeat").value!=="weekly"; }
@@ -1910,7 +1922,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       if(kind==="todo"&&x.id){$("tdDue").value=x.due||""}
     }
     if(!x) setCat("");
-    $("qText").value=""; $("qPrev").hidden=true; $("quickBox").hidden=!!(x&&x.id); renderFavs(); renderPlPick();
+    $("qText").value=""; $("qPrev").hidden=true; multi=[]; $("qMulti").hidden=true; $("quickBox").hidden=!!(x&&x.id); renderFavs(); renderPlPick();
     syncBits(); $("scrim").hidden=false; setTimeout(()=>$("evTitle").focus(),60);
   }
   function closeSheet(){ $("scrim").hidden=true; editing=null; window.__wishLink=null; if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
@@ -1931,7 +1943,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     $("evSubmit").disabled=true;
     try{
       if(editing){await db.collection(coll).doc(editing.id).update(data);status("保存しました")}
-      else{data.createdAt=new Date().toISOString();if(coll==="todos")data.done=false;await db.collection(coll).add(data);status(formMode==="ev"?"予定を追加しました":"やることを追加しました")}
+      else{data.createdAt=new Date().toISOString();if(coll==="todos")data.done=false;await db.collection(coll).add(data);status(formMode==="ev"?"予定を追加しました":"Todoを追加しました")}
       calSel=jump; homeSel=(dayDiff(todayKey,jump)>=0&&dayDiff(todayKey,jump)<7)?jump:homeSel; const jd=k2d(jump); view=new Date(jd.getFullYear(),jd.getMonth(),1);
       closeSheet(); renderAll();
     }catch(e){status("保存できませんでした。もう一度押してください。",true)}
@@ -2394,7 +2406,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   }
   function applyQuick(q){
     if(!q) return;
-    if(!editing) setFormMode(q.todo?"todo":"ev");
+    if(!editing) setFormMode(q.todo||(!q.date&&!q.time&&!q.repeat)?"todo":"ev");
     $("evTitle").value=q.title||"";
     if(q.date){ $("evDate").value=q.date; $("tdDue").value=q.date; }
     if(q.time!==undefined){ $("evTime").value=q.time||""; }
@@ -2405,10 +2417,68 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     syncBits();
     const pv=$("qPrev"); const parts=[]; if(q.date) parts.push(md(q.date)+"（"+DOW[k2d(q.date).getDay()]+"）"); if(q.time) parts.push(q.time+(q.end?"〜"+q.end:"")); if(q.repeat) parts.push("毎週");
     if(q.who) parts.push(q.who.map(x=>x==="family"?"家族":WHO[x].n).join("・")); if(q.title) parts.push("「"+q.title+"」");
-    pv.textContent=parts.length?"→ "+parts.join(" ")+(q.todo?"（やること）":""):""; pv.hidden=!parts.length;
+    pv.textContent=parts.length?"→ "+parts.join(" ")+(q.todo?"（Todo）":""):""; pv.hidden=!parts.length;
   }
-  $("qText").addEventListener("input",()=>applyQuick(quickParse($("qText").value)));
-  $("qText").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); $("evTitle").value&&$("evSubmit").focus(); } });
+  /* mixed one-liner: 「牛乳と卵、金曜までに保育園の書類」 → 買い物×2 + Todo, sorted automatically */
+  const VERBY=/(を|に|へ|で|する|します|して|[るうくすつぬむぶぐ])$/;
+  function isShopy(seg){
+    const t=String(seg||"").normalize("NFKC").trim(); if(!t||t.length>20) return false;
+    if(/(買う|買っ|買い物|かう)/.test(t)) return true;
+    const q=quickParse(t); if(q&&(q.date||q.time||q.todo||q.repeat)) return false;
+    if(/(提出|予約|電話|連絡|申込|申し込|払|返却|返す|準備|書類|手続|届け|持って|掃除|洗濯|修理)/.test(t)) return false;
+    const {name}=splitQty(t); if(!name||VERBY.test(name)) return false;
+    if(learned(name)||(freqRec&&freqRec.counts&&freqRec.counts[name])) return true;
+    return aisleOf(name)!=="other"&&!/^(園|保育園|幼稚園)/.test(name) || DRUG.test(name);
+  }
+  function multiParse(raw){
+    const text=String(raw||"").normalize("NFKC").trim(); if(!text) return [];
+    const parts=text.split(/[、,，\n]+|\s*(?:あと|それと|それから)\s*/).map(x=>x.trim()).filter(Boolean);
+    const segs=[];
+    parts.forEach(p=>{
+      const byTo=p.split(/と/).map(x=>x.trim()).filter(Boolean);
+      if(byTo.length>1&&byTo.every(isShopy)){ segs.push(...byTo); return; }
+      const bySp=p.split(/\s+/).filter(Boolean);
+      if(bySp.length>1&&bySp.every(isShopy)){ segs.push(...bySp); return; }
+      segs.push(p);
+    });
+    return segs.slice(0,15).map(seg=>{
+      if(isShopy(seg)){ const {name,qty}=splitQty(seg.replace(/(を)?(買う|買っておく|買い物)$/,"").replace(/を$/,"").trim()); return {dest:"shop",name,qty,store:guessStore(name)}; }
+      const q=quickParse(seg)||{title:seg};
+      return {dest:q.todo||!q.date?"todo":"ev",q,name:q.title||seg};
+    }).filter(x=>x.name);
+  }
+  let multi=[];
+  const DEST={shop:"🛒 買い物",todo:"✓ Todo",ev:"📅 予定"};
+  function renderMulti(){
+    const box=$("qMulti"); box.replaceChildren();
+    const on=multi.length>1||(multi.length===1&&multi[0].dest==="shop");
+    box.hidden=!on; if(!on) return false;
+    $("qPrev").hidden=true; $("evTitle").value="";
+    box.append(el("div","qn","こう分けて入れます（左のボタンで行き先を変えられます）"));
+    multi.forEach(it=>{
+      const r=el("div","qr"); const b=el("button","qd "+it.dest,DEST[it.dest]); b.type="button";
+      b.addEventListener("click",()=>{ it.dest=it.dest==="shop"?"todo":it.dest==="todo"?"ev":"shop"; if(it.dest==="shop"&&!it.store) it.store=guessStore(it.name); renderMulti(); });
+      const sub=it.dest==="shop"?(STORE[it.store]?STORE[it.store][1]+STORE[it.store][2]:"")+(it.qty?" ×"+it.qty:"")
+        :it.q&&it.q.date?md(it.q.date)+"（"+DOW[k2d(it.q.date).getDay()]+"）"+(it.dest==="ev"&&it.q.time?" "+it.q.time:"")+(it.dest==="todo"?"まで":""):it.dest==="ev"?"今日":"";
+      r.append(b,el("span","qt",it.name),el("span","qs",sub)); box.append(r);
+    });
+    const go=el("button","btn qgo","まとめて追加（"+multi.length+"件）"); go.type="button"; go.addEventListener("click",addMulti); box.append(go);
+    return true;
+  }
+  async function addMulti(){
+    if(!db||!multi.length) return; const now=new Date().toISOString(); const n={shop:0,todo:0,ev:0};
+    try{
+      for(const it of multi){
+        if(it.dest==="shop"){ if(shop.find(s=>!s.done&&s.name===it.name)) continue; await db.collection("shopping").add({name:it.name,qty:it.qty||"",aisle:aisleOf(it.name),store:it.store||guessStore(it.name),done:false,createdAt:now}); n.shop++; }
+        else if(it.dest==="todo"){ const q=it.q||{}; await db.collection("todos").add({title:it.name,due:q.date||"",span:"",who:q.who||[],cat:q.cat||"",memo:"",done:false,createdAt:now}); n.todo++; }
+        else { const q=it.q||{}; await db.collection("events").add({title:it.name,date:q.date||todayKey,remind:"",endDate:"",time:q.time||"",end:q.end||"",repeat:q.repeat||"",until:"",who:q.who||["family"],cat:q.cat||"",memo:"",createdAt:now}); n.ev++; }
+      }
+      const msg=[n.shop?"買い物"+n.shop:"",n.todo?"Todo"+n.todo:"",n.ev?"予定"+n.ev:""].filter(Boolean).join("・");
+      status(msg?msg+"件を追加しました":"もう入っていました"); multi=[]; closeSheet(); renderAll();
+    }catch(e){ status("一部追加できませんでした。",true); }
+  }
+  $("qText").addEventListener("input",()=>{ const v=$("qText").value; multi=editing?[]:multiParse(v); if(!renderMulti()) applyQuick(quickParse(v)); });
+  $("qText").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); if(!$("qMulti").hidden){ addMulti(); return; } $("evTitle").value&&$("evSubmit").focus(); } });
   // favourites: the titles you enter most, one tap to fill
   function renderFavs(){
     const box=$("favs"); box.replaceChildren(); const cnt={};
@@ -2428,7 +2498,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   }
 
   /* ---------- home sections: choose what to show ---------- */
-  const HOME_SECS=[["dlSec","今日・今週やること"],["wxSec","天気"],["monthSec","今月のカレンダー"],["memSec","思い出"],["ogTodaySec","今日のおでかけ候補"]];
+  const HOME_SECS=[["dlSec","今日・今週のTodo"],["wxSec","天気"],["monthSec","今月のカレンダー"],["memSec","思い出"],["ogTodaySec","今日のおでかけ候補"]];
   let homeOff=(()=>{try{return JSON.parse(localStorage.getItem("koyomi-homeoff")||"[]")}catch(e){return []}})();
   function applyHome(){ HOME_SECS.forEach(([id])=>{ const n=$(id); if(n) n.classList.toggle("off",homeOff.includes(id)); }); }
   (function(){ const box=$("homePick"); HOME_SECS.forEach(([id,l])=>{ const r=el("label","hpk"); const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!homeOff.includes(id);
@@ -2487,7 +2557,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     return list.length;
   }
   function quickAdd(box,s0,ph){
-    const f=el("form","wbadd"); const i=document.createElement("input"); i.type="text"; i.placeholder=ph||"＋ 今週やることを書く"; i.setAttribute("aria-label","今週やること"); i.maxLength=80;
+    const f=el("form","wbadd"); const i=document.createElement("input"); i.type="text"; i.placeholder=ph||"＋ 今週のTodoを書く"; i.setAttribute("aria-label","今週のTodo"); i.maxLength=80;
     const b=el("button","","追加"); b.type="submit"; f.append(i,b);
     f.addEventListener("submit",async ev=>{ev.preventDefault();const v=i.value.trim();if(!v||!db)return;i.value="";try{await db.collection("todos").add({title:v,due:addDays(s0,6),span:"week",who:[],memo:"",done:false,createdAt:new Date().toISOString()})}catch(e){status("追加できませんでした。",true)}});
     box.append(f);
@@ -2530,7 +2600,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   $("toWish").addEventListener("click",()=>selectTab("wish"));
   $("todoForm").addEventListener("submit",async ev=>{ev.preventDefault();const v=$("todoInput").value.trim();if(!v||!db)return;
     const dl=todoDeadline();
-    try{await db.collection("todos").add(Object.assign({title:v,due:"",span:"",who:[],memo:"",done:false,createdAt:new Date().toISOString()},dl));$("todoInput").value="";status("やることを追加しました")}catch(e){status("追加できませんでした。",true)}});
+    try{await db.collection("todos").add(Object.assign({title:v,due:"",span:"",who:[],memo:"",done:false,createdAt:new Date().toISOString()},dl));$("todoInput").value="";status("Todoを追加しました")}catch(e){status("追加できませんでした。",true)}});
 
   /* ---------- shop ---------- */
   // aisles, so the list reads in the order you walk the shop
@@ -2789,7 +2859,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const pl=el("button","btn ghost","予定にする");pl.type="button";
       pl.addEventListener("click",()=>{openSheet("ev",{title:o.title,cat:"outing",note:(o.place?o.place+"　":"")+(o.url||"")}); if(o.start&&o.start>=todayKey) $("evDate").value=o.start; });
       const wi=el("button","btn ghost","やりたい");wi.type="button";
-      wi.addEventListener("click",async()=>{ if(!db) return; wi.disabled=true; try{ await db.collection("wishes").add({title:o.title,note:[o.when,o.place].filter(Boolean).join("・"),done:false,createdAt:new Date().toISOString()}); wi.textContent="追加しました"; status("やりたいことに追加しました"); }catch(e){ wi.disabled=false; status("追加できませんでした。",true); } });
+      wi.addEventListener("click",async()=>{ if(!db) return; wi.disabled=true; try{ await db.collection("wishes").add({title:o.title,note:[o.when,o.place].filter(Boolean).join("・"),done:false,createdAt:new Date().toISOString()}); wi.textContent="追加しました"; status("Wishに追加しました"); }catch(e){ wi.disabled=false; status("追加できませんでした。",true); } });
       ac.append(pl,wi); bd.append(ac); c.append(bd); box.append(c);
     });
     $("ogSub").textContent=list.length+"件";
@@ -2908,7 +2978,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(Notification.permission==="denied"){ btn.hidden=true; note.textContent="通知がブロックされています。スマホの設定でこのアプリの通知を許可してください。"; return; }
     const sub=await currentSub();
     btn.hidden=false; btn.textContent=sub?"テスト通知を送る":"通知をオンにする";
-    note.textContent=sub?"通知はオンです。家族が予定・やること・買い物を追加すると、このスマホに届きます。":"オンにすると、家族が予定などを追加・変更したときに通知が届きます。";
+    note.textContent=sub?"通知はオンです。家族が予定・Todo・買い物を追加すると、このスマホに届きます。":"オンにすると、家族が予定などを追加・変更したときに通知が届きます。";
   }
   $("pushBtn").addEventListener("click",async()=>{
     const btn=$("pushBtn"); btn.disabled=true;

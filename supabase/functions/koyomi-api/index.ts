@@ -130,13 +130,13 @@ const later = (p: Promise<unknown>) => { const w = (globalThis as any).EdgeRunti
 const md = (k: unknown) => { const m = String(k || '').match(/^\d{4}-(\d{2})-(\d{2})$/); return m ? `${+m[1]}/${+m[2]}` : ''; };
 function describe(kind: string, p: any, old: any, created: boolean, deleted: boolean) {
   const t = kind === 'shop' ? p.name : p.title;
-  const label = kind === 'event' ? `予定「${t}」${p.date ? `（${md(p.date)}）` : ''}` : kind === 'todo' ? `やること「${t}」` : kind === 'shop' ? `買い物「${t}」` : kind === 'wish' ? `やりたいこと「${t}」` : '';
+  const label = kind === 'event' ? `予定「${t}」${p.date ? `（${md(p.date)}）` : ''}` : kind === 'todo' ? `Todo「${t}」` : kind === 'shop' ? `買い物「${t}」` : kind === 'wish' ? `Wish「${t}」` : '';
   if (!label) return '';
   if (deleted) return `${label}を消しました`;
   if (created) return `${label}を追加しました`;
   if (kind === 'todo' && p.done && !old?.done) return `「${t}」を終わらせました`;
   if (kind === 'shop' && p.done !== old?.done) return '';      // ticking items off the list stays quiet
-  if (kind === 'wish' && p.done && !old?.done) return `やりたいこと「${t}」が叶いました`;
+  if (kind === 'wish' && p.done && !old?.done) return `Wish「${t}」が叶いました`;
   if (kind === 'event') return `${label}を変更しました`;
   return '';
 }
@@ -183,8 +183,21 @@ async function updateWeather() {
   let hourly: unknown[] = [], hsrc = '気象庁';
   try { hourly = await jmaHourly(blocks); } catch { hourly = []; }
   if (hourly.length < 4) { try { hourly = await hourlyForecast(blocks); hsrc = '気象庁・Open-Meteo'; } catch { /* the daily forecast still goes out */ } }
+  try {   // rain amount for each 3-hour slot (気象庁 does not publish it per point; Open-Meteo's model total)
+    const mm = await rainMm();
+    for (const h of hourly as any[]) { const base = Date.parse(String(h.t).slice(0, 16) + ':00+09:00'); if (!(base > 0)) continue; let sum = 0, n = 0;
+      for (let i = 1; i <= 3; i++) { const k = new Date(base + i * 3600000 + 9 * 3600000).toISOString().slice(0, 13); if (mm[k] != null) { sum += mm[k]; n++; } }
+      if (n) h.mm = Math.round(sum * 10) / 10; }
+  } catch { /* amounts are a nice-to-have */ }
   await saveInfo('weather', { key: 'weather', area: '大津市', source: hsrc, updated, url: 'https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html', days: list, hourly });
   return list.length;
+}
+async function rainMm() {
+  const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=35.0045&longitude=135.8686&hourly=precipitation&timezone=Asia%2FTokyo&forecast_days=3');
+  if (!r.ok) fail(502, 'rain_unavailable');
+  const j = await r.json(); const out: Record<string, number> = {};
+  (j.hourly?.time || []).forEach((t: string, i: number) => { const v = j.hourly.precipitation?.[i]; if (v != null) out[t.slice(0, 13)] = Number(v); });
+  return out;
 }
 function wmo(c: number): [string, string] {
   if (c === 0) return ['☀️', '晴れ'];
