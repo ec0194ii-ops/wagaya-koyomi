@@ -443,6 +443,22 @@ async function buildIcs() {
   return L.join('\r\n') + '\r\n';
 }
 
+
+/* ---------- home-screen widget feed (Scriptable), read-only, behind its own secret link ---------- */
+async function buildWidget() {
+  const rows = await db('koyomi_items', 'GET', 'select=id,kind,payload&deleted_at=is.null&kind=in.(event,todo,shop)&limit=5000');
+  const today = jstKey(0), d0 = new Date(today + 'T00:00:00Z'), ws = jstKey(-((d0.getUTCDay() + 6) % 7)), we = jstKey(6 - ((d0.getUTCDay() + 6) % 7));
+  const shop = rows.filter((r: any) => r.kind === 'shop' && !r.payload.done).map((r: any) => r.payload)
+    .sort((a: any, b: any) => String(a.createdAt || '').localeCompare(String(b.createdAt || ''))).map((p: any) => ({ name: String(p.name || ''), qty: String(p.qty || '') }));
+  const open = rows.filter((r: any) => r.kind === 'todo' && !r.payload.done).map((r: any) => r.payload);
+  const lab = (t: any) => t.span === 'week' ? '今週中' : t.due === today ? '今日' : t.due < today ? '期限切れ' : `${+t.due.slice(5, 7)}/${+t.due.slice(8, 10)}`;
+  const todayT = open.filter((t: any) => t.due && t.due <= today && t.span !== 'week').sort((a: any, b: any) => a.due.localeCompare(b.due));
+  const weekT = open.filter((t: any) => !todayT.includes(t) && ((t.due && t.due <= we) || (!t.due && t.week === ws))).sort((a: any, b: any) => String(a.due).localeCompare(String(b.due)));
+  const evs = rows.filter((r: any) => r.kind === 'event' && occursOn(r.payload, today)).map((r: any) => r.payload)
+    .sort((a: any, b: any) => (a.time || '00').localeCompare(b.time || '00')).map((e: any) => ({ time: e.time || '', title: String(e.title || ''), who: whoTag(e.who) }));
+  return { today, dow: DOW[d0.getUTCDay()], shop, todos: [...todayT, ...weekT].map((t: any) => ({ title: String(t.title || ''), label: t.due ? lab(t) : '今週中', late: !!(t.due && t.due < today && t.span !== 'week') })), events: evs, updated: new Date().toISOString() };
+}
+
 async function readBody(req: Request) {
   const reader = req.body?.getReader(); if (!reader) fail(400, 'body_required');
   const chunks: Uint8Array[] = []; let size = 0;
@@ -480,11 +496,21 @@ Deno.serve(async req => {
   };
   const response = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers });
   try {
+    if (req.method === 'GET' && new URL(req.url).searchParams.has('w')) {   // home-screen widget
+      const t = new URL(req.url).searchParams.get('w') || '';
+      const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=widget_hash');
+      let hs: Record<string, string> = {}; try { hs = JSON.parse(cfg?.widget_hash || '{}') || {}; } catch { hs = {}; }
+      const th = /^[0-9a-f]{64}$/.test(t) ? await sha(t) : '';
+      if (!th || !Object.values(hs).some(h => typeof h === 'string' && equal(th, h))) return new Response('{"error":"not_found"}', { status: 404, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify(await buildWidget()), { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
+    }
     if (req.method === 'GET') {   // calendar apps subscribe with ?ics=<secret>
       const t = new URL(req.url).searchParams.get('ics') || '';
       if (!/^[0-9a-f]{64}$/.test(t)) return new Response('not found', { status: 404 });
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=ics_hash');
-      if (!cfg?.ics_hash || !equal(await sha(t), cfg.ics_hash)) return new Response('not found', { status: 404 });
+      let ih: Record<string, string> = {}; try { ih = (cfg?.ics_hash || '').startsWith('{') ? JSON.parse(cfg.ics_hash) : { any: cfg?.ics_hash || '' }; } catch { ih = {}; }
+      const tih = await sha(t);
+      if (!Object.values(ih).some(h => typeof h === 'string' && h && equal(tih, h))) return new Response('not found', { status: 404 });
       return new Response(await buildIcs(), { status: 200, headers: { 'Content-Type': 'text/calendar; charset=utf-8', 'Cache-Control': 'private, max-age=900', 'Content-Disposition': 'inline; filename="wagaya-koyomi.ics"' } });
     }
     if (origin && !ORIGINS.includes(origin)) fail(403, 'origin_not_allowed');
@@ -560,10 +586,22 @@ Deno.serve(async req => {
       await sendPush(session.member, `🛒 ${who}がいまから買い物に行きます。ほしいものは今のうちにリストへ${n ? `（いま${n}品）` : ''}`, 'koyomi-shop-go');
       return response({ ok: true });
     }
+    if (body.action === 'widget_link') {   // (re)make the widget's private link; the old one stops working
+      await limit(`widget:${actor}`, 10);
+      const t = hex(crypto.getRandomValues(new Uint8Array(32)));
+      const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=widget_hash');
+      let hs: Record<string, string> = {}; try { hs = JSON.parse(cfg?.widget_hash || '{}') || {}; } catch { hs = {}; }
+      hs[session.member] = await sha(t);                       // one link per person, so each phone can renew its own
+      await db('koyomi_config', 'PATCH', 'id=eq.true', { widget_hash: JSON.stringify(hs) });
+      return response({ url: `${BASE}/functions/v1/koyomi-api?w=${t}` });
+    }
     if (body.action === 'ics_link') {   // make (or remake, which retires the old one) the private calendar link
       await limit(`ics:${actor}`, 10);
       const t = hex(crypto.getRandomValues(new Uint8Array(32)));
-      await db('koyomi_config', 'PATCH', 'id=eq.true', { ics_hash: await sha(t) });
+      const [ic] = await db('koyomi_config', 'GET', 'id=eq.true&select=ics_hash');
+      let ih: Record<string, string> = {}; try { ih = (ic?.ics_hash || '').startsWith('{') ? JSON.parse(ic.ics_hash) : {}; } catch { ih = {}; }
+      ih[session.member] = await sha(t);                       // one link per person
+      await db('koyomi_config', 'PATCH', 'id=eq.true', { ics_hash: JSON.stringify(ih) });
       const u = `${BASE}/functions/v1/koyomi-api?ics=${t}`;
       return response({ url: u, webcal: u.replace(/^https:/, 'webcal:') });
     }
