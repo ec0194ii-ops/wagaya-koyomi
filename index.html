@@ -318,7 +318,7 @@ a.btn{text-decoration:none;display:inline-block}
 .wxpanel:active{opacity:.85}
 .wxph{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
 .wxph b{font-size:14px}
-.wxph span{font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap}
+.wxph span,.wxph a{font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap;text-decoration:none;padding:6px 0 6px 10px}
 .hscroll{overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
 .hscroll::-webkit-scrollbar{display:none}
 .hchart{display:block}
@@ -1569,8 +1569,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const d=days.find(x=>x.date===k);
     const hourly=Array.isArray(weather&&weather.hourly)?weather.hourly.filter(h=>h&&h.t&&h.temp!=null):[];
     if(!d&&!(k===todayKey&&hourly.length)) return null;
-    const pnl=el("a","wxpanel"); pnl.href=yahooUrl(); pnl.target="_blank"; pnl.rel="noopener";
-    const head=el("div","wxph"); head.append(el("b","",k===todayKey?"今日の3時間ごとの天気":fmtDay(k)+"の天気"), el("span","","Yahoo!天気で見る ›"));
+    // a plain box (not one big link) so the hourly strip can be swiped sideways on iPhone; only the header opens Yahoo!天気
+    const pnl=el("div","wxpanel"); pnl.setAttribute("role","group");
+    const yl=el("a","","Yahoo!天気で見る ›"); yl.href=yahooUrl(); yl.target="_blank"; yl.rel="noopener";
+    const head=el("div","wxph"); head.append(el("b","",k===todayKey?"今日の3時間ごとの天気":fmtDay(k)+"の天気"), yl);
     pnl.append(head);
     if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ const w0=el("div","yw"); w0.append(st); pnl.append(w0); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
     if(k===todayKey&&hourly.length>=3){
@@ -1624,7 +1626,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function hourlyStrip(k){
     const hs=(Array.isArray(weather&&weather.hourly)?weather.hourly:[]).filter(h=>h&&h.t&&h.temp!=null);
     if(!hs.length) return null;
-    const wrap=el("div","hrs"); const lab=el("div","lab"); const hasMm=hs.some(h=>h.mm!=null); if(hasMm) wrap.classList.add("mm"); lab.append(el("span","","時刻"),el("span",""),el("span","","気温"),el("span","","降水"));if(hasMm)lab.append(el("span","","雨量")); wrap.append(lab);
+    const wrap=el("div","hrs"); const lab=el("div","lab"); const hasMm=false;   // model rain totals disagreed with the 気象庁 forecast, so they stay hidden if(hasMm) wrap.classList.add("mm"); lab.append(el("span","","時刻"),el("span",""),el("span","","気温"),el("span","","降水"));if(hasMm)lab.append(el("span","","雨量")); wrap.append(lab);
     const sc=el("div","hscroll2"); const cols=el("div","hcols");
     const nowH=now.getHours();
     hs.forEach((h,i)=>{ const d=h.t.slice(0,10); const c=el("div","hc"+(d===todayKey&&h.h<=nowH&&nowH<h.h+3?" now":""));
