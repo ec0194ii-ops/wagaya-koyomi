@@ -454,6 +454,13 @@ a.btn{text-decoration:none;display:inline-block}
 #cdBody .sech{gap:6px}
 #cdBody .vt{flex:none}
 #cdBody .vt button{white-space:nowrap;padding:4px 10px}
+#cdBody .sech{flex-wrap:wrap}
+#cdBody .vt2{padding:3px;box-shadow:inset 0 0 0 1px var(--line);width:100%;display:grid;grid-template-columns:1fr 1fr;margin-top:8px}
+#cdBody .vt2 button{justify-content:center}
+#cdBody .vt2 button{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;font-size:12.5px}
+#cdBody .vt2 svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+#cdBody .vt2 svg circle[r="1"]{fill:currentColor}
+#cdBody .vt2 button[aria-pressed="true"]{background:var(--accent);color:#fff;box-shadow:none}
 .cdt h2{font-size:18px}
 
 
@@ -1038,7 +1045,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </div>
   <div class="sec" id="cdBody">
     <div class="sech"><div class="cdt"><button class="dnav" id="dPrev" type="button" aria-label="前の日">‹</button><h2 id="cdTitle"></h2><button class="dnav" id="dNext" type="button" aria-label="次の日">›</button></div>
-      <div class="vt" role="group" aria-label="表示"><button type="button" id="vList" aria-pressed="true">リスト</button><button type="button" id="vTime" aria-pressed="false">24時間</button></div>
+      <div class="vt vt2" role="group" aria-label="この日の見かた"><button type="button" id="vList" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>リスト</button><button type="button" id="vTime" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>時間割</button></div>
     </div>
     <div id="cdSuggest"></div>
     <div id="cdMem"></div>
@@ -1208,8 +1215,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <button role="tab" id="tab-home" aria-controls="pane-home" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z"/></svg>ホーム</button>
   <button role="tab" id="tab-cal" aria-controls="pane-cal" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>カレンダー</button>
   <button role="tab" id="tab-todo" aria-controls="pane-todo" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Todo<span class="bd" id="todoBadge" hidden></span></button>
-  <button role="tab" id="tab-wish" aria-controls="pane-wish" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.3 5.2 5.6.6-4.2 3.8 1.2 5.5L12 15.8l-4.9 2.8 1.2-5.5-4.2-3.8 5.6-.6z"/></svg>Wish</button>
   <button role="tab" id="tab-shop" aria-controls="pane-shop" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>買い物<span class="bd" id="shopBadge" hidden></span></button>
+  <button role="tab" id="tab-wish" aria-controls="pane-wish" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.3 5.2 5.6.6-4.2 3.8 1.2 5.5L12 15.8l-4.9 2.8 1.2-5.5-4.2-3.8 5.6-.6z"/></svg>Wish</button>
 </div></nav>
 
 <div class="scrim" id="scrim" hidden>
@@ -1843,7 +1850,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const pane=document;
     pane.addEventListener("touchstart",e=>{
       const t=e.target;
-      on=!$("pane-cal").hidden&&e.touches.length===1&&!t.closest(".hscroll,.foldbtn,.nav,.fab,.sheet,.scrim,.login,input,textarea,select,dialog");
+      on=!$("pane-cal").hidden&&e.touches.length===1&&!t.closest(".hscroll,.hscroll2,.hrs,.hcols,.foldbtn,.nav,.fab,.sheet,.scrim,.login,input,textarea,select,dialog");
       area=t.closest("#calMonth")?"cal":t.closest(".mhead,#calLegend")?"":"day";
       if(!area) on=false;
       if(!on) return;
@@ -2791,7 +2798,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   }
 
   /* ---------- tabs ---------- */
-  const TABS=["home","cal","todo","wish","shop","more"];
+  const TABS=["home","cal","todo","shop","wish","more"];
   let lastTab="home";
   function selectTab(k){
     if(k!=="more") lastTab=k; $("fab").hidden=(k==="more");
