@@ -4,7 +4,9 @@ const ORIGINS = ['https://ec0194ii-ops.github.io', ...(Deno.env.get('KOYOMI_EXTR
 const BASE = Deno.env.get('SUPABASE_URL')!;
 const ADMIN = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const MEMBERS: Record<string, string> = { papa: 'パパ', mama: 'ママ' };
-const WRITABLE = ['event', 'todo', 'shop', 'wish', 'garbage', 'place', 'note'];
+const WRITABLE = ['event', 'todo', 'shop', 'wish', 'garbage', 'place', 'note', 'thing', 'recipe', 'routine'];
+// Privacy: a record with an owner belongs to that person only. It is never sent to, shown to, or notified to anyone else.
+const visibleTo = (member: string | null) => (r: any) => !r.owner || (member !== null && r.owner === member);
 const enc = new TextEncoder();
 const hex = (b: ArrayBuffer | Uint8Array) => Array.from(new Uint8Array(b as ArrayBuffer), x => x.toString(16).padStart(2, '0')).join('');
 const unhex = (s: string) => Uint8Array.from(s.match(/../g) || [], x => parseInt(x, 16));
@@ -319,8 +321,8 @@ function occursOn(e: any, k: string) {
   const end = e.endDate && e.endDate > e.date ? e.endDate : e.date;
   return k >= e.date && k <= end;
 }
-async function morningText() {
-  const rows = await db('koyomi_items', 'GET', 'select=kind,payload&deleted_at=is.null&kind=in.(event,todo,garbage,info)&limit=5000');
+async function morningText(member: string) {
+  const rows = (await db('koyomi_items', 'GET', 'select=kind,payload,owner&deleted_at=is.null&kind=in.(event,todo,garbage,info)&limit=5000')).filter(visibleTo(member));
   const today = jstKey(0), tmr = jstKey(1);
   const evs = rows.filter((r: any) => r.kind === 'event' && occursOn(r.payload, today)).map((r: any) => r.payload)
     .sort((a: any, b: any) => (a.time || '99').localeCompare(b.time || '99'));
@@ -379,7 +381,8 @@ async function runReminders() {
   const nowMs = Date.now(); const jst = new Date(nowMs + 9 * 3600000);
   const today = jstKey(0), tmr = jstKey(1);
   const minNow = jst.getUTCHours() * 60 + jst.getUTCMinutes();
-  const rows = await db('koyomi_items', 'GET', 'select=id,kind,payload&deleted_at=is.null&kind=in.(event,todo,garbage)&limit=5000');
+  const allRows = await db('koyomi_items', 'GET', 'select=id,kind,payload,owner&deleted_at=is.null&kind=in.(event,todo,garbage)&limit=5000');
+  const rows = allRows;
   let sent = 0;
   // 1) shortly before each timed event (default 30 min), to the people it belongs to
   for (const day of [today, tmr]) {
@@ -394,11 +397,13 @@ async function runReminders() {
       if (!(await claim(`ev|${r.id}|${day}|${lead}`))) continue;
       const left = lead >= 60 ? `${lead / 60}時間後` : `${lead}分後`;
       const body = `⏰ ${left}：${e.title}（${e.time}${e.end ? '〜' + e.end : ''}・${whoJa(e.who)}）${e.memo ? '\n持ち物・メモ：' + String(e.memo).slice(0, 60) : ''}`;
-      await sendPush(null, body, 'koyomi-remind-' + r.id, targets(e.who)); sent++;
+      await sendPush(null, body, 'koyomi-remind-' + r.id, r.owner ? [r.owner] : targets(e.who)); sent++;
     }
   }
   // 2) the evening before (20:30): tomorrow at a glance, plus deadlines and garbage
-  if (minNow >= 20 * 60 + 30 && minNow < 21 * 60 + 30 && await claim(`eve|${tmr}`)) {
+  if (minNow >= 20 * 60 + 30 && minNow < 21 * 60 + 30) for (const m of Object.keys(MEMBERS)) {
+    if (!(await claim(`eve|${tmr}|${m}`))) continue;
+    const rows = allRows.filter(visibleTo(m));
     const evs = rows.filter((r: any) => r.kind === 'event' && occursOn(r.payload, tmr)).map((r: any) => r.payload).sort((a: any, b: any) => (a.time || '00').localeCompare(b.time || '00'));
     const due = rows.filter((r: any) => r.kind === 'todo' && !r.payload.done && r.payload.due === tmr).map((r: any) => r.payload);
     const d = new Date(tmr + 'T00:00:00Z'), nth = Math.ceil(d.getUTCDate() / 7), dow = d.getUTCDay();
@@ -409,7 +414,7 @@ async function runReminders() {
       if (notable.length) parts.push(notable.slice(0, 5).map((e: any) => `・${e.time ? e.time + ' ' : ''}${e.title}${e.memo ? '（' + String(e.memo).slice(0, 24) + '）' : ''}`).join('\n') + (notable.length > 5 ? `\nほか${notable.length - 5}件` : ''));
       if (due.length) parts.push('📝 締切：' + due.map((t: any) => t.title).join('、'));
       if (garb.length) parts.push('🗑 ' + garb.join('・') + 'の日');
-      await sendPush(null, parts.join('\n'), 'koyomi-evening'); sent++;
+      await sendPush(null, parts.join('\n'), 'koyomi-evening', [m]); sent++;
     }
   }
   if (Math.random() < 0.02) await db('koyomi_sent', 'DELETE', `sent_at=lt.${encodeURIComponent(new Date(nowMs - 14 * 86400000).toISOString())}`);
@@ -429,8 +434,8 @@ const nextDay = (k: string) => { const d = new Date(k + 'T00:00:00Z'); d.setUTCD
 const addMin = (k: string, t: string, m: number) => { const d = new Date(`${k}T${t}:00Z`); d.setUTCMinutes(d.getUTCMinutes() + m); return d.toISOString().slice(0, 16); };
 const WHO_TAG: Record<string, string> = { papa: 'パ', mama: 'マ', yuzu: 'ゆ', family: '家' };
 function whoTag(who: unknown) { const a = Array.isArray(who) ? who as string[] : []; if (!a.length || a.includes('family')) return '家'; return a.map(x => WHO_TAG[x] || '').join(''); }
-async function buildIcs() {
-  const rows = await db('koyomi_items', 'GET', 'select=id,kind,payload,updated_at&deleted_at=is.null&kind=in.(event,todo)&limit=5000');
+async function buildIcs(member: string | null) {
+  const rows = (await db('koyomi_items', 'GET', 'select=id,kind,payload,owner,updated_at&deleted_at=is.null&kind=in.(event,todo)&limit=5000')).filter(visibleTo(member));
   const from = jstKey(-120);
   const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
   const L: string[] = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//wagaya-koyomi//JA', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
@@ -471,8 +476,8 @@ async function buildIcs() {
 
 
 /* ---------- home-screen widget feed (Scriptable), read-only, behind its own secret link ---------- */
-async function buildWidget() {
-  const rows = await db('koyomi_items', 'GET', 'select=id,kind,payload&deleted_at=is.null&kind=in.(event,todo,shop)&limit=5000');
+async function buildWidget(member: string | null) {
+  const rows = (await db('koyomi_items', 'GET', 'select=id,kind,payload,owner&deleted_at=is.null&kind=in.(event,todo,shop)&limit=5000')).filter(visibleTo(member));
   const today = jstKey(0), d0 = new Date(today + 'T00:00:00Z'), ws = jstKey(-((d0.getUTCDay() + 6) % 7)), we = jstKey(6 - ((d0.getUTCDay() + 6) % 7));
   const shop = rows.filter((r: any) => r.kind === 'shop' && !r.payload.done).map((r: any) => r.payload)
     .sort((a: any, b: any) => String(a.createdAt || '').localeCompare(String(b.createdAt || ''))).map((p: any) => ({ name: String(p.name || ''), qty: String(p.qty || '') }));
@@ -527,8 +532,9 @@ Deno.serve(async req => {
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=widget_hash');
       let hs: Record<string, string> = {}; try { hs = JSON.parse(cfg?.widget_hash || '{}') || {}; } catch { hs = {}; }
       const th = /^[0-9a-f]{64}$/.test(t) ? await sha(t) : '';
-      if (!th || !Object.values(hs).some(h => typeof h === 'string' && equal(th, h))) return new Response('{"error":"not_found"}', { status: 404, headers: { 'Content-Type': 'application/json' } });
-      return new Response(JSON.stringify(await buildWidget()), { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
+      const wm = th ? Object.entries(hs).find(([, h]) => typeof h === 'string' && equal(th, h)) : undefined;
+      if (!wm) return new Response('{"error":"not_found"}', { status: 404, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify(await buildWidget(MEMBERS[wm[0]] ? wm[0] : null)), { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
     }
     if (req.method === 'GET') {   // calendar apps subscribe with ?ics=<secret>
       const t = new URL(req.url).searchParams.get('ics') || '';
@@ -536,8 +542,9 @@ Deno.serve(async req => {
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=ics_hash');
       let ih: Record<string, string> = {}; try { ih = (cfg?.ics_hash || '').startsWith('{') ? JSON.parse(cfg.ics_hash) : { any: cfg?.ics_hash || '' }; } catch { ih = {}; }
       const tih = await sha(t);
-      if (!Object.values(ih).some(h => typeof h === 'string' && h && equal(tih, h))) return new Response('not found', { status: 404 });
-      return new Response(await buildIcs(), { status: 200, headers: { 'Content-Type': 'text/calendar; charset=utf-8', 'Cache-Control': 'private, max-age=900', 'Content-Disposition': 'inline; filename="wagaya-koyomi.ics"' } });
+      const im = Object.entries(ih).find(([, h]) => typeof h === 'string' && h && equal(tih, h));
+      if (!im) return new Response('not found', { status: 404 });
+      return new Response(await buildIcs(MEMBERS[im[0]] ? im[0] : null), { status: 200, headers: { 'Content-Type': 'text/calendar; charset=utf-8', 'Cache-Control': 'private, max-age=900', 'Content-Disposition': 'inline; filename="wagaya-koyomi.ics"' } });
     }
     if (origin && !ORIGINS.includes(origin)) fail(403, 'origin_not_allowed');
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers });
@@ -555,9 +562,9 @@ Deno.serve(async req => {
       if (body.action === 'reminders') return response({ ok: true, sent: await runReminders() });
       let wx = 0; try { wx = await updateWeather(); } catch { /* keep yesterday's forecast */ }
       if (body.action === 'weather') return response({ ok: true, days: wx });
-      const msg = await morningText();
-      if (msg) await sendPush(null, msg, 'koyomi-morning');
-      return response({ ok: true, msg });
+      const msgs: Record<string, string> = {};
+      for (const m of Object.keys(MEMBERS)) { msgs[m] = await morningText(m); if (msgs[m]) await sendPush(null, msgs[m], 'koyomi-morning', [m]); }   // each person gets their own, with their private plans
+      return response({ ok: true, msg: msgs.papa });
     }
 
     if (body.action === 'login') {
@@ -589,7 +596,7 @@ Deno.serve(async req => {
     if (body.action === 'snapshot') {
       const items: unknown[] = [];
       for (let offset = 0; ; offset += 1000) {
-        const page = await db('koyomi_items', 'GET', `select=id,kind,payload,version,updated_by,updated_at&deleted_at=is.null&order=id&limit=1000&offset=${offset}`);
+        const page = await db('koyomi_items', 'GET', `select=id,kind,payload,owner,version,updated_by,updated_at&deleted_at=is.null&or=(owner.is.null,owner.eq.${session.member})&order=id&limit=1000&offset=${offset}`);
         items.push(...page); if (page.length < 1000) break; if (offset >= 20000) fail(503, 'dataset_too_large');
       }
       return response({ items, member: session.member, now: new Date().toISOString() });
@@ -700,23 +707,26 @@ Deno.serve(async req => {
     if (!WRITABLE.includes(body.kind)) fail(400, 'invalid_kind');
     if (!Number.isSafeInteger(body.version) || body.version < 0) fail(400, 'invalid_version');
     const now = new Date().toISOString();
+    if (body.private !== undefined && typeof body.private !== 'boolean') fail(400, 'invalid_private');
     if (body.version === 0) {
       if (body.deleted) fail(400, 'invalid_delete');
       const p = payload(body.kind, body.payload);
+      const owner = body.private === true ? session.member : null;
       try {
-        const [r] = await db('koyomi_items', 'POST', '', { id: body.id, kind: body.kind, payload: p, updated_by: session.member });
-        const msg = describe(body.kind, p, null, true, false); if (msg) await later(sendPush(session.member, `${who}が${msg}`));
+        const [r] = await db('koyomi_items', 'POST', '', { id: body.id, kind: body.kind, payload: p, owner, updated_by: session.member });
+        const msg = owner ? '' : describe(body.kind, p, null, true, false); if (msg) await later(sendPush(session.member, `${who}が${msg}`));   // private items stay quiet
         return response({ record: r });
-      } catch (e) { if ((e as any).status !== 409) throw e; const [existing] = await db('koyomi_items', 'GET', `id=eq.${body.id}`); return response({ error: 'conflict', record: existing }, 409); }
+      } catch (e) { if ((e as any).status !== 409) throw e; const [existing] = await db('koyomi_items', 'GET', `id=eq.${body.id}`); if (existing && !visibleTo(session.member)(existing)) fail(404, 'not_found'); return response({ error: 'conflict', record: existing }, 409); }
     }
     const [old] = await db('koyomi_items', 'GET', `id=eq.${body.id}&kind=eq.${body.kind}`);
-    if (!old) fail(404, 'not_found');
+    if (!old || !visibleTo(session.member)(old)) fail(404, 'not_found');
+    const owner = typeof body.private === 'boolean' ? (body.private ? session.member : null) : old.owner ?? null;
     const p = body.deleted ? old.payload : payload(body.kind, body.payload);
     const [r] = await db('koyomi_items', 'PATCH', `id=eq.${body.id}&kind=eq.${body.kind}&version=eq.${body.version}`, {
-      payload: p, version: body.version + 1, updated_by: session.member, updated_at: now, deleted_at: body.deleted ? now : null,
+      payload: p, owner, version: body.version + 1, updated_by: session.member, updated_at: now, deleted_at: body.deleted ? now : null,
     });
     if (!r) { const [cur] = await db('koyomi_items', 'GET', `id=eq.${body.id}`); return response({ error: 'conflict', record: cur }, 409); }
-    const msg = describe(body.kind, p, old.payload, false, !!body.deleted); if (msg) await later(sendPush(session.member, `${who}が${msg}`));
+    const msg = owner || old.owner ? '' : describe(body.kind, p, old.payload, false, !!body.deleted); if (msg) await later(sendPush(session.member, `${who}が${msg}`));
     return response({ record: r });
   } catch (e) {
     const status = (e as any).status;
