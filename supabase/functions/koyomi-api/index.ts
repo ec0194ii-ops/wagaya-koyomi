@@ -585,7 +585,12 @@ Deno.serve(async req => {
       await limit(`login:ip:${ip}`, 10);
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true');
       if (!cfg) fail(503, 'not_configured');
-      if (!equal(await derive(password, cfg.password_salt, cfg.password_iterations), cfg.password_hash)) fail(401, 'wrong_password');
+      // someone with their own password set can only sign in with it (the family password no longer opens their account)
+      const own = cfg.member_pw && cfg.member_pw[body.member];
+      const ok = own && own.hash
+        ? equal(await derive(password, own.salt, own.iterations), own.hash)
+        : equal(await derive(password, cfg.password_salt, cfg.password_iterations), cfg.password_hash);
+      if (!ok) fail(401, 'wrong_password');
       const token = hex(crypto.getRandomValues(new Uint8Array(32)));
       const expires_at = new Date(Date.now() + 180 * 86400000).toISOString();   // stay signed in on this phone for ~6 months
       await db('koyomi_sessions', 'POST', '', { token_hash: await sha(token), member: body.member, expires_at });
@@ -609,7 +614,23 @@ Deno.serve(async req => {
         const page = await db('koyomi_items', 'GET', `select=id,kind,payload,owner,version,updated_by,updated_at&deleted_at=is.null&or=(owner.is.null,owner.eq.${session.member})&order=id&limit=1000&offset=${offset}`);
         items.push(...page); if (page.length < 1000) break; if (offset >= 20000) fail(503, 'dataset_too_large');
       }
-      return response({ items, member: session.member, now: new Date().toISOString() });
+      const [pc] = await db('koyomi_config', 'GET', 'id=eq.true&select=member_pw');
+      return response({ items, member: session.member, own_pw: !!(pc?.member_pw && pc.member_pw[session.member]?.hash), now: new Date().toISOString() });
+    }
+    if (body.action === 'set_password') {   // a personal password for this person; signs out their other phones
+      await limit(`setpw:${actor}`, 5);
+      const current = text(body.current, 256, true), next = text(body.next, 256, true);
+      if (next.normalize('NFKC').length < 6) fail(400, 'too_short');
+      const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true');
+      const pw = cfg.member_pw || {}; const own = pw[session.member];
+      const ok = own && own.hash ? equal(await derive(current, own.salt, own.iterations), own.hash) : equal(await derive(current, cfg.password_salt, cfg.password_iterations), cfg.password_hash);
+      if (!ok) fail(401, 'wrong_password');
+      if (equal(await derive(next, cfg.password_salt, cfg.password_iterations), cfg.password_hash)) fail(400, 'same_as_family');
+      const salt = hex(crypto.getRandomValues(new Uint8Array(16))), iterations = cfg.password_iterations || 210000;
+      pw[session.member] = { hash: await derive(next, salt, iterations), salt, iterations, at: new Date().toISOString() };
+      await db('koyomi_config', 'PATCH', 'id=eq.true', { member_pw: pw });
+      const out = await db('koyomi_sessions', 'PATCH', `member=eq.${session.member}&token_hash=neq.${actor}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}`, { expires_at: new Date().toISOString() });
+      return response({ ok: true, signed_out: Array.isArray(out) ? out.length : 0 });
     }
     if (body.action === 'push_key') return response({ key: (await vapid()).pub });
     if (body.action === 'push_subscribe') {

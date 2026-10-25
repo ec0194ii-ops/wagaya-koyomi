@@ -585,6 +585,7 @@ a.btn{text-decoration:none;display:inline-block}
 .kpphotos .ph{position:relative;flex:none;width:84px;height:84px;border-radius:14px;background:var(--sunk) center/cover no-repeat}
 .kpphotos .ph button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:24px;padding:0}
 .kpphotos .add{flex:none;width:84px;height:84px;border-radius:14px;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:transparent;color:var(--accent);font-weight:700;font-size:12px}
+.lghint{display:block;font-size:12px;color:var(--muted);margin-top:-2px}
 .pvt{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
 .pvt input{width:20px;height:20px;accent-color:#5b4a8a}
 .pvt span{display:flex;flex-direction:column} .pvt b{font-size:14px} .pvt small{font-size:11.5px;color:var(--muted)}
@@ -1324,6 +1325,16 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="card set">
       <div class="row2"><span>家族が予定を追加・変更したときの通知</span><button class="btn sm" type="button" id="pushBtn">通知をオンにする</button></div>
       <small id="pushNote"></small>
+      <div id="pwBox" hidden style="border-top:1px solid var(--line);padding-top:10px">
+        <div class="row2"><span id="pwLabel">パパだけのパスワード</span><span class="sub" id="pwState"></span></div>
+        <small id="pwNote">決めると、「パパ」でログインするときはこのパスワードが必要になります。家族の合言葉ではパパとして入れなくなるので、パパのノートと🔒の予定を守れます。</small>
+        <form id="pwForm" autocomplete="off" style="display:grid;gap:8px;margin-top:8px">
+          <input type="password" id="pwCur" placeholder="いまの合言葉" autocomplete="current-password" aria-label="いまの合言葉・パスワード" required>
+          <input type="password" id="pwNew" placeholder="新しいパスワード（6文字以上）" autocomplete="new-password" minlength="6" aria-label="新しいパスワード" required>
+          <input type="password" id="pwNew2" placeholder="もう一度" autocomplete="new-password" minlength="6" aria-label="新しいパスワード（確認）" required>
+          <button class="btn sm" type="submit" id="pwSave" style="justify-self:end">パスワードを決める</button>
+        </form>
+      </div>
       <div class="row2" style="border-top:1px solid var(--line);padding-top:10px"><span>ログアウト</span><button class="btn ghost sm" type="button" id="logoutBtn">このスマホからログアウト</button></div>
     </div>
   </div>
@@ -1342,6 +1353,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <button type="button" id="lgMama" aria-pressed="false"><span class="pp p-mama">マ</span>ママ</button>
     </div>
     <input type="password" id="lgPass" placeholder="家族の合言葉" autocomplete="current-password" aria-label="家族の合言葉" required>
+    <small class="lghint" id="lgHint" hidden>パパだけのパスワードを決めている場合は、そちらを入れてください。</small>
     <div class="lerr" id="lgErr" role="alert"></div>
     <button class="btn" type="submit" id="lgBtn">はじめる</button>
   </form>
@@ -3274,7 +3286,21 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function emit(){ for(const c in L) L[c].forEach(fn=>fn(snapOf(c))); for(const k in DL) DL[k].forEach(fn=>fn(infoOf(k))); }
   const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
   window.__koyomiRefresh=()=>refresh(); window.__koyomiMe=()=>me;
-  async function refresh(){ const j=await api("snapshot"); recs.clear(); (j.items||[]).forEach(r=>recs.set(r.id,r)); if(j.member){me=j.member;LS.set("koyomi-member",me)} emit(); }
+  let ownPw=null;
+  async function refresh(){ const j=await api("snapshot"); recs.clear(); (j.items||[]).forEach(r=>recs.set(r.id,r)); if(j.member){me=j.member;LS.set("koyomi-member",me)} if(typeof j.own_pw==="boolean"&&j.own_pw!==ownPw){ ownPw=j.own_pw; pwUI(); } emit(); }
+  function pwUI(){ const box=$("pwBox"); if(!box) return; const papa=me==="papa"; box.hidden=!papa; if(!papa) return;
+    $("pwState").textContent=ownPw?"🔒 設定ずみ":"まだ決めていません";
+    $("pwCur").placeholder=ownPw?"いまのパパのパスワード":"いまの合言葉（家族の合言葉）";
+    $("pwSave").textContent=ownPw?"パスワードを変える":"パスワードを決める"; }
+  $("pwForm").addEventListener("submit",async ev=>{ ev.preventDefault();
+    const cur=$("pwCur").value, nx=$("pwNew").value, nx2=$("pwNew2").value;
+    if(nx!==nx2){ status("新しいパスワードが2回で違っています",true); return; }
+    if(nx.length<6){ status("6文字以上にしてください",true); return; }
+    $("pwSave").disabled=true;
+    try{ const j=await api("set_password",{current:cur,next:nx}); ownPw=true; pwUI(); $("pwForm").reset();
+      status("パパだけのパスワードを決めました"+(j.signed_out?"。ほかのスマホのパパのログイン（"+j.signed_out+"台）は切りました":"")); }
+    catch(e){ status(e.status===401?"いまの合言葉・パスワードがちがいます":e.status===429?"少し時間をおいてからお試しください":e.body&&e.body.error==="same_as_family"?"家族の合言葉とは別のものにしてください":"設定できませんでした",true); }
+    finally{ $("pwSave").disabled=false; } });
   // "_private" in what the screens pass means "only me": it travels as a flag, never inside the stored payload
   const PRIVATE_KINDS=["thing","recipe","routine"];
   async function save(kind,id,version,payload,deleted){
@@ -3320,7 +3346,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function showLogin(on){ $("login").hidden=!on; }
   function signOutLocal(){ token=null; LS.del("koyomi-token"); showLogin(true); }
   let lgMember="papa";
-  const setLg=m=>{lgMember=m;$("lgPapa").setAttribute("aria-pressed",m==="papa"?"true":"false");$("lgMama").setAttribute("aria-pressed",m==="mama"?"true":"false")};
+  const setLg=m=>{lgMember=m; const h=$("lgHint"); if(h) h.hidden=m!=="papa";$("lgPapa").setAttribute("aria-pressed",m==="papa"?"true":"false");$("lgMama").setAttribute("aria-pressed",m==="mama"?"true":"false")};
   $("lgPapa").addEventListener("click",()=>setLg("papa")); $("lgMama").addEventListener("click",()=>setLg("mama"));
   setLg(me==="mama"?"mama":"papa");
   $("loginForm").addEventListener("submit",async ev=>{
