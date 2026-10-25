@@ -214,7 +214,7 @@ h1,h2,h3,h4{margin:0;text-wrap:balance}
 .tgh{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--muted);margin:12px 0 2px}
 .tgh:first-child{margin-top:0}
 details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:6px 2px}
-input[type=text],input[type=date],input[type=time],select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:10px 14px;font-size:16px}
+input[type=text],input[type=date],input[type=time],input[type=tel],input[type=url],input[type=password],select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:10px 14px;font-size:16px}
 textarea{resize:vertical;min-height:44px}
 .btn{border:0;background:var(--fg);color:var(--paper);padding:10px 20px;border-radius:999px;font-weight:700;white-space:nowrap}
 .btn.ghost{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
@@ -747,6 +747,34 @@ a.btn{text-decoration:none;display:inline-block}
 .wxpanel .yw .hrs{border-top:0}
 
 .hwx .ic .wi{display:block;width:64px;height:44px;margin-left:auto}
+
+/* quick one-line input */
+.quick{display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,var(--accent) 6%,var(--paper));border-radius:18px;padding:10px 12px}
+.quick input{font:inherit;font-size:16px;border:0;background:var(--paper);border-radius:12px;padding:10px 12px;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+.qprev{font-size:12.5px;color:var(--accent);font-weight:700}
+.favs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.favs::-webkit-scrollbar{display:none}
+.favs button{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 10px;font-size:12.5px;color:var(--fg);display:inline-flex;align-items:center}
+.favs .fl{flex:none;font-size:11.5px;color:var(--muted);font-weight:700;align-self:center}
+.plpick{display:flex;gap:6px;flex-wrap:wrap}
+.plpick button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 10px;font-size:12.5px;color:var(--fg)}
+.plpick .fl{font-size:11.5px;color:var(--muted);font-weight:700;align-self:center}
+/* places */
+.place .acts2{display:flex;gap:8px;flex-wrap:wrap}
+.place .acts2 a,.place .acts2 button{flex:1;min-width:0;text-align:center;text-decoration:none}
+.place .oc{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px}
+.place .oc.on{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.place .oc.off{background:color-mix(in srgb,var(--hot) 14%,transparent);color:var(--hot)}
+.place .edit{margin-left:auto;border:0;background:transparent;color:var(--muted);font-size:12.5px}
+/* settings: home sections */
+.hpk{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.hpk:first-child{border-top:0}
+.hpk input{width:22px;height:22px;accent-color:var(--accent)}
+/* readability */
+.cc{font-size:10.5px}
+.pill .pi{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:4px}
+
+.sec.off,#homeSuggest.off{display:none!important}
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -934,12 +962,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <p class="hcap" id="hCap"></p>
   </header>
 
-  <div class="sec" id="monthSec">
-    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div></div>
-    <div class="card mocard">
-      <div class="mogrid" id="moGrid" role="group" aria-label="今月のカレンダー"></div>
-    </div>
-  </div>
   <div class="sec">
     <div class="sech"><div><div class="eyebrow">Today’s plan</div><h2 id="agTitle">今日の予定</h2></div><span class="sub" id="agSub"></span></div>
     <div class="strip" id="agPills"></div>
@@ -958,6 +980,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="sech"><div><div class="eyebrow">Weather</div><h2>大津市の天気</h2></div><span class="sub" id="wxMeta"></span></div>
     <div class="card yw" id="wxHome"></div>
   </div>
+  <div class="sec" id="monthSec">
+    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div></div>
+    <div class="card mocard">
+      <div class="mogrid" id="moGrid" role="group" aria-label="今月のカレンダー"></div>
+    </div>
+  </div>
   <div class="sec" id="memSec">
     <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
     <div class="playrow" id="playRow"></div>
@@ -967,11 +995,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="sec" id="ogTodaySec" hidden>
     <div class="sech"><div><div class="eyebrow">Go out today</div><h2>今日のおでかけ候補</h2></div><span class="sub" id="ogTodaySub"></span></div>
     <div class="tiles" id="ogToday"></div>
-  </div>
-  <div class="sec" id="ogSec" hidden>
-    <div class="sech"><div><div class="eyebrow">Around Otsu</div><h2>大津周辺のおでかけ</h2></div><span class="sub" id="ogSub"></span></div>
-    <div class="og" id="ogList"></div>
-    <div class="ogfoot" id="ogFoot"></div>
   </div>
   <p class="note">Claudeに「来週土曜10時にゆづの歯医者」「金曜までに申込用紙を出す」と話しかけても追加できます。</p>
 </section>
@@ -1057,6 +1080,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <div id="wishBoard"></div>
       <p class="empty" id="wishEmpty">まだありません。行きたい場所、作ってみたいもの、なんでも。</p>
       <div id="wishDone"></div>
+  <div class="sec" id="ogSec" hidden>
+    <div class="sech"><div><div class="eyebrow">Around Otsu</div><h2>週末のヒント：大津周辺のおでかけ</h2></div><span class="sub" id="ogSub"></span></div>
+    <div class="og" id="ogList"></div>
+    <div class="ogfoot" id="ogFoot"></div>
+  </div>
+
     </div>
   </div>
 </section>
@@ -1083,17 +1112,34 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 <section id="pane-more" role="tabpanel" aria-labelledby="tab-more" hidden>
   <div class="mhead"><button type="button" class="tbtn" id="moreBack">‹ もどる</button><h2>その他・設定</h2></div>
   <div class="sec" style="margin-top:12px">
-    <div class="sech"><h2>やりたいこと</h2></div>
-    <div class="card"><button type="button" class="btn ghost" id="toWish" style="width:100%">Wish（やりたいことノート）を開く ›</button></div>
+
+    <div class="sech"><h2>よく行くところ</h2><button type="button" class="tbtn" id="placeAdd">＋ 追加</button></div>
+    <div id="placeList" style="display:flex;flex-direction:column;gap:10px"></div>
+    <p class="empty" id="placeEmpty">かかりつけの病院・歯医者・園・習い事などを登録しておくと、電話や予約サイトにすぐ行けます。</p>
   </div>
   <div class="sec">
-    <div class="sech"><h2>よく使うところ</h2></div>
-    <div id="placeList" style="display:flex;flex-direction:column;gap:10px"></div>
-    <p class="empty" id="placeEmpty">よく行く病院やお店を、Claudeに名前を伝えて登録してもらおう。</p>
+    <div class="sech"><h2>ホームに出すもの</h2><span class="sub">このスマホだけ</span></div>
+    <div class="card set" id="homePick"></div>
+  </div>
+  <div class="sec">
+    <div class="sech"><h2>カレンダーアプリに表示</h2></div>
+    <div class="card set">
+      <p class="phnote" style="margin:0 0 10px">iPhoneのカレンダー（ロック画面・ウィジェット）に家族の予定を出せます。1時間ごとに自動で更新されます。</p>
+      <div class="row2"><span>iPhoneのカレンダーに追加</span><button class="btn sm" type="button" id="icsBtn">リンクを作る</button></div>
+      <div id="icsBox" hidden style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+        <a class="btn" id="icsOpen" href="#">📅 iPhoneのカレンダーに追加する</a>
+        <button class="btn ghost sm" type="button" id="icsCopy">リンクをコピー（Googleカレンダーなど用）</button>
+        <small class="phnote">このリンクを知っている人は予定を見られます。家族以外に送らないでください。作り直すと前のリンクは使えなくなります。</small>
+      </div>
+    </div>
   </div>
   <div class="sec">
     <div class="sech"><h2>ゴミの日</h2></div>
     <div class="card"><ul class="rules" id="garbRules"></ul><p class="empty" id="garbEmpty">ゴミ出しカレンダーの写真をClaudeに送ると登録されます。</p></div>
+  </div>
+  <div class="sec">
+    <div class="sech"><h2>やりたいこと</h2></div>
+    <div class="card"><button type="button" class="btn ghost" id="toWish" style="width:100%">Wish（やりたいことノート）を開く ›</button></div>
   </div>
   <div class="sec">
     <div class="sech"><h2>このスマホの設定</h2><span class="sub" id="whoami"></span></div>
@@ -1138,6 +1184,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="grab"></div>
     <div class="shh"><h3 id="evFormTitle">予定を追加</h3><button type="button" class="lnk" id="evClose" style="font-size:14px">閉じる</button></div>
     <button type="button" class="phbtn" id="phOpen"><span aria-hidden="true">📷</span><span><b>写真から予定にする</b><small>おたよりや紙の予定表を撮るだけ</small></span><span aria-hidden="true">›</span></button>
+    <div class="quick" id="quickBox">
+      <input type="text" id="qText" placeholder="ひとことで：明日10時 歯医者 ゆづ" aria-label="ひとことで入力" enterkeyhint="done">
+      <div class="qprev" id="qPrev" hidden></div>
+      <div class="favs" id="favs"></div>
+    </div>
     <div class="seg" role="group" aria-label="追加するもの"><button type="button" id="mEv" aria-pressed="true">予定</button><button type="button" id="mTodo" aria-pressed="false">やること</button></div>
     <label class="f">なにする？<input type="text" id="evTitle" required></label>
     <div style="font-size:12px;color:var(--muted);font-weight:700">種類</div>
@@ -1157,6 +1208,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <label class="p-mama"><input type="checkbox" id="w-mama"><span class="pp sm p-mama">マ</span>ママ</label>
       <label class="p-yuzu"><input type="checkbox" id="w-yuzu"><span class="pp sm p-yuzu">ゆ</span>ゆづ</label>
     </div>
+    <div class="plpick" id="plPick" hidden></div>
     <label class="f">メモ・持ち物<textarea id="evMemo" rows="2" placeholder="例：保険証、上履き"></textarea></label>
     <div style="display:flex;justify-content:flex-end;gap:8px"><button type="submit" class="btn" id="evSubmit">追加する</button></div>
   </form>
@@ -1218,6 +1270,22 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </form>
 </div>
 
+<div class="scrim" id="plScrim" hidden>
+  <form class="sheet" id="plForm" role="dialog" aria-modal="true" aria-labelledby="plTitle" autocomplete="off">
+    <div class="grab"></div>
+    <div class="shh"><h3 id="plTitle">よく行くところ</h3><button type="button" class="lnk" id="plClose" style="font-size:14px">閉じる</button></div>
+    <label class="f">名前<input type="text" id="plName" required placeholder="例：〇〇小児科"></label>
+    <div class="row"><label class="f">種類<select id="plKind"><option>病院</option><option>歯医者</option><option>園・学校</option><option>習い事</option><option>お店</option><option>役所・手続き</option><option>その他</option></select></label>
+      <label class="f">だれの<select id="plWho"><option value="">家族</option><option value="yuzu">ゆづ</option><option value="papa">パパ</option><option value="mama">ママ</option></select></label></div>
+    <label class="f">電話<input type="tel" id="plPhone" placeholder="077-000-0000"></label>
+    <label class="f">受付時間<input type="text" id="plHours" placeholder="例：9:00〜12:00 / 16:00〜19:00"></label>
+    <div style="font-size:12px;color:var(--muted);font-weight:700">お休みの曜日</div>
+    <div class="whenpick" id="plDays"></div>
+    <label class="f">予約・ホームページ<input type="url" id="plUrl" placeholder="https://"></label>
+    <label class="f">メモ<textarea id="plMemo" rows="2" placeholder="例：診察券番号、駐車場あり、持ち物"></textarea></label>
+    <div style="display:flex;justify-content:space-between;gap:8px"><button type="button" class="btn ghost sm" id="plDel" hidden>消す</button><button type="submit" class="btn" style="margin-left:auto">保存する</button></div>
+  </form>
+</div>
 <div class="status" id="status" role="status" hidden></div>
 <div class="oops" id="oops" hidden>うまく表示できませんでした。<button type="button" onclick="location.reload()">読み込み直す</button></div>
 
@@ -1327,8 +1395,8 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const evs=eventsOn(k), tds=todosOn(k);
     allBox.replaceChildren(); listBox.replaceChildren(); pillBox.replaceChildren();
     // pills: holiday, garbage, weather
-    if(HOL[k]) pillBox.append(el("span","pill","🎌 "+HOL[k]));
-    const g=garbageFor(k); if(g.length){const p=el("span","pill trash");p.append("🗑 ",el("b","",g.map(r=>r.kind).join("・")),"の日");const st=sampleTag(g.some(r=>r.sample));if(st)p.append(st);pillBox.append(p)}
+    if(HOL[k]){ const hp=el("span","pill"); hp.style.color="var(--hot)"; hp.append(HOL[k]); pillBox.append(hp); }
+    const g=garbageFor(k); if(g.length){const p=el("span","pill trash");const ti=document.createElement("span");ti.className="pi";ti.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';p.append(ti,el("b","",g.map(r=>r.kind).join("・")),"の日");const st=sampleTag(g.some(r=>r.sample));if(st)p.append(st);pillBox.append(p)}
     const w=null; if(w){const p=el("span","pill num");p.append((w.icon||"")+" "+(w.text||"")+"　");p.append(el("span","",(hiOf(w)??"-")+"° / "+(loOf(w)??"-")+"°"));if(w.pop!=null)p.append("　☂"+w.pop+"%");pillBox.append(p)}
     pillBox.hidden=!pillBox.children.length;
     // all-day & spans
@@ -1802,6 +1870,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       if(kind==="todo"&&x.id){$("tdDue").value=x.due||""}
     }
     if(!x) setCat("");
+    $("qText").value=""; $("qPrev").hidden=true; $("quickBox").hidden=!!(x&&x.id); renderFavs(); renderPlPick();
     syncBits(); $("scrim").hidden=false; setTimeout(()=>$("evTitle").focus(),60);
   }
   function closeSheet(){ $("scrim").hidden=true; editing=null; window.__wishLink=null; if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
@@ -1893,7 +1962,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     function dayGap(a,b){const p=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};return Math.round((p(b)-p(a))/86400000)}
   }
   function guessCat(s,kind){
-    if(/(病院|医院|クリニック|健診|検診|歯科|予防接種|小児科|眼科|耳鼻)/.test(s)) return "health";
+    if(/(病院|医院|クリニック|健診|検診|歯科|歯医者|予防接種|小児科|内科|皮膚科|眼科|耳鼻|整形|薬局)/.test(s)) return "health";
     if(kind==="todo"||/(提出|申込|申し込み|手続|締切|振込|支払)/.test(s)) return "paper";
     if(/(運動会|発表会|参観|遠足|入園|卒園|始業|終業|保育|幼稚園|園|学校|懇談|面談|PTA)/.test(s)) return "school";
     if(/(誕生日|記念日|七五三|お祝い|祭|クリスマス|ハロウィン|正月)/.test(s)) return "event";
@@ -2254,6 +2323,106 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   $("mvSave").addEventListener("click",saveMovie);
   document.addEventListener("keydown",e=>{ if(!MV.on) return; if(e.key==="Escape") closeMovie(); if(e.key==="ArrowRight") mvSeek(1); if(e.key==="ArrowLeft") mvSeek(-1); });
 
+
+  /* ---------- one-line quick input: 「明日10時 歯医者 ゆづ」 ---------- */
+  const DOWJ="日月火水木金土";
+  function quickParse(raw){
+    let t=String(raw||"").normalize("NFKC").trim(); if(!t) return null;
+    const out={}; const base=k2d(todayKey);
+    const take=re=>{const m=t.match(re); if(m){ t=(t.slice(0,m.index)+" "+t.slice(m.index+m[0].length)).trim(); } return m;};
+    let m;
+    if((m=take(/毎週/))) out.repeat="weekly";
+    if((m=take(/(今日|きょう)/))) out.date=todayKey;
+    else if((m=take(/(明日|あした|あす)/))) out.date=tmrKey;
+    else if((m=take(/(明後日|あさって)/))) out.date=addDays(todayKey,2);
+    else if((m=take(/(来週|再来週|今週)?\s*([日月火水木金土])曜日?/))){ const want=DOWJ.indexOf(m[2]); let d=addDays(todayKey,(want-base.getDay()+7)%7||(m[1]?0:7));
+      if(m[1]==="来週"){ d=addDays(weekStart(todayKey),7+((want+6)%7)); } else if(m[1]==="再来週"){ d=addDays(weekStart(todayKey),14+((want+6)%7)); } else if(m[1]==="今週"){ d=addDays(weekStart(todayKey),(want+6)%7); }
+      out.date=d; }
+    else if((m=take(/(?:(\d{4})[\/年])?(\d{1,2})[\/月](\d{1,2})日?/))){ const y=m[1]?+m[1]:base.getFullYear(); let k=ymd(new Date(y,+m[2]-1,+m[3])); if(!m[1]&&k<todayKey) k=ymd(new Date(y+1,+m[2]-1,+m[3])); out.date=k; }
+    else if((m=take(/(\d{1,2})日/))){ let d=new Date(base.getFullYear(),base.getMonth(),+m[1]); if(ymd(d)<todayKey) d=new Date(base.getFullYear(),base.getMonth()+1,+m[1]); out.date=ymd(d); }
+    const tm=re=>{const x=t.match(re); return x;};
+    const T=/(午前|午後|朝|夜)?\s*(\d{1,2})(?::(\d{2})|時(?:(\d{1,2})分|(半))?)/;
+    if((m=take(T))){ let h=+m[2], mi=m[3]?+m[3]:m[4]?+m[4]:m[5]?30:0; if((m[1]==="午後"||m[1]==="夜")&&h<12) h+=12; if(h<24){ out.time=pad(h)+":"+pad(mi);
+      const e=take(/^[\s〜~\-ー]+\s*(\d{1,2})(?::(\d{2})|時(?:(\d{1,2})分|(半))?)?/)||take(/[〜~]\s*(\d{1,2})(?::(\d{2})|時(?:(\d{1,2})分|(半))?)?/);
+      if(e){ let eh=+e[1], em=e[2]?+e[2]:e[3]?+e[3]:e[4]?30:0; if(eh<h&&eh<12) eh+=12; if(eh<24) out.end=pad(eh)+":"+pad(em); } } }
+    const who=[]; if(take(/(家族|みんな|全員)/)) who.push("family"); if(take(/パパ/)) who.push("papa"); if(take(/ママ/)) who.push("mama"); if(take(/(ゆづ|ゆず)(ちゃん)?/)) who.push("yuzu");
+    if(who.length) out.who=who.includes("family")?["family"]:who;
+    if(take(/(締め?切り?|しめきり|〆切|までに|まで(?=\s|$))/)) out.todo=true;
+    t=t.replace(/^[\s、,・]+|[\s、,の・に]+$/g,"").replace(/\s{2,}/g," ");
+    out.title=t; out.cat=guessCat(t,out.todo?"todo":"ev")||(/(ひろば|教室|スイミング|ピアノ|英語)/.test(t)?"lesson":"");
+    return out;
+  }
+  function applyQuick(q){
+    if(!q) return;
+    if(!editing) setFormMode(q.todo?"todo":"ev");
+    $("evTitle").value=q.title||"";
+    if(q.date){ $("evDate").value=q.date; $("tdDue").value=q.date; }
+    if(q.time!==undefined){ $("evTime").value=q.time||""; }
+    if(q.end) $("evEnd").value=q.end;
+    if(q.repeat) $("evRepeat").value="weekly";
+    if(q.who){ ["family","papa","mama","yuzu"].forEach(k=>$("w-"+k).checked=q.who.includes(k)); }
+    setCat(q.cat||"");
+    syncBits();
+    const pv=$("qPrev"); const parts=[]; if(q.date) parts.push(md(q.date)+"（"+DOW[k2d(q.date).getDay()]+"）"); if(q.time) parts.push(q.time+(q.end?"〜"+q.end:"")); if(q.repeat) parts.push("毎週");
+    if(q.who) parts.push(q.who.map(x=>x==="family"?"家族":WHO[x].n).join("・")); if(q.title) parts.push("「"+q.title+"」");
+    pv.textContent=parts.length?"→ "+parts.join(" ")+(q.todo?"（やること）":""):""; pv.hidden=!parts.length;
+  }
+  $("qText").addEventListener("input",()=>applyQuick(quickParse($("qText").value)));
+  $("qText").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); $("evTitle").value&&$("evSubmit").focus(); } });
+  // favourites: the titles you enter most, one tap to fill
+  function renderFavs(){
+    const box=$("favs"); box.replaceChildren(); const cnt={};
+    events.forEach(e=>{ if(!e.title) return; const k=e.title; cnt[k]=cnt[k]||{n:0,e}; cnt[k].n+=e.repeat==="weekly"?1:1; if((e.createdAt||"")>(cnt[k].e.createdAt||"")) cnt[k].e=e; });
+    const top=Object.values(cnt).filter(x=>x.n>=1).sort((a,b)=>b.n-a.n).slice(0,10);
+    if(!top.length){ box.hidden=true; return; } box.hidden=false;
+    box.append(el("span","fl","よく使う："));
+    top.forEach(({e})=>{ const b=el("button"); b.type="button"; const ic=catEl(e); if(ic) b.append(ic); b.append(e.title);
+      b.addEventListener("click",()=>{ $("evTitle").value=e.title; setCat(e.cat||""); if(e.time){$("evTime").value=e.time; $("evEnd").value=e.end||"";}
+        ["papa","mama","yuzu"].forEach(k=>$("w-"+k).checked=(e.who||[]).includes(k)); $("w-family").checked=isFam(e); if(e.memo) $("evMemo").value=e.memo; syncBits(); });
+      box.append(b); });
+  }
+  function renderPlPick(){
+    const box=$("plPick"); box.replaceChildren(); if(!places.length){ box.hidden=true; return; } box.hidden=false;
+    box.append(el("span","fl","場所："));
+    places.slice(0,8).forEach(p=>{ const b=el("button","",p.name); b.type="button"; b.addEventListener("click",()=>{ if(!$("evTitle").value) $("evTitle").value=p.name; const m=$("evMemo"); if(!m.value.includes(p.name)) m.value=("📍"+p.name+(p.phone?"（"+p.phone+"）":"")+"\n"+m.value).trim(); if(!getCat()) setCat(/病院|歯医者/.test(p.kind)?"health":/園|学校/.test(p.kind)?"school":/習い事/.test(p.kind)?"lesson":""); }); box.append(b); });
+  }
+
+  /* ---------- home sections: choose what to show ---------- */
+  const HOME_SECS=[["dlSec","今日・今週やること"],["wxSec","天気"],["monthSec","今月のカレンダー"],["memSec","思い出"],["ogTodaySec","今日のおでかけ候補"]];
+  let homeOff=(()=>{try{return JSON.parse(localStorage.getItem("koyomi-homeoff")||"[]")}catch(e){return []}})();
+  function applyHome(){ HOME_SECS.forEach(([id])=>{ const n=$(id); if(n) n.classList.toggle("off",homeOff.includes(id)); }); }
+  (function(){ const box=$("homePick"); HOME_SECS.forEach(([id,l])=>{ const r=el("label","hpk"); const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!homeOff.includes(id);
+    cb.addEventListener("change",()=>{ homeOff=cb.checked?homeOff.filter(x=>x!==id):homeOff.concat(id); try{localStorage.setItem("koyomi-homeoff",JSON.stringify(homeOff))}catch(e){} applyHome(); });
+    r.append(el("span","",l),cb); box.append(r); }); applyHome(); })();
+
+  /* ---------- calendar subscription link ---------- */
+  $("icsBtn").addEventListener("click",async()=>{ const b=$("icsBtn"); b.disabled=true;
+    try{ const j=await window.__koyomiApi("ics_link",{}); $("icsOpen").href=j.webcal; $("icsCopy").dataset.u=j.url; $("icsBox").hidden=false; b.textContent="作り直す"; status("リンクを作りました"); }
+    catch(e){ status("作れませんでした。",true); } b.disabled=false; });
+  $("icsCopy").addEventListener("click",async()=>{ try{ await navigator.clipboard.writeText($("icsCopy").dataset.u||""); status("コピーしました"); }catch(e){ status("コピーできませんでした",true); } });
+
+  /* ---------- places editor ---------- */
+  let plEditing=null;
+  (function(){ const box=$("plDays"); [1,2,3,4,5,6,0].forEach(i=>{ const lab=el("label"); const inp=document.createElement("input"); inp.type="checkbox"; inp.value=i; lab.append(inp,DOW[i]); box.append(lab); });
+    const lab=el("label"); const inp=document.createElement("input"); inp.type="checkbox"; inp.value="hol"; lab.append(inp,"祝日"); box.append(lab); })();
+  function openPlace(p){ plEditing=p||null; const f=$("plForm"); f.reset();
+    $("plTitle").textContent=p?"よく行くところを直す":"よく行くところを追加"; $("plDel").hidden=!p;
+    if(p){ $("plName").value=p.name||""; $("plKind").value=p.kind||"病院"; $("plWho").value=p.who||""; $("plPhone").value=p.phone||""; $("plHours").value=p.hours||""; $("plUrl").value=p.url||""; $("plMemo").value=p.memo||"";
+      [...$("plDays").querySelectorAll("input")].forEach(i=>i.checked=i.value==="hol"?!!p.closedHol:(p.closedDays||[]).includes(+i.value)); }
+    $("plScrim").hidden=false; setTimeout(()=>$("plName").focus(),60); }
+  $("placeAdd").addEventListener("click",()=>openPlace(null));
+  $("plClose").addEventListener("click",()=>$("plScrim").hidden=true);
+  $("plScrim").addEventListener("click",e=>{ if(e.target===$("plScrim")) $("plScrim").hidden=true; });
+  $("plForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return;
+    const days=[...$("plDays").querySelectorAll("input:checked")].map(i=>i.value);
+    const url=$("plUrl").value.trim();
+    const data={name:$("plName").value.trim(),kind:$("plKind").value,who:$("plWho").value,phone:$("plPhone").value.trim(),hours:$("plHours").value.trim(),closedDays:days.filter(x=>x!=="hol").map(Number),closedHol:days.includes("hol"),
+      closed:days.map(x=>x==="hol"?"祝":DOW[+x]).join("・"),url:/^https:\/\//.test(url)?url:"",memo:$("plMemo").value.trim()};
+    if(!data.name) return;
+    try{ if(plEditing) await db.collection("places").doc(plEditing.id).update(data); else await db.collection("places").add(Object.assign({order:places.length+1,createdAt:new Date().toISOString()},data)); $("plScrim").hidden=true; status("保存しました"); }
+    catch(e){ status("保存できませんでした。",true); } });
+  $("plDel").addEventListener("click",async()=>{ if(!plEditing) return; try{ await db.collection("places").doc(plEditing.id).delete(); $("plScrim").hidden=true; status("消しました"); }catch(e){ status("消せませんでした。",true); } });
+
   /* ---------- todo tab ---------- */
   function todoRow(t){
     const li=el("li","item"+(t.done?" done":"")); const tx=labelWith("tx",t,t.title);
@@ -2472,10 +2641,11 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     places.slice().sort((a,b)=>(a.order??99)-(b.order??99)).forEach(p=>{
       const a=el("article","card place"), ph=el("div","ph");
       if(p.kind) ph.append(el("span","kind",p.kind)); const h=el("h4","",p.name||""); const st=sampleTag(p.sample); if(st)h.append(st); ph.append(h);
-      if(Array.isArray(p.closedDays)){const off=p.closedDays.includes(dow)||!!HOL[todayKey];ph.append(el("span","oc "+(off?"off":"on"),off?"今日はお休み":"今日は診療日"))}
+      if(Array.isArray(p.closedDays)&&(p.closedDays.length||p.closedHol)){const off=p.closedDays.includes(dow)||(!!HOL[todayKey]&&(p.closedHol!==false));ph.append(el("span","oc "+(off?"off":"on"),off?"今日はお休み":"今日はやっています"))}
+      const ed=el("button","edit","直す"); ed.type="button"; ed.addEventListener("click",()=>openPlace(p)); ph.append(ed);
       const dl=el("dl"); const add=(t,v,c)=>{if(v)dl.append(el("dt","",t),el("dd",c||"",v))}; add("電話",p.phone,"tel"); add("受付",p.hours); add("休み",p.closed); add("メモ",p.memo);
       const acts=el("div","acts");
-      if(p.phone){const cb=el("button","btn ghost sm","番号をコピー");cb.type="button";cb.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(p.phone);cb.textContent="コピーしました"}catch(e){const t=dl.querySelector(".tel");if(t){const r=document.createRange();r.selectNodeContents(t);const s=getSelection();s.removeAllRanges();s.addRange(r)}cb.textContent="番号を選択しました"}setTimeout(()=>cb.textContent="番号をコピー",2000)});acts.append(cb)}
+      if(p.phone){const tl=el("a","btn sm","📞 電話する");tl.href="tel:"+p.phone.replace(/[^\d+]/g,"");acts.append(tl);const cb=el("button","btn ghost sm","番号をコピー");cb.type="button";cb.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(p.phone);cb.textContent="コピーしました"}catch(e){const t=dl.querySelector(".tel");if(t){const r=document.createRange();r.selectNodeContents(t);const s=getSelection();s.removeAllRanges();s.addRange(r)}cb.textContent="番号を選択しました"}setTimeout(()=>cb.textContent="番号をコピー",2000)});acts.append(cb)}
       if(p.url&&/^https:\/\//.test(p.url)){const l=el("a","btn sm",p.urlLabel||"予約サイトを開く");l.href=p.url;l.target="_blank";l.rel="noopener";acts.append(l)}
       a.append(ph,dl); if(acts.children.length)a.append(acts); box.append(a)});
     $("placeEmpty").hidden=places.length>0;
@@ -2501,7 +2671,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     list.slice(0,6).forEach(o=>{
       const t=el("a","tile cat-"+(o.cat||"")); t.href=o.url||"#"; t.target="_blank"; t.rel="noopener";
       photo(o,t);
-      if(o.cat) t.append(el("span","sticker",(CATI[o.cat]||"")+" "+o.cat));
+      if(o.cat) t.append(el("span","sticker",o.cat));
       const tx=el("span","tx"); tx.append(el("b","",o.title), el("span","",[o.start===o.end?"":"〜"+md(o.end), o.place].filter(Boolean).join("・"))); t.append(tx);
       t.setAttribute("aria-label",o.title+"（記事を開く）");
       box.append(t);
@@ -2516,7 +2686,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     list.forEach(o=>{
       const c=el("article","oc2 cat-"+(o.cat||""));
       const ph=el("div","ph2"); photo(o,ph);
-      if(o.cat) ph.append(el("span","sticker",(CATI[o.cat]||"")+" "+o.cat));
+      if(o.cat) ph.append(el("span","sticker",o.cat));
       ph.append(el("span","datechip",o.start&&o.start<=todayKey?"開催中":o.start?md(o.start)+(o.end&&o.end!==o.start?"〜":""):""));
       c.append(ph);
       const bd=el("div","bd");
@@ -2542,7 +2712,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const TABS=["home","cal","todo","wish","shop","more"];
   let lastTab="home";
   function selectTab(k){
-    if(k!=="more") lastTab=k;
+    if(k!=="more") lastTab=k; $("fab").hidden=(k==="more");
     TABS.forEach(t=>{const tb=$("tab-"+t); if(tb) tb.setAttribute("aria-selected",t===k?"true":"false");$("pane-"+t).hidden=t!==k});
     try{localStorage.setItem("wagaya-tab2",k)}catch(e){} window.scrollTo(0,0);
     if(k==="cal") renderCal();

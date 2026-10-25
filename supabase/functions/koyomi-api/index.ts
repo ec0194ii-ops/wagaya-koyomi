@@ -390,6 +390,59 @@ async function runReminders() {
   return sent;
 }
 
+
+/* ---------- calendar feed (iPhone / Google calendar subscription), behind a secret link ---------- */
+const icsEsc = (t: unknown) => String(t ?? '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+function icsFold(line: string) {
+  const out: string[] = []; let cur = '', bytes = 0;
+  for (const ch of line) { const b = enc.encode(ch).length; if (bytes + b > 73) { out.push(cur); cur = ' ' + ch; bytes = 1 + b; } else { cur += ch; bytes += b; } }
+  out.push(cur); return out.join('\r\n');
+}
+const ymdC = (k: string) => k.replace(/-/g, '');
+const nextDay = (k: string) => { const d = new Date(k + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0, 10); };
+const addMin = (k: string, t: string, m: number) => { const d = new Date(`${k}T${t}:00Z`); d.setUTCMinutes(d.getUTCMinutes() + m); return d.toISOString().slice(0, 16); };
+const WHO_TAG: Record<string, string> = { papa: 'パ', mama: 'マ', yuzu: 'ゆ', family: '家' };
+function whoTag(who: unknown) { const a = Array.isArray(who) ? who as string[] : []; if (!a.length || a.includes('family')) return '家'; return a.map(x => WHO_TAG[x] || '').join(''); }
+async function buildIcs() {
+  const rows = await db('koyomi_items', 'GET', 'select=id,kind,payload,updated_at&deleted_at=is.null&kind=in.(event,todo)&limit=5000');
+  const from = jstKey(-120);
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const L: string[] = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//wagaya-koyomi//JA', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'X-WR-CALNAME:わが家のこよみ', 'X-WR-TIMEZONE:Asia/Tokyo', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H',
+    'BEGIN:VTIMEZONE', 'TZID:Asia/Tokyo', 'BEGIN:STANDARD', 'DTSTART:19700101T000000', 'TZOFFSETFROM:+0900', 'TZOFFSETTO:+0900', 'TZNAME:JST', 'END:STANDARD', 'END:VTIMEZONE'];
+  for (const r of rows) {
+    const p = r.payload || {};
+    if (r.kind === 'event') {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(p.date || '')) continue;
+      const weekly = p.repeat === 'weekly';
+      const lastDay = weekly ? (p.until || '9999-12-31') : (p.endDate && p.endDate > p.date ? p.endDate : p.date);
+      if (lastDay < from) continue;
+      const timed = /^\d{2}:\d{2}$/.test(p.time || '');
+      L.push('BEGIN:VEVENT', `UID:${r.id}@wagaya-koyomi`, `DTSTAMP:${stamp}`);
+      if (timed) {
+        const end = /^\d{2}:\d{2}$/.test(p.end || '') && p.end > p.time ? `${p.date}T${p.end}` : addMin(p.date, p.time, 60);
+        L.push(`DTSTART;TZID=Asia/Tokyo:${ymdC(p.date)}T${p.time.replace(':', '')}00`, `DTEND;TZID=Asia/Tokyo:${ymdC(end.slice(0, 10))}T${end.slice(11, 16).replace(':', '')}00`);
+        if (p.remind !== 'none') L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(p.title), `TRIGGER:-PT${Number(p.remind) > 0 ? Number(p.remind) : 30}M`, 'END:VALARM');
+      } else {
+        const endEx = nextDay(!weekly && p.endDate && p.endDate > p.date ? p.endDate : p.date);
+        L.push(`DTSTART;VALUE=DATE:${ymdC(p.date)}`, `DTEND;VALUE=DATE:${ymdC(endEx)}`, 'TRANSP:TRANSPARENT');
+      }
+      if (weekly) {
+        L.push('RRULE:FREQ=WEEKLY' + (p.until ? `;UNTIL=${ymdC(p.until)}${timed ? 'T145959Z' : ''}` : ''));
+        if (Array.isArray(p.skip)) for (const k of p.skip) if (/^\d{4}-\d{2}-\d{2}$/.test(k)) L.push(timed ? `EXDATE;TZID=Asia/Tokyo:${ymdC(k)}T${p.time.replace(':', '')}00` : `EXDATE;VALUE=DATE:${ymdC(k)}`);
+      }
+      L.push(icsFold('SUMMARY:' + icsEsc(`【${whoTag(p.who)}】${p.title || ''}`)));
+      if (p.memo) L.push(icsFold('DESCRIPTION:' + icsEsc(p.memo)));
+      L.push('END:VEVENT');
+    } else if (r.kind === 'todo' && !p.done && /^\d{4}-\d{2}-\d{2}$/.test(p.due || '') && p.due >= from) {
+      L.push('BEGIN:VEVENT', `UID:${r.id}@wagaya-koyomi`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${ymdC(p.due)}`, `DTEND;VALUE=DATE:${ymdC(nextDay(p.due))}`, 'TRANSP:TRANSPARENT',
+        icsFold('SUMMARY:' + icsEsc(`📝 ${p.span === 'week' ? '今週中' : '締切'}：${p.title || ''}`)), 'END:VEVENT');
+    }
+  }
+  L.push('END:VCALENDAR');
+  return L.join('\r\n') + '\r\n';
+}
+
 async function readBody(req: Request) {
   const reader = req.body?.getReader(); if (!reader) fail(400, 'body_required');
   const chunks: Uint8Array[] = []; let size = 0;
@@ -427,6 +480,13 @@ Deno.serve(async req => {
   };
   const response = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers });
   try {
+    if (req.method === 'GET') {   // calendar apps subscribe with ?ics=<secret>
+      const t = new URL(req.url).searchParams.get('ics') || '';
+      if (!/^[0-9a-f]{64}$/.test(t)) return new Response('not found', { status: 404 });
+      const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=ics_hash');
+      if (!cfg?.ics_hash || !equal(await sha(t), cfg.ics_hash)) return new Response('not found', { status: 404 });
+      return new Response(await buildIcs(), { status: 200, headers: { 'Content-Type': 'text/calendar; charset=utf-8', 'Cache-Control': 'private, max-age=900', 'Content-Disposition': 'inline; filename="wagaya-koyomi.ics"' } });
+    }
     if (origin && !ORIGINS.includes(origin)) fail(403, 'origin_not_allowed');
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers });
     if (req.method !== 'POST') fail(405, 'post_required');
@@ -499,6 +559,13 @@ Deno.serve(async req => {
       const n = Number.isSafeInteger(body.count) ? Math.min(Math.max(body.count, 0), 999) : 0;
       await sendPush(session.member, `🛒 ${who}がいまから買い物に行きます。ほしいものは今のうちにリストへ${n ? `（いま${n}品）` : ''}`, 'koyomi-shop-go');
       return response({ ok: true });
+    }
+    if (body.action === 'ics_link') {   // make (or remake, which retires the old one) the private calendar link
+      await limit(`ics:${actor}`, 10);
+      const t = hex(crypto.getRandomValues(new Uint8Array(32)));
+      await db('koyomi_config', 'PATCH', 'id=eq.true', { ics_hash: await sha(t) });
+      const u = `${BASE}/functions/v1/koyomi-api?ics=${t}`;
+      return response({ url: u, webcal: u.replace(/^https:/, 'webcal:') });
     }
     if (body.action === 'og_image') { await limit(`og:${actor}`, 120); return response({ image: await ogImage(httpsUrl(body.url)) }); }
 
