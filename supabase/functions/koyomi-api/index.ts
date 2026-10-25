@@ -553,13 +553,23 @@ Deno.serve(async req => {
     const body = await readBody(req);
     if (!body || typeof body !== 'object') fail(400, 'invalid_body');
 
-    if (body.action === 'morning' || body.action === 'weather' || body.action === 'outing_images' || body.action === 'reminders') {
+    if (body.action === 'morning' || body.action === 'weather' || body.action === 'outing_images' || body.action === 'reminders' || body.action === 'notify_change') {
       // Called by the database scheduler (pg_cron); authorised by a secret whose hash is in koyomi_config.
       const secret = req.headers.get('x-koyomi-cron') || '';
       const [cfg] = await db('koyomi_config', 'GET', 'id=eq.true&select=cron_hash');
       if (!cfg?.cron_hash || !/^[0-9a-f]{64}$/.test(secret) || !equal(await sha(secret), cfg.cron_hash)) fail(401, 'not_allowed');
       if (body.action === 'outing_images') return response({ ok: true, photos: await fillOutingImages() });
       if (body.action === 'reminders') return response({ ok: true, sent: await runReminders() });
+      if (body.action === 'notify_change') {   // Claude wrote to the database for someone: tell the rest of the family, exactly as the app would
+        if (!MEMBERS[body.as]) fail(400, 'invalid_member');
+        if (typeof body.id !== 'string' || !/^[A-Za-z0-9_-]{1,80}$/.test(body.id)) fail(400, 'invalid_id');
+        const change = ['created', 'updated', 'deleted'].includes(body.change) ? body.change : 'created';
+        const [rec] = await db('koyomi_items', 'GET', `id=eq.${body.id}&select=kind,payload,owner`);
+        if (!rec || rec.owner) return response({ ok: true, sent: false });   // private items stay quiet
+        const msg = describe(rec.kind, rec.payload || {}, change === 'updated' ? (body.old || {}) : null, change === 'created', change === 'deleted');
+        if (msg) await sendPush(body.as, `${MEMBERS[body.as]}が${msg}`);
+        return response({ ok: true, sent: !!msg, msg });
+      }
       let wx = 0; try { wx = await updateWeather(); } catch { /* keep yesterday's forecast */ }
       if (body.action === 'weather') return response({ ok: true, days: wx });
       const msgs: Record<string, string> = {};
