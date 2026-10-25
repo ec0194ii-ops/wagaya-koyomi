@@ -656,10 +656,17 @@ Deno.serve(async req => {
       await storage('POST', `object/${BUCKET}/${path}`, bytes! as any, 'image/jpeg', { 'x-upsert': 'false', 'cache-control': 'private, max-age=600' });
       const old = await photoRow(date);
       const w = Number.isSafeInteger(body.w) ? Math.min(body.w, 4000) : 0, h = Number.isSafeInteger(body.h) ? Math.min(body.h, 4000) : 0;
-      let r; try { r = await putPhotoRow(date, { date, caption, path, by: session.member, w, h, at: new Date().toISOString() }, session.member, old); }
-      catch (e) { await removeObject(path); throw e; }
-      if (old && !old.deleted_at) await removeObject(old.payload?.path);
-      await later(sendPush(session.member, `${who}が${md(date)}の思い出写真を${old && !old.deleted_at ? '変えました' : 'のせました'}${caption ? `「${caption.slice(0, 30)}」` : ''}`, 'koyomi-photo'));
+      const live = old && !old.deleted_at && old.payload?.path;
+      const item = { path, by: session.member, w, h, at: new Date().toISOString() };
+      const more: any[] = live && Array.isArray(old.payload.more) ? old.payload.more : [];
+      if (body.add && live && 1 + more.length >= 10) { await removeObject(path); fail(409, 'day_full'); }
+      let r; try {
+        r = body.add && live
+          ? await putPhotoRow(date, { ...old.payload, more: [...more, item] }, session.member, old)   // one more photo for the day
+          : await putPhotoRow(date, { date, caption, ...item, more }, session.member, old);           // new or replaced cover
+      } catch (e) { await removeObject(path); throw e; }
+      if (live && !body.add) await removeObject(old.payload.path);
+      await later(sendPush(session.member, `${who}が${md(date)}の思い出写真を${body.add && live ? '足しました' : live ? '変えました' : 'のせました'}${caption ? `「${caption.slice(0, 30)}」` : ''}`, 'koyomi-photo'));
       return response({ record: r });
     }
     if (body.action === 'photo_caption') {
@@ -672,6 +679,15 @@ Deno.serve(async req => {
       await limit(`write:${actor}`, 120, 60000);
       const date = photoDate(body.date);
       const old = await photoRow(date); if (!old || old.deleted_at) return response({ ok: true });
+      const more: any[] = Array.isArray(old.payload?.more) ? old.payload.more : [];
+      if (typeof body.path === 'string' && PHOTO_PATH.test(body.path)) {   // remove just one photo of the day
+        let next: Record<string, unknown> | null = null;
+        if (body.path === old.payload?.path) { if (more.length) { const [c, ...rest] = more; next = { ...old.payload, ...c, more: rest }; } }
+        else if (more.some(m => m && m.path === body.path)) next = { ...old.payload, more: more.filter(m => m && m.path !== body.path) };
+        else return response({ ok: true });
+        if (next) { const r = await putPhotoRow(date, next, session.member, old); await removeObject(body.path); return response({ record: r }); }
+      }
+      for (const m of more) await removeObject(m && m.path);
       const [r] = await db('koyomi_items', 'PATCH', `id=eq.photo-${date}&version=eq.${old.version}`, { version: old.version + 1, updated_by: session.member, updated_at: new Date().toISOString(), deleted_at: new Date().toISOString(), payload: { date, caption: '', path: '' } });
       if (!r) fail(409, 'conflict');
       await removeObject(old.payload?.path);

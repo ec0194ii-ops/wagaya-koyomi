@@ -319,24 +319,6 @@ a.btn{text-decoration:none;display:inline-block}
 .wxph{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
 .wxph b{font-size:14px}
 #wxHome,.wxpanel{cursor:pointer}
-.radar{margin-top:12px;background:var(--paper);border-radius:22px;box-shadow:inset 0 0 0 1px var(--line);padding:12px;cursor:default}
-.radar .rh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.radar .rh b{font-size:14px}
-.radar .rt{flex:1;font-family:var(--f-num);font-size:12.5px;color:var(--muted)} .radar .rt.fc{color:var(--accent);font-weight:700}
-.radar .rz,.radar .rp{border:1px solid var(--line);background:var(--paper);color:var(--fg);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700}
-.radar .rp{min-width:40px}
-.rmap{position:relative;height:240px;border-radius:14px;overflow:hidden;background:#eef0ee;touch-action:pan-y}
-.rlayer,.rf{position:absolute;inset:0}
-.rmap img{position:absolute;width:256px;height:256px;max-width:none;user-select:none;-webkit-user-drag:none}
-.rlayer.rain img{opacity:.85}
-.rpin{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--hot);box-shadow:0 0 0 3px #fff}
-.rpin span{position:absolute;left:12px;top:-6px;font-size:11px;font-weight:700;color:#333;background:rgba(255,255,255,.85);padding:1px 5px;border-radius:6px;white-space:nowrap}
-.rsl{width:100%;margin:10px 0 4px;accent-color:var(--accent)}
-.rleg{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:10.5px;color:var(--muted);align-items:center}
-.rleg .rlc{display:inline-flex;align-items:center;gap:3px} .rleg .rlc span{display:inline-block;width:12px;height:8px;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
-.rsrc{font-size:10.5px;color:var(--faint,var(--muted));margin:6px 0 0}
-.rdet{margin-top:8px} .rdet summary{font-size:13px;font-weight:700;color:var(--accent);padding:6px 2px;cursor:pointer}
-.rdet .radar{margin-top:6px;box-shadow:none;padding:4px 0 0}
 .wxph span,.wxph a{font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap;text-decoration:none;padding:6px 0 6px 10px}
 .hscroll{overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
 .hscroll::-webkit-scrollbar{display:none}
@@ -556,6 +538,18 @@ a.btn{text-decoration:none;display:inline-block}
 .mem .acts{position:absolute;top:10px;right:10px;display:flex;gap:6px}
 .mem .acts button{border:0;background:rgba(255,255,255,.92);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;color:#222}
 .mem .tag{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.92);color:#222;border-radius:999px;padding:4px 10px;font-family:var(--f-latin);font-style:italic;font-size:13px}
+.mthumbs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 12px 12px}
+.mthumbs button{flex:none;width:64px;height:64px;border:0;border-radius:12px;background:var(--sunk) center/cover no-repeat;padding:0}
+.mthumbs button.on{box-shadow:0 0 0 2px var(--accent)}
+.mthumbs .add{background:transparent;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--accent);font-size:12px;font-weight:700}
+.mem .img{cursor:zoom-in}
+.pv{position:fixed;inset:0;z-index:80;background:rgba(10,10,12,.94);display:flex;align-items:center;justify-content:center}
+.pv img{max-width:100%;max-height:82vh;object-fit:contain;touch-action:pan-y}
+.pvtop{position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;display:flex;align-items:center;gap:8px;color:#fff;font-size:13px}
+.pvtop span{flex:1}
+.pvtop button{border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;padding:7px 12px;font-size:13px;font-weight:700}
+.pvnav{position:absolute;top:50%;transform:translateY(-50%);border:0;background:rgba(255,255,255,.14);color:#fff;width:40px;height:40px;border-radius:50%;font-size:22px}
+.pvnav.l{left:10px} .pvnav.r{right:10px}
 .memadd{display:flex;align-items:center;gap:12px;width:100%;border:1.5px dashed color-mix(in srgb,var(--accent) 40%,var(--line));background:transparent;border-radius:20px;padding:14px 16px;margin-bottom:12px;text-align:left;color:var(--fg)}
 .memadd>span:first-child{font-size:24px}
 .memadd small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
@@ -751,6 +745,7 @@ a.btn{text-decoration:none;display:inline-block}
 .yw .hrs .lab{flex:none;width:44px;display:grid;grid-template-rows:26px 34px 24px 22px;font-size:11px;color:var(--muted);padding:6px 0 8px 10px;align-items:center}
 .yw .hscroll2{overflow-x:auto;scrollbar-width:none;flex:1;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch}
 .yw .hscroll2::-webkit-scrollbar{display:none}
+.yw .hscroll2.jsdrag{touch-action:pan-y;overscroll-behavior-x:contain}
 .yw .hcols{display:flex}
 .yw .hc{flex:none;width:58px;display:grid;grid-template-rows:26px 34px 24px 22px;justify-items:center;align-items:center;padding:6px 0 8px;font-family:var(--f-num)}
 .yw .hc .h{font-size:13px;color:var(--fg);width:100%;text-align:center;border-bottom:2px solid var(--line)}
@@ -1038,7 +1033,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="sec" id="wxSec" hidden>
     <div class="sech"><div><div class="eyebrow">Weather</div><h2>大津市の天気</h2></div><span class="sub" id="wxMeta"></span></div>
     <div class="card yw" id="wxHome"></div>
-    <div id="radarHome"></div>
   </div>
   <div class="sec" id="memSec">
     <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
@@ -1321,6 +1315,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 </div>
 
 <input type="file" accept="image/*" id="memFile" hidden>
+<input type="file" accept="image/*" id="memMore" multiple hidden>
+<div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-label="この日の写真">
+  <div class="pvtop"><span id="pvN"></span><button type="button" id="pvDel">この写真を消す</button><button type="button" id="pvClose" aria-label="閉じる">×</button></div>
+  <img id="pvImg" alt="">
+  <button type="button" class="pvnav l" id="pvPrev" aria-label="前の写真">‹</button><button type="button" class="pvnav r" id="pvNext" aria-label="次の写真">›</button>
+</div>
 <div class="movie" id="movie" hidden role="dialog" aria-modal="true" aria-label="思い出ムービー">
   <div class="mvbars" id="mvBars"></div>
   <button type="button" class="mvx" id="mvClose" aria-label="閉じる">×</button>
@@ -1336,7 +1336,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 <div class="scrim" id="memScrim" hidden>
   <form class="sheet" id="memForm" role="dialog" aria-modal="true" aria-labelledby="memTitle" autocomplete="off">
     <div class="grab"></div>
-    <div class="shh"><h3 id="memTitle">思い出の1枚</h3><button type="button" class="lnk" id="memClose" style="font-size:14px">閉じる</button></div>
+    <div class="shh"><h3 id="memTitle">思い出の写真</h3><button type="button" class="lnk" id="memClose" style="font-size:14px">閉じる</button></div>
     <img id="memPrev" class="memprev" alt="のせる写真">
     <label class="f">ひとこと（なくてもOK）<input type="text" id="memCap" maxlength="60" placeholder="例：はじめての公園デビュー"></label>
     <p class="phnote">家族だけが見られます。撮った場所などの情報は消してから保存します。</p>
@@ -1585,10 +1585,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     location.href="x-safari-"+u;
     setTimeout(()=>{ document.removeEventListener("visibilitychange",onHide); if(!left) window.open(u,"_blank"); },700);
   }
-  // tapping the weather anywhere (not a button, not the radar) opens Yahoo!天気 for the details
+  // tapping the weather anywhere (not a button, not a drag) opens Yahoo!天気 for the details
   document.addEventListener("click",ev=>{
     const w=ev.target.closest("#wxHome,.wxpanel"); if(!w||ev.defaultPrevented) return;
-    if(ev.target.closest("a,button,input,select,summary,.radar,.rdet")) return;
+    if(ev.target.closest("a,button,input,select,summary")||ev.target.closest(".hscroll2[data-dragged]")) return;
     openYahoo();
   });
   document.addEventListener("click",ev=>{
@@ -1610,8 +1610,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const yl=el("a","","Yahoo!天気で見る ›"); yl.href=yahooUrl(); yl.target="_blank"; yl.rel="noopener";
     const head=el("div","wxph"); head.append(el("b","",k===todayKey?"今日の3時間ごとの天気":fmtDay(k)+"の天気"), yl);
     pnl.append(head);
-    if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ const w0=el("div","yw"); w0.append(st); pnl.append(w0);
-      const det=el("details","rdet"); const sm=el("summary","","☂ 雨雲レーダーを見る"); const rh=el("div"); det.append(sm,rh); det.addEventListener("toggle",()=>{ if(det.open) radarMount(rh); }); pnl.append(det); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
+    if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ const w0=el("div","yw"); w0.append(st); pnl.append(w0); dragScroll(st.querySelector(".hscroll2")); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
     if(k===todayKey&&hourly.length>=3){
       const n=hourly.length, W=58, H=78, w=n*W;
       const temps=hourly.map(h=>h.temp), mx=Math.max(...temps), mn=Math.min(...temps), rg=Math.max(1,mx-mn);
@@ -1660,6 +1659,18 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     sp.innerHTML=`<svg viewBox="0 0 100 70" width="100%" height="100%">${body}</svg>`; return sp;
   }
   const dowCls=k=>{const dw=k2d(k).getDay();return dw===0?" sun":dw===6?" sat":""};
+  // sideways drag with a little glide, done by hand so it works the same on every iPhone
+  function dragScroll(sc){
+    if(!sc) return; sc.classList.add("jsdrag");
+    let x0=0,y0=0,l0=0,dir=0,lx=0,lt=0,v=0,raf=0;
+    sc.addEventListener("touchstart",e=>{ cancelAnimationFrame(raf); const t=e.touches[0]; x0=lx=t.clientX; y0=t.clientY; l0=sc.scrollLeft; dir=0; v=0; lt=performance.now(); },{passive:true});
+    sc.addEventListener("touchmove",e=>{ const t=e.touches[0], dx=t.clientX-x0, dy=t.clientY-y0;
+      if(!dir&&(Math.abs(dx)>6||Math.abs(dy)>6)) dir=Math.abs(dx)>Math.abs(dy)?1:2;
+      if(dir!==1) return; if(e.cancelable) e.preventDefault(); e.stopPropagation();
+      sc.scrollLeft=l0-dx; const now=performance.now(); v=(t.clientX-lx)/Math.max(1,now-lt); lx=t.clientX; lt=now; },{passive:false});
+    sc.addEventListener("touchend",()=>{ if(dir!==1) return; sc.dataset.dragged="1"; setTimeout(()=>{delete sc.dataset.dragged},350);
+      let vel=-v*16; const step=()=>{ if(Math.abs(vel)<0.5) return; sc.scrollLeft+=vel; vel*=0.92; raf=requestAnimationFrame(step); }; step(); },{passive:true});
+  }
   function hourlyStrip(k){
     const hs=(Array.isArray(weather&&weather.hourly)?weather.hourly:[]).filter(h=>h&&h.t&&h.temp!=null);
     if(!hs.length) return null;
@@ -1670,52 +1681,6 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const hh=el("span","h",String(h.h)); if(i===0||h.h===0) hh.append(el("span","d",d===todayKey?"今日":d===tmrKey?"明日":md(d))); c.append(hh);
       c.append(wxIcon(h.text||h.icon||"")); c.append(el("span","t",h.temp+"°")); c.append(el("span","p",h.pop!=null?h.pop+"%":"—")); cols.append(c); });
     sc.append(cols); wrap.append(sc); return wrap;
-  }
-  /* ---------- 雨雲レーダー: 気象庁 高解像度降水ナウキャスト on 地理院タイル, 1 hour back and 1 hour ahead ---------- */
-  const RADAR_CENTER=[35.0045,135.8686];   // 大津市役所あたり
-  let radarFrames=null, radarAt=0;
-  async function radarTimes(){ if(radarFrames&&Date.now()-radarAt<120000) return radarFrames;
-    const r=await window.__koyomiApi("radar_times",{}); radarFrames=Array.isArray(r&&r.frames)?r.frames:[]; radarAt=Date.now(); return radarFrames; }
-  const utcToJst=t=>new Date(Date.UTC(+t.slice(0,4),+t.slice(4,6)-1,+t.slice(6,8),+t.slice(8,10),+t.slice(10,12)));
-  const hm=d=>d.getHours()+":"+pad(d.getMinutes());
-  const RCOL=[["#F2F2FF","〜1"],["#A0D2FF","1"],["#218CFF","5"],["#0041FF","10"],["#FAF500","20"],["#FF9900","30"],["#FF2800","50"],["#B40068","80〜"]];
-  function radarMount(host){
-    if(!host||host.dataset.on) return; host.dataset.on="1";
-    const box=el("div","radar");
-    const head=el("div","rh"); const ttl=el("b","","雨雲レーダー"); const when=el("span","rt","読みこみ中…");
-    const zb=el("button","rz","広く"); zb.type="button"; const pb=el("button","rp","▶"); pb.type="button"; pb.setAttribute("aria-label","動かして見る");
-    head.append(ttl,when,zb,pb); box.append(head);
-    const map=el("div","rmap"); map.setAttribute("role","img"); map.setAttribute("aria-label","大津周辺の雨雲の様子");
-    const base=el("div","rlayer"), rain=el("div","rlayer rain"), pin=el("div","rpin"); pin.append(el("span","","大津")); map.append(base,rain,pin); box.append(map);
-    const sl=document.createElement("input"); sl.type="range"; sl.className="rsl"; sl.min="0"; sl.step="1"; sl.setAttribute("aria-label","時刻"); box.append(sl);
-    const scale=el("div","rleg"); RCOL.forEach(([c,t])=>{ const i=el("span"); i.style.background=c; scale.append(el("span","rlc",""),); scale.lastChild.append(i,t); }); scale.append(el("span","rlu","mm/h")); box.append(scale);
-    box.append(el("p","rsrc","出典：気象庁（高解像度降水ナウキャスト）・地理院タイル　｜　右上の▶で1時間先まで動きます"));
-    host.append(box);
-    let z=10, frames=[], idx=0, timer=null; const layers={};
-    function tiles(){ const W=map.clientWidth||340, H=map.clientHeight||240, n=2**z, la=RADAR_CENTER[0]*Math.PI/180;
-      const cx=(RADAR_CENTER[1]+180)/360*n*256, cy=(1-Math.log(Math.tan(la)+1/Math.cos(la))/Math.PI)/2*n*256;
-      const out=[]; for(let tx=Math.floor((cx-W/2)/256);tx<=Math.floor((cx+W/2)/256);tx++) for(let ty=Math.floor((cy-H/2)/256);ty<=Math.floor((cy+H/2)/256);ty++) out.push({tx,ty,l:Math.round(tx*256-cx+W/2),t:Math.round(ty*256-cy+H/2)}); return out; }
-    function img(src,t){ const i=new Image(); i.alt=""; i.decoding="async"; i.src=src; i.style.left=t.l+"px"; i.style.top=t.t+"px"; i.onerror=()=>{i.style.visibility="hidden"}; return i; }
-    function drawBase(){ base.replaceChildren(); tiles().forEach(t=>base.append(img(`https://cyberjapandata.gsi.go.jp/xyz/pale/${z}/${t.tx}/${t.ty}.png`,t))); }
-    function layer(i){ const f=frames[i], key=z+"|"+f.b+"|"+f.v; if(layers[key]) return layers[key];
-      const d=el("div","rf"); tiles().forEach(t=>d.append(img(`https://www.jma.go.jp/bosai/jmatile/data/nowc/${f.b}/none/${f.v}/surf/hrpns/${z}/${t.tx}/${t.ty}.png`,t))); rain.append(d); layers[key]=d; return d; }
-    function show(i){ idx=i; sl.value=i; const f=frames[i]; if(!f) return;
-      [...rain.children].forEach(c=>c.hidden=true); layer(i).hidden=false;
-      const t=utcToJst(f.v), now=frames.findIndex(x=>x.f===1), diff=Math.round((t-utcToJst(frames[Math.max(0,(now<0?frames.length:now)-1)].v))/60000);
-      when.textContent=hm(t)+(diff===0?"（いま）":diff>0?"（"+diff+"分後の予報）":"（"+(-diff)+"分前）"); when.classList.toggle("fc",f.f===1);
-      if(i+1<frames.length) layer(i+1); }
-    function stop(){ if(timer){clearInterval(timer);timer=null;} pb.textContent="▶"; }
-    pb.addEventListener("click",()=>{ if(timer){stop();return;} let i=idx>=frames.length-1?0:idx; pb.textContent="❚❚"; show(i); timer=setInterval(()=>{ i++; if(i>=frames.length){stop();return;} show(i); },550); });
-    sl.addEventListener("input",()=>{ stop(); show(+sl.value); });
-    zb.addEventListener("click",()=>{ stop(); z=z===10?8:10; zb.textContent=z===10?"広く":"近く"; for(const k in layers){ layers[k].remove(); delete layers[k]; } drawBase(); show(idx); });
-    async function load(){
-      try{ frames=await radarTimes(); }catch(e){ frames=[]; }
-      if(!frames.length){ when.textContent="いまは表示できません"; return; }
-      sl.max=String(frames.length-1); drawBase();
-      const nowI=Math.max(0,frames.findIndex(x=>x.f===1)-1); show(nowI<0?frames.length-1:nowI);
-    }
-    load();
-    document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&Date.now()-radarAt>300000){ for(const k in layers){ layers[k].remove(); delete layers[k]; } radarFrames=null; load(); } });
   }
   function renderWx(){
     const box=$("wxHome"); box.replaceChildren();
@@ -1736,7 +1701,6 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         r.append(wxIcon(d.text)); r.append(el("span","hi",(hiOf(d)??"-")+"°")); r.append(el("span","lo",(loOf(d)??"-")+"°")); r.append(el("span","ywp",d.pop!=null?d.pop+"%":"")); r.append(el("span","rl",d.rel||"")); if(!d.rel) r.lastChild.style.visibility="hidden";
         w.append(r); });
       box.append(w); }
-    radarMount($("radarHome"));
     const a=el("a","foot"); a.href=yahooUrl(); a.target="_blank"; a.rel="noopener"; a.append(el("span","","予報：気象庁"+(weather.source&&/Open/.test(weather.source)?"・Open-Meteo":"")+"　信頼度 A〜C"), el("b","","Yahoo!天気で見る ›")); box.append(a);
   }
 
@@ -1784,6 +1748,9 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(phPending.size) fetchPhotoUrls();
   }
   const photoOf=k=>{ const p=photos.find(x=>x.date===k&&x.path); return p?Object.assign({},p,{src:urlFor(p.path)}):null; };
+  const MAX_DAY=10;
+  const dayShots=p=>p?[{path:p.path,by:p.by},...(Array.isArray(p.more)?p.more.filter(m=>m&&m.path):[])]:[];   // cover first, then the rest
+  const shotCount=list=>list.reduce((n,p)=>n+dayShots(p).length,0);
   const cssUrl=u=>"url('"+String(u).replace(/'/g,"%27")+"')";
   /* ---------- calendar views: month / week / day ---------- */
   let calView=(()=>{try{const v=localStorage.getItem("koyomi-calview");return v==="month"?"month":"week"}catch(e){return "month"}})();
@@ -1948,7 +1915,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const pane=document;
     pane.addEventListener("touchstart",e=>{
       const t=e.target;
-      on=!$("pane-cal").hidden&&e.touches.length===1&&!t.closest(".hscroll,.hscroll2,.hrs,.hcols,.radar,.foldbtn,.nav,.fab,.sheet,.scrim,.login,input,textarea,select,dialog");
+      on=!$("pane-cal").hidden&&e.touches.length===1&&!t.closest(".hscroll,.hscroll2,.hrs,.hcols,.foldbtn,.nav,.fab,.sheet,.scrim,.login,input,textarea,select,dialog");
       area=t.closest("#calMonth")?"cal":t.closest(".mhead,#calLegend")?"":"day";
       if(!area) on=false;
       if(!on) return;
@@ -2224,19 +2191,50 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const f=el("figure","mem");
       const im=el("img","img"); if(ph.src) im.src=ph.src; im.alt=ph.caption||"この日の思い出の写真"; f.append(im);
       f.append(el("span","tag","Memory"));
+      im.addEventListener("click",()=>openViewer(k,0));
+      const shots=dayShots(ph);
       const ac=el("div","acts");
       const b0=el("button","","ひとこと"); b0.type="button"; b0.addEventListener("click",()=>openMemSheet(k,true));
-      const b1=el("button","","変える"); b1.type="button"; b1.addEventListener("click",()=>pickMem(k));
-      const b2=armBtn("消す",async()=>{ try{ await window.__koyomiApi("photo_delete",{date:k}); status("写真を消しました"); await window.__koyomiRefresh(); }catch(e){ status("消せませんでした。",true); } });
-      ac.append(b0,b1,b2); f.append(ac);
-      const cap=el("figcaption","cap"); cap.append(ph.caption?el("b","",ph.caption):el("b","none","ひとことなし"), el("span","",(ph.by==="mama"?"ママ":"パパ")+"がのせました")); f.append(cap);
+      const b2=armBtn(shots.length>1?"全部消す":"消す",async()=>{ try{ await window.__koyomiApi("photo_delete",{date:k}); status("写真を消しました"); await window.__koyomiRefresh(); }catch(e){ status("消せませんでした。",true); } });
+      ac.append(b0,b2); f.append(ac);
+      const cap=el("figcaption","cap"); cap.append(ph.caption?el("b","",ph.caption):el("b","none","ひとことなし"), el("span","",shots.length+"枚・"+(ph.by==="mama"?"ママ":"パパ")+"がのせました")); f.append(cap);
+      const th=el("div","mthumbs");
+      if(shots.length>1) shots.forEach((x,i)=>{ const b=el("button",i===0?"on":""); b.type="button"; b.setAttribute("aria-label",(i+1)+"枚目を見る"); const u=urlFor(x.path); if(u) b.style.backgroundImage=cssUrl(u); b.addEventListener("click",()=>openViewer(k,i)); th.append(b); });
+      if(shots.length<MAX_DAY){ const a=el("button","add","＋写真"); a.type="button"; a.setAttribute("aria-label","この日の写真を足す"); a.addEventListener("click",()=>pickMore(k)); th.append(a); }
+      f.append(th);
       box.append(f);
     } else if(k<=todayKey){
-      const a=el("button","memadd"); a.type="button"; a.append(el("span","","📷")); const t=el("span"); t.append(el("b","",(k===todayKey?"今日":md(k))+"の思い出を1枚のせる"), el("small","","家族だけが見られます・撮った場所の情報は消して保存")); a.append(t);
+      const a=el("button","memadd"); a.type="button"; a.append(el("span","","📷")); const t=el("span"); t.append(el("b","",(k===todayKey?"今日":md(k))+"の思い出の写真をのせる"), el("small","","家族だけが見られます・撮った場所の情報は消して保存")); a.append(t);
       a.addEventListener("click",()=>pickMem(k)); box.append(a);
     }
   }
   function pickMem(k){ memDate=k; $("memFile").value=""; $("memFile").click(); }
+  function pickMore(k){ memDate=k; $("memMore").value=""; $("memMore").click(); }
+  $("memMore").addEventListener("change",async()=>{
+    const files=[...($("memMore").files||[])]; const k=memDate; if(!files.length||!k) return;
+    const room=MAX_DAY-dayShots(photoOf(k)).length; const pick=files.slice(0,Math.max(0,room));
+    if(files.length>pick.length) status("1日"+MAX_DAY+"枚までなので、"+pick.length+"枚だけのせます");
+    let ok=0;
+    for(const f of pick){
+      try{ status("のせています… "+(ok+1)+"/"+pick.length); const r=await shrinkPhoto(f);
+        await window.__koyomiApi("photo_upload",{date:k,add:true,caption:"",image:await toB64(r.blob),w:r.w,h:r.h}); ok++; }
+      catch(e){ if(e&&e.status===409) break; }
+    }
+    status(ok?ok+"枚のせました":"のせられませんでした。電波のよいところでもう一度。",!ok); await window.__koyomiRefresh();
+  });
+  // full-screen viewer for a day's photos: swipe or ‹ › to move, delete one at a time
+  let pvDay=null, pvI=0;
+  function openViewer(k,i){ pvDay=k; pvI=i||0; showViewer(); $("pv").hidden=false; }
+  function showViewer(){ const shots=dayShots(photoOf(pvDay)); if(!shots.length){ $("pv").hidden=true; return; }
+    pvI=Math.max(0,Math.min(pvI,shots.length-1)); const u=urlFor(shots[pvI].path); $("pvImg").src=u||""; $("pvImg").alt=md(pvDay)+"の写真 "+(pvI+1)+"枚目";
+    $("pvN").textContent=md(pvDay)+"　"+(pvI+1)+" / "+shots.length; $("pvPrev").hidden=pvI===0; $("pvNext").hidden=pvI>=shots.length-1; }
+  $("pvClose").addEventListener("click",()=>{$("pv").hidden=true});
+  $("pvPrev").addEventListener("click",()=>{pvI--;showViewer()}); $("pvNext").addEventListener("click",()=>{pvI++;showViewer()});
+  { let sx=0; $("pvImg").addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true}); $("pvImg").addEventListener("touchend",e=>{ const dx=(e.changedTouches[0]||{}).clientX-sx; if(Math.abs(dx)>50){ pvI+=dx<0?1:-1; showViewer(); } },{passive:true}); }
+  $("pvDel").addEventListener("click",async()=>{ const shots=dayShots(photoOf(pvDay)); const x=shots[pvI]; if(!x) return;
+    if(!confirm("この写真を消しますか？")) return;
+    try{ await window.__koyomiApi("photo_delete",{date:pvDay,path:x.path}); status("写真を消しました"); await window.__koyomiRefresh(); if(pvI>=shots.length-1) pvI--; showViewer(); }catch(e){ status("消せませんでした。",true); } });
+  document.addEventListener("keydown",e=>{ if($("pv").hidden) return; if(e.key==="Escape") $("pv").hidden=true; if(e.key==="ArrowRight"){pvI++;showViewer()} if(e.key==="ArrowLeft"){pvI--;showViewer()} });
   async function shrinkPhoto(file){
     const url=URL.createObjectURL(file); const img=new Image();
     try{ await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url}); } finally {}
@@ -2283,15 +2281,16 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const oy=addDays(todayKey,0).replace(/^(\d{4})/,y=>String(+y-1)); const lm=(()=>{const d=k2d(todayKey);const t=new Date(d.getFullYear(),d.getMonth()-1,d.getDate());return t.getMonth()===(d.getMonth()+11)%12?ymd(t):""})();
     const ot=$("onThis"); ot.replaceChildren();
     const past=[[oy,"1年前の今日"],[lm,"ひと月前の今日"]].map(([k,l])=>k&&photoOf(k)?[photoOf(k),l]:null).find(Boolean);
-    if(past){ const [ph,l]=past; const b=el("button","onthis"); b.type="button"; const im=el("span","im"); if(ph.src) im.style.backgroundImage=cssUrl(ph.src); const tx=el("span"); tx.append(el("small","",l), el("b","",ph.caption||md(ph.date)+"の1枚"), el("span","sub",fmtDay(ph.date))); b.append(im,tx); b.addEventListener("click",()=>goCal(ph.date)); ot.append(b); }
+    if(past){ const [ph,l]=past; const b=el("button","onthis"); b.type="button"; const im=el("span","im"); if(ph.src) im.style.backgroundImage=cssUrl(ph.src); const tx=el("span"); tx.append(el("small","",l), el("b","",ph.caption||md(ph.date)+"の写真"), el("span","sub",fmtDay(ph.date))); b.append(im,tx); b.addEventListener("click",()=>goCal(ph.date)); ot.append(b); }
     // recent strip, newest first, with a slot for today's photo
     const st=$("mStrip"); st.replaceChildren();
-    if(!tp){ const a=el("button","mtile add"); a.type="button"; a.append(el("span","im","＋"), el("b","","今日の1枚"), el("span","","のせる")); a.addEventListener("click",()=>pickMem(todayKey)); st.append(a); }
+    if(!tp){ const a=el("button","mtile add"); a.type="button"; a.append(el("span","im","＋"), el("b","","今日の写真"), el("span","","のせる")); a.addEventListener("click",()=>pickMem(todayKey)); st.append(a); }
     const list=photos.filter(p=>p.path&&p.date<=todayKey).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
     list.forEach(p=>{ const ph=photoOf(p.date); const b=el("button","mtile"); b.type="button"; const im=el("span","im"); if(ph&&ph.src) im.style.backgroundImage=cssUrl(ph.src); b.append(im, el("b","",md(p.date)+" "+DOW[k2d(p.date).getDay()]), el("span","",p.caption||"")); b.addEventListener("click",()=>goCal(p.date)); st.append(b); });
     renderPlayRow();
     const n=photos.filter(p=>p.path&&p.date.slice(0,7)===todayKey.slice(0,7)).length;
-    $("memSub").textContent=n?(+todayKey.slice(5,7))+"月は"+n+"枚":"";
+    const nn=shotCount(photos.filter(p=>p.path&&p.date.slice(0,7)===todayKey.slice(0,7)));
+    $("memSub").textContent=n?(+todayKey.slice(5,7))+"月は"+nn+"枚":"";
   }
 
 
@@ -2311,10 +2310,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const ws=weekStart(todayKey), lastWs=addDays(ws,-7);
     const thisMonth=todayKey.slice(0,7); const pm=(()=>{const d=k2d(todayKey);const t=new Date(d.getFullYear(),d.getMonth()-1,1);return ymd(t).slice(0,7)})();
     const sets=[];
-    const wk=ok.filter(p=>p.date>=ws); if(wk.length>=2) sets.push({key:"w",title:"今週の思い出",sub:md(ws)+"〜"+md(addDays(ws,6)),eng:"This week",list:wk});
-    const lw=ok.filter(p=>p.date>=lastWs&&p.date<ws); if(lw.length>=2) sets.push({key:"lw",title:"先週の思い出",sub:md(lastWs)+"〜"+md(addDays(lastWs,6)),eng:"Last week",list:lw});
-    const mo=ok.filter(p=>p.date.slice(0,7)===thisMonth); if(mo.length>=2) sets.push({key:"m",title:(+thisMonth.slice(5))+"月の思い出",sub:mo.length+"枚",eng:k2d(todayKey).toLocaleString("en",{month:"long"})+" "+thisMonth.slice(0,4),list:mo});
-    const pmo=ok.filter(p=>p.date.slice(0,7)===pm); if(pmo.length>=2) sets.push({key:"pm",title:(+pm.slice(5))+"月の思い出",sub:pmo.length+"枚",eng:new Date(+pm.slice(0,4),+pm.slice(5)-1,1).toLocaleString("en",{month:"long"})+" "+pm.slice(0,4),list:pmo});
+    const wk=ok.filter(p=>p.date>=ws); if(shotCount(wk)>=2) sets.push({key:"w",title:"今週の思い出",sub:md(ws)+"〜"+md(addDays(ws,6)),eng:"This week",list:wk});
+    const lw=ok.filter(p=>p.date>=lastWs&&p.date<ws); if(shotCount(lw)>=2) sets.push({key:"lw",title:"先週の思い出",sub:md(lastWs)+"〜"+md(addDays(lastWs,6)),eng:"Last week",list:lw});
+    const mo=ok.filter(p=>p.date.slice(0,7)===thisMonth); if(shotCount(mo)>=2) sets.push({key:"m",title:(+thisMonth.slice(5))+"月の思い出",sub:shotCount(mo)+"枚",eng:k2d(todayKey).toLocaleString("en",{month:"long"})+" "+thisMonth.slice(0,4),list:mo});
+    const pmo=ok.filter(p=>p.date.slice(0,7)===pm); if(shotCount(pmo)>=2) sets.push({key:"pm",title:(+pm.slice(5))+"月の思い出",sub:shotCount(pmo)+"枚",eng:new Date(+pm.slice(0,4),+pm.slice(5)-1,1).toLocaleString("en",{month:"long"})+" "+pm.slice(0,4),list:pmo});
     return sets;
   }
   function renderPlayRow(){
@@ -2328,7 +2327,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     row.hidden=!row.children.length;
   }
   async function openMovie(st){
-    MV.list=st.list.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(0,40); MV.title=st.title; MV.sub=st.sub; MV.eng=st.eng;
+    MV.list=st.list.slice().sort((a,b)=>a.date.localeCompare(b.date)).flatMap(p=>dayShots(p).map((x,i)=>Object.assign({},p,{path:x.path,caption:i?"":p.caption}))).slice(0,40); MV.title=st.title; MV.sub=st.sub; MV.eng=st.eng;
     $("movie").hidden=false; MV.on=true; $("mvMsg").textContent="準備しています…";
     $("mvBars").replaceChildren(); for(let i=0;i<MV.list.length+2;i++){const x=el("i");x.append(el("b"));$("mvBars").append(x)}
     await ensureUrls(MV.list.map(p=>p.path));

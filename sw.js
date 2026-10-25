@@ -1,5 +1,5 @@
 // わが家のこよみ service worker: push notifications + offline shell.
-const SHELL = 'koyomi-shell-v31';
+const SHELL = 'koyomi-shell-v32';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
