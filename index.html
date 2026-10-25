@@ -996,6 +996,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <p class="hcap" id="hCap"></p>
   </header>
 
+  <div class="sec" id="monthSec">
+    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div></div>
+    <div class="card mocard">
+      <div class="mogrid" id="moGrid" role="group" aria-label="今月のカレンダー"></div>
+    </div>
+  </div>
   <div class="sec">
     <div class="sech"><div><div class="eyebrow">Today’s plan</div><h2 id="agTitle">今日の予定</h2></div><span class="sub" id="agSub"></span></div>
     <div class="strip" id="agPills"></div>
@@ -1013,12 +1019,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="sec" id="wxSec" hidden>
     <div class="sech"><div><div class="eyebrow">Weather</div><h2>大津市の天気</h2></div><span class="sub" id="wxMeta"></span></div>
     <div class="card yw" id="wxHome"></div>
-  </div>
-  <div class="sec" id="monthSec">
-    <div class="sech"><div><div class="eyebrow">This month</div><h2 id="moTitle"></h2></div></div>
-    <div class="card mocard">
-      <div class="mogrid" id="moGrid" role="group" aria-label="今月のカレンダー"></div>
-    </div>
   </div>
   <div class="sec" id="memSec">
     <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
@@ -1080,10 +1080,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="mhead"><h2>Todo</h2><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div id="pgTodo">
     <div class="sec" style="margin-top:14px">
-      <div class="sech"><div><div class="eyebrow">This week</div><h2>今週のTodo</h2></div><span class="sub" id="twRange"></span></div>
-      <div class="card weekboard" id="weekBoard"></div>
-    </div>
-    <div class="sec">
       <div class="card">
         <form id="todoForm" autocomplete="off" style="display:grid;grid-template-columns:1fr auto;gap:8px">
           <input style="grid-column:1/-1" type="text" id="todoInput" placeholder="Todo（例：申込用紙を提出）" aria-label="Todo" required>
@@ -1092,6 +1088,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
           <button class="btn" type="submit" style="grid-column:2">追加</button>
         </form>
       </div>
+    </div>
+    <div class="sec">
+      <div class="sech"><div><div class="eyebrow">This week</div><h2>今週のTodo</h2></div><span class="sub" id="twRange"></span></div>
+      <div class="card weekboard" id="weekBoard"></div>
+    </div>
+    <div class="sec">
       <div class="card"><div id="todoGroups"></div><p class="empty" id="todoEmpty">Todoはありません。</p></div>
       <details class="card" id="todoDoneBox" hidden><summary>終わったもの（<span class="num" id="todoDoneN">0</span>）</summary><ul class="items" id="todoDone"></ul></details>
     </div>
@@ -1626,12 +1628,12 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function hourlyStrip(k){
     const hs=(Array.isArray(weather&&weather.hourly)?weather.hourly:[]).filter(h=>h&&h.t&&h.temp!=null);
     if(!hs.length) return null;
-    const wrap=el("div","hrs"); const lab=el("div","lab"); const hasMm=false;   // model rain totals disagreed with the 気象庁 forecast, so they stay hidden if(hasMm) wrap.classList.add("mm"); lab.append(el("span","","時刻"),el("span",""),el("span","","気温"),el("span","","降水"));if(hasMm)lab.append(el("span","","雨量")); wrap.append(lab);
+    const wrap=el("div","hrs"); const lab=el("div","lab"); lab.append(el("span","","時刻"),el("span",""),el("span","","気温"),el("span","","降水")); wrap.append(lab);
     const sc=el("div","hscroll2"); const cols=el("div","hcols");
     const nowH=now.getHours();
     hs.forEach((h,i)=>{ const d=h.t.slice(0,10); const c=el("div","hc"+(d===todayKey&&h.h<=nowH&&nowH<h.h+3?" now":""));
       const hh=el("span","h",String(h.h)); if(i===0||h.h===0) hh.append(el("span","d",d===todayKey?"今日":d===tmrKey?"明日":md(d))); c.append(hh);
-      c.append(wxIcon(h.text||h.icon||"")); c.append(el("span","t",h.temp+"°")); c.append(el("span","p",h.pop!=null?h.pop+"%":"—")); if(hasMm){ const v=h.mm; const q=el("span","m"+(v>=1?" wet":""),v==null?"—":(v<0.5?"0":v<10?String(Math.round(v*2)/2).replace(/\.0$/,""):String(Math.round(v)))); if(v!=null) q.append(el("small","","mm")); c.append(q); } cols.append(c); });
+      c.append(wxIcon(h.text||h.icon||"")); c.append(el("span","t",h.temp+"°")); c.append(el("span","p",h.pop!=null?h.pop+"%":"—")); cols.append(c); });
     sc.append(cols); wrap.append(sc); return wrap;
   }
   function renderWx(){
@@ -1797,7 +1799,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const wn=$("calWeekNote"); wn.replaceChildren();
     if(wk){ const s0=weekStart(calSel); const note=el("div","wknote"); const h=el("h4"); h.append(s0===weekStart(todayKey)?"今週のTodo":md(s0)+"の週のTodo");
       const go=el("button","","一覧 ›"); go.type="button"; go.addEventListener("click",()=>{selectTab("todo");setList("todo")}); h.append(go); note.append(h);
-      weekNoteRows(s0,note,6); quickAdd(note,s0,"＋ 書く"); wn.append(note); }
+      const n=weekNoteRows(s0,note,6); if(!n) note.append(el("p","empty","この週のTodoはありません。")); wn.append(note); }
     renderCalDay();
   }
   function renderCalDay(){
@@ -2500,7 +2502,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   }
 
   /* ---------- home sections: choose what to show ---------- */
-  const HOME_SECS=[["dlSec","今日・今週のTodo"],["wxSec","天気"],["monthSec","今月のカレンダー"],["memSec","思い出"],["ogTodaySec","今日のおでかけ候補"]];
+  const HOME_SECS=[["monthSec","今月のカレンダー"],["dlSec","今日・今週のTodo"],["wxSec","天気"],["memSec","思い出"],["ogTodaySec","今日のおでかけ候補"]];
   let homeOff=(()=>{try{return JSON.parse(localStorage.getItem("koyomi-homeoff")||"[]")}catch(e){return []}})();
   function applyHome(){ HOME_SECS.forEach(([id])=>{ const n=$(id); if(n) n.classList.toggle("off",homeOff.includes(id)); }); }
   (function(){ const box=$("homePick"); HOME_SECS.forEach(([id,l])=>{ const r=el("label","hpk"); const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!homeOff.includes(id);
@@ -2577,8 +2579,8 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const nt=el("div","wbnote"); nt.append(el("h4","","今週中に"));
     const n=todos.filter(t=>weekly(t,s0)).length; 
     todos.filter(t=>weekly(t,s0)).sort((a,b)=>a.done-b.done).forEach(t=>{ const r=el("div","wbli"+(t.done?" done":"")); r.append(chk(t),labelWith("tx",t,t.title)); r.querySelector(".tx").addEventListener("click",()=>openSheet("todo",t)); nt.append(r); });
-    if(!n) nt.append(el("p","empty","締め切りのない「今週中に」はここに。"));
-    quickAdd(nt,s0); box.append(nt);
+    if(!n) nt.append(el("p","empty","「今週中」で追加したものがここに並びます。"));
+    box.append(nt);
   }
   function renderTodos(){
     renderWeekBoard();
