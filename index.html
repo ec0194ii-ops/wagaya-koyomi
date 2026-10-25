@@ -734,6 +734,19 @@ a.btn{text-decoration:none;display:inline-block}
 
 .oops{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:99;background:var(--fg);color:var(--paper);border-radius:16px;padding:12px 14px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:var(--shadow)}
 .oops button{border:0;border-radius:999px;background:var(--paper);color:var(--fg);font-weight:700;padding:6px 12px}
+
+.gear{flex:none;border:0;background:color-mix(in srgb,var(--paper) 70%,transparent);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--muted);margin-left:6px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.gear svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.mhead .gear{margin-left:auto}
+.mhead .tbtn+.gear{margin-left:6px}
+.hrow .gear{margin-left:8px}
+.hrow .fam{margin-left:auto}
+.hrow .brand{flex:none}
+/* weather strip used inside the calendar panel */
+.wxpanel .yw{margin:0 -14px -12px;border-radius:0;box-shadow:none;background:transparent}
+.wxpanel .yw .hrs{border-top:0}
+
+.hwx .ic .wi{display:block;width:64px;height:44px;margin-left:auto}
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -907,10 +920,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 <section id="pane-home" role="tabpanel" aria-labelledby="tab-home">
   <header class="hero" id="hero"><div class="hcov" id="hCov" aria-hidden="true"></div>
     <div class="hrow">
-      <div class="brand">パパ・ママ・ゆづの <b>わが家のこよみ</b></div>
+      <div class="brand"><b>わが家のこよみ</b></div>
       <div class="fam" aria-label="家族">
         <span class="pp p-papa" title="パパ">パ</span><span class="pp p-mama" title="ママ">マ</span><span class="pp p-yuzu" title="ゆづ">ゆ</span>
-      </div>
+      </div><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
     <div class="datebig">
       <span class="d num" id="hD"></span>
@@ -1007,8 +1020,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= TODO ================= -->
 <section id="pane-todo" role="tabpanel" aria-labelledby="tab-todo" hidden>
-  <div class="mhead"><h2><span class="y" id="listSub">やること</span><span id="listTitle">Todo</span></h2></div>
-  <div class="layer lseg" role="group" aria-label="切り替え"><button type="button" id="lsTodo" aria-pressed="true">Todo</button><button type="button" id="lsWish" aria-pressed="false">Wish</button></div>
+  <div class="mhead"><h2><span class="y">やること</span>Todo</h2><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div id="pgTodo">
     <div class="sec" style="margin-top:14px">
       <div class="sech"><div><div class="eyebrow">This week</div><h2>今週やること</h2></div><span class="sub" id="twRange"></span></div>
@@ -1027,7 +1039,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <details class="card" id="todoDoneBox" hidden><summary>終わったもの（<span class="num" id="todoDoneN">0</span>）</summary><ul class="items" id="todoDone"></ul></details>
     </div>
   </div>
-  <div id="pgWish" hidden>
+</section>
+
+<!-- ================= WISH ================= -->
+<section id="pane-wish" role="tabpanel" aria-labelledby="tab-wish" hidden>
+  <div class="mhead"><h2><span class="y">やりたいこと</span>Wish</h2><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  <div id="pgWish">
     <div class="sec" style="margin-top:14px">
       <p class="wlead">「今年こんなことしたいね」を家族でためておくノートです。予定があいている日に、カレンダーがそっと提案します。</p>
       <div class="card">
@@ -1046,7 +1063,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= SHOP ================= -->
 <section id="pane-shop" role="tabpanel" aria-labelledby="tab-shop" hidden>
-  <div class="mhead"><h2>買い物</h2><button class="tbtn" id="shopShare" type="button">LINEで送る</button></div>
+  <div class="mhead"><h2>買い物</h2><button class="tbtn" id="shopShare" type="button">LINEで送る</button><button type="button" class="gear" data-more aria-label="その他・設定"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   <div class="sec" style="margin-top:12px">
     <div class="card">
       <form class="addrow" id="shopForm" autocomplete="off">
@@ -1064,7 +1081,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 
 <!-- ================= MORE ================= -->
 <section id="pane-more" role="tabpanel" aria-labelledby="tab-more" hidden>
-  <div class="mhead"><h2>その他</h2></div>
+  <div class="mhead"><button type="button" class="tbtn" id="moreBack">‹ もどる</button><h2>その他・設定</h2></div>
   <div class="sec" style="margin-top:12px">
     <div class="sech"><h2>やりたいこと</h2></div>
     <div class="card"><button type="button" class="btn ghost" id="toWish" style="width:100%">Wish（やりたいことノート）を開く ›</button></div>
@@ -1112,8 +1129,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <button role="tab" id="tab-home" aria-controls="pane-home" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z"/></svg>ホーム</button>
   <button role="tab" id="tab-cal" aria-controls="pane-cal" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>カレンダー</button>
   <button role="tab" id="tab-todo" aria-controls="pane-todo" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Todo<span class="bd" id="todoBadge" hidden></span></button>
+  <button role="tab" id="tab-wish" aria-controls="pane-wish" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.3 5.2 5.6.6-4.2 3.8 1.2 5.5L12 15.8l-4.9 2.8 1.2-5.5-4.2-3.8 5.6-.6z"/></svg>Wish</button>
   <button role="tab" id="tab-shop" aria-controls="pane-shop" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/></svg>買い物<span class="bd" id="shopBadge" hidden></span></button>
-  <button role="tab" id="tab-more" aria-controls="pane-more" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg>その他</button>
 </div></nav>
 
 <div class="scrim" id="scrim" hidden>
@@ -1373,7 +1390,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const nE=eventsOn(todayKey).length, nD=todos.filter(t=>!t.done&&t.due&&t.due<=todayKey).length;
     const hl=$("hello"); hl.replaceChildren(greet+"。今日は ",el("b","",nE?"予定 "+nE+" 件":"予定なし"), nD?"、締め切りが "+nD+" 件あります。":" です。");
     const tw=wxFor(todayKey); $("hWx").hidden=!tw;
-    if(tw){$("hWxI").textContent=tw.icon||"";{const dt=dayTemps(todayKey)||{};$("hWxH").textContent=(tw.hi??dt.hi??"-")+"°";$("hWxL").textContent=(loOf(tw)??"-")+"°";}$("hWxP").textContent=(tw.text||"")+(tw.pop!=null?" ☂"+tw.pop+"%":"")}
+    if(tw){$("hWxI").replaceChildren(wxIcon(tw.text||""));{const dt=dayTemps(todayKey)||{};$("hWxH").textContent=(tw.hi??dt.hi??"-")+"°";$("hWxL").textContent=loOf(tw)!=null?loOf(tw)+"°":"--";}$("hWxP").textContent=(tw.text||"")+(tw.pop!=null?" ☂"+tw.pop+"%":"")}
     // ribbon: today first
     const rb=$("ribbon"); if(rb) rb.replaceChildren();
     for(let i=0;rb&&i<7;i++){
@@ -1417,6 +1434,15 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function dayTemps(k){ const h=(weather&&Array.isArray(weather.hourly)?weather.hourly:[]).filter(x=>x&&x.t&&x.t.slice(0,10)===k&&x.temp!=null).map(x=>x.temp); return h.length?{hi:Math.max(...h),lo:Math.min(...h)}:null; }
   const hiOf=x=>x.hi??(dayTemps(x.date)||{}).hi;
   const loOf=x=>(x.lo!=null&&!(x.hi!=null&&x.lo>=x.hi))?x.lo:(x.date===todayKey?null:(dayTemps(x.date)||{}).lo);   // today's early-morning low is no longer in the 3-hourly data   // 気象庁 sometimes repeats the max in the min slot
+  const isStandalone=()=>(window.navigator.standalone===true)||matchMedia("(display-mode: standalone)").matches;
+  document.addEventListener("click",ev=>{
+    const a=ev.target.closest("a[href^='https://weather.yahoo.co.jp/']"); if(!a) return;
+    if(!(isStandalone()&&/iPhone|iPad|iPod/.test(navigator.userAgent))) return;
+    ev.preventDefault(); const u=a.href; let left=false;
+    const onHide=()=>{left=true}; document.addEventListener("visibilitychange",onHide,{once:true});
+    location.href="x-safari-"+u;                                   // iOS 17+: open in Safari itself
+    setTimeout(()=>{ document.removeEventListener("visibilitychange",onHide); if(!left) window.open(u,"_blank"); },700);
+  },true);
   const yahooUrl=()=>(weather&&typeof weather.url==="string"&&/^https:\/\/weather\.yahoo\.co\.jp\//.test(weather.url))?weather.url:"https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html";
   function wxPanel(k){
     const days=weather&&Array.isArray(weather.days)?weather.days:[];
@@ -1426,7 +1452,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const pnl=el("a","wxpanel"); pnl.href=yahooUrl(); pnl.target="_blank"; pnl.rel="noopener";
     const head=el("div","wxph"); head.append(el("b","",k===todayKey?"今日の3時間ごとの天気":fmtDay(k)+"の天気"), el("span","","Yahoo!天気で見る ›"));
     pnl.append(head);
-    if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ st.style.borderTop="0"; pnl.append(st); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
+    if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ const w0=el("div","yw"); w0.append(st); pnl.append(w0); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
     if(k===todayKey&&hourly.length>=3){
       const n=hourly.length, W=58, H=78, w=n*W;
       const temps=hourly.map(h=>h.temp), mx=Math.max(...temps), mn=Math.min(...temps), rg=Math.max(1,mx-mn);
@@ -2283,10 +2309,8 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(v==="today") return {due:todayKey}; if(v==="tmr") return {due:tmrKey};
     if(v==="week") return {due:addDays(s0,6),span:"week"}; if(v==="next") return {due:addDays(s0,13),span:"week"};
     if(v==="date") return {due:$("todoDue").value||""}; return {due:""}; }
-  function setList(w){ $("lsTodo").setAttribute("aria-pressed",w==="todo"?"true":"false"); $("lsWish").setAttribute("aria-pressed",w==="wish"?"true":"false"); $("pgTodo").hidden=w!=="todo"; $("pgWish").hidden=w!=="wish"; $("listTitle").textContent=w==="todo"?"Todo":"Wish"; $("listSub").textContent=w==="todo"?"やること":"やりたいこと"; try{localStorage.setItem("koyomi-list",w)}catch(e){} }
-  $("lsTodo").addEventListener("click",()=>setList("todo")); $("lsWish").addEventListener("click",()=>setList("wish"));
-  try{ if(localStorage.getItem("koyomi-list")==="wish") setList("wish"); }catch(e){}
-  $("toWish").addEventListener("click",()=>{ selectTab("todo"); setList("wish"); });
+  function setList(w){ selectTab(w==="wish"?"wish":"todo"); }
+  $("toWish").addEventListener("click",()=>selectTab("wish"));
   $("todoForm").addEventListener("submit",async ev=>{ev.preventDefault();const v=$("todoInput").value.trim();if(!v||!db)return;
     const dl=todoDeadline();
     try{await db.collection("todos").add(Object.assign({title:v,due:"",span:"",who:[],memo:"",done:false,createdAt:new Date().toISOString()},dl));$("todoInput").value="";status("やることを追加しました")}catch(e){status("追加できませんでした。",true)}});
@@ -2515,13 +2539,17 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   }
 
   /* ---------- tabs ---------- */
-  const TABS=["home","cal","todo","shop","more"];
+  const TABS=["home","cal","todo","wish","shop","more"];
+  let lastTab="home";
   function selectTab(k){
-    TABS.forEach(t=>{$("tab-"+t).setAttribute("aria-selected",t===k?"true":"false");$("pane-"+t).hidden=t!==k});
+    if(k!=="more") lastTab=k;
+    TABS.forEach(t=>{const tb=$("tab-"+t); if(tb) tb.setAttribute("aria-selected",t===k?"true":"false");$("pane-"+t).hidden=t!==k});
     try{localStorage.setItem("wagaya-tab2",k)}catch(e){} window.scrollTo(0,0);
     if(k==="cal") renderCal();
   }
-  TABS.forEach(t=>$("tab-"+t).addEventListener("click",()=>selectTab(t)));
+  TABS.forEach(t=>{const tb=$("tab-"+t); if(tb) tb.addEventListener("click",()=>selectTab(t))});
+  document.querySelectorAll("[data-more]").forEach(b=>b.addEventListener("click",()=>selectTab("more")));
+  $("moreBack").addEventListener("click",()=>selectTab(lastTab||"home"));
 
   $("dlAll").addEventListener("click",()=>{ selectTab("todo"); setList("todo"); });
   function renderAll(){ renderHome(); renderCal(); renderTodos(); }
