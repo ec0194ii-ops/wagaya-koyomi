@@ -732,6 +732,8 @@ a.btn{text-decoration:none;display:inline-block}
 .yw .foot{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);text-decoration:none}
 .yw .foot b{color:var(--accent);font-size:12.5px}
 
+.oops{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:99;background:var(--fg);color:var(--paper);border-radius:16px;padding:12px 14px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:var(--shadow)}
+.oops button{border:0;border-radius:999px;background:var(--paper);color:var(--fg);font-weight:700;padding:6px 12px}
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -936,7 +938,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </div>
   <div id="homeSuggest"></div>
   <div class="sec" id="dlSec">
-    <div class="sech"><div><div class="eyebrow">Due soon</div><h2>近い締め切り</h2></div><span class="sub">3日以内と期限切れ</span></div>
+    <div class="sech"><div><div class="eyebrow">Todo</div><h2>今日・今週やること</h2></div><button type="button" class="lnk" id="dlAll">すべて ›</button></div>
     <div class="card"><div id="dlList"></div></div>
   </div>
   <div class="sec" id="wxSec" hidden>
@@ -1200,8 +1202,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 </div>
 
 <div class="status" id="status" role="status" hidden></div>
+<div class="oops" id="oops" hidden>うまく表示できませんでした。<button type="button" onclick="location.reload()">読み込み直す</button></div>
 
 <script>
+window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.message)) return; const o=document.getElementById("oops"); if(o) o.hidden=false; });
 (function(){
   const WHO={papa:{n:"パパ",c:"パ"},mama:{n:"ママ",c:"マ"},yuzu:{n:"ゆづ",c:"ゆ"}};
   const DOW=["日","月","火","水","木","金","土"];
@@ -1271,7 +1275,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   const eventsOn=k=>events.filter(e=>occursOn(e,k)).sort(evOrder);
   const todosOn=k=>todos.filter(t=>t.due===k);
   function dueText(t){
-    if(!t.due) return {txt:"期限なし",cls:""};
+    if(!t.due) return {txt:t.week?(t.week===weekStart(todayKey)?"今週中":"前の週の分"):"期限なし",cls:""};
     if(t.span==="week"&&!t.done){ const n0=dayDiff(todayKey,t.due); if(n0>=0) return {txt:(n0<=6?"今週中":"来週中")+"（〜"+md(t.due)+"）",cls:n0<=1?"soon-t":""}; }
     const n=dayDiff(todayKey,t.due);
     if(t.done) return {txt:md(t.due)+"まで",cls:""};
@@ -1389,10 +1393,18 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     $("agSub").textContent = homeSel===todayKey?fmtDay(todayKey):"";
     renderMemHome(); { const hs=$("homeSuggest"); const k=[todayKey,tmrKey].find(x=>suggestFor(x)); hs.replaceChildren(); if(k){ const wrap=el("div","sec"); const box=el("div"); wrap.append(box); hs.append(wrap); renderSuggest(box,k); } } homeSel=todayKey; renderAgenda(homeSel,$("agAll"),$("agList"),$("agEmpty"),$("agPills"),false,true); renderOgToday(); renderMonth();
     // deadlines
-    const soon=todos.filter(t=>!t.done&&t.due&&dayDiff(todayKey,t.due)<=3).sort((a,b)=>a.due.localeCompare(b.due));
+    // today's and this week's todos (what used to sit on the wall calendar's margin)
+    const s0h=weekStart(todayKey), e0h=addDays(s0h,6);
+    const open=todos.filter(t=>!t.done);
+    const todayL=open.filter(t=>t.due&&t.due<=todayKey&&t.span!=="week").sort((a,b)=>a.due.localeCompare(b.due));
+    const weekL=open.filter(t=>!todayL.includes(t)&&((t.due&&t.due<=e0h)||(!t.due&&t.week===s0h))).sort((a,b)=>(a.span==="week")-(b.span==="week")||String(a.due).localeCompare(String(b.due)));
+    const doneToday=todos.filter(t=>t.done&&inWeek(t,s0h)).length;
     const dl=$("dlList"); dl.replaceChildren();
-    soon.forEach(t=>{const d2=dueText(t);const r=el("div","todoi");r.append(chk(t),labelWith("tt",t,t.title),el("span","dd "+d2.cls,d2.txt));dl.append(r)});
-    $("dlSec").hidden=!soon.length;
+    const row=t=>{const d2=dueText(t);const r=el("div","todoi");r.append(chk(t),labelWith("tt",t,t.title),el("span","dd "+d2.cls,t.due===todayKey?"今日":d2.txt));r.addEventListener("click",ev=>{if(!ev.target.closest(".chk"))openSheet("todo",t)});return r};
+    if(todayL.length){ dl.append(el("div","tgh","今日まで")); todayL.slice(0,5).forEach(t=>dl.append(row(t))); }
+    if(weekL.length){ dl.append(el("div","tgh","今週（〜"+md(e0h)+"）")); weekL.slice(0,6).forEach(t=>dl.append(row(t))); if(weekL.length>6) dl.append(el("p","empty","ほか"+(weekL.length-6)+"件")); }
+    if(!todayL.length&&!weekL.length) dl.append(el("p","empty",doneToday?"今週の分はぜんぶ終わりました！":"今週やることはありません。"));
+    $("dlSec").hidden=false;
     // weather: 7-day strip, tap a day for details; today shows the 3-hourly chart
     renderWx();
     const openT=todos.filter(t=>!t.done).length; $("todoBadge").hidden=!openT; $("todoBadge").textContent=openT;
@@ -2511,6 +2523,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   }
   TABS.forEach(t=>$("tab-"+t).addEventListener("click",()=>selectTab(t)));
 
+  $("dlAll").addEventListener("click",()=>{ selectTab("todo"); setList("todo"); });
   function renderAll(){ renderHome(); renderCal(); renderTodos(); }
   renderHome(); renderCal(); renderTodos(); renderShop(); renderWish(); renderPlaces(); renderOutings();
   try{const t=localStorage.getItem("wagaya-tab2");if(TABS.includes(t))selectTab(t)}catch(e){}
@@ -2590,7 +2603,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
   const standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
   let swReg=null;
-  if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").then(r=>{swReg=r;pushUI()}).catch(()=>{}); }
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r;pushUI();r.update().catch(()=>{})}).catch(()=>{});
+    let swReloaded=false; const hadCtl=!!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(hadCtl&&!swReloaded&&!document.querySelector(".scrim:not([hidden])")){ swReloaded=true; location.reload(); } });
+  }
   async function currentSub(){ try{ const r=swReg||await navigator.serviceWorker?.getRegistration(); return r?await r.pushManager.getSubscription():null }catch(e){return null} }
   const b64ToU8=s=>{const p="=".repeat((4-s.length%4)%4);const b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(b,c=>c.charCodeAt(0))};
   async function pushUI(){
@@ -2638,7 +2655,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       db.doc("info/outings").onSnapshot(s=>{ogMeta=s.exists?s.data():null;renderOutings()});
       db.doc("info/weather").onSnapshot(s=>{weather=s.exists?s.data():null;renderHome();renderCal()});
       setInterval(()=>{ if(token&&document.visibilityState==="visible") refresh().catch(()=>{}); },30000);
-      document.addEventListener("visibilitychange",()=>{ if(token&&document.visibilityState==="visible") refresh().catch(()=>{}); });
+      document.addEventListener("visibilitychange",()=>{ if(document.visibilityState!=="visible") return;
+        if(ymd(new Date())!==todayKey){ location.reload(); return; }          // a new day: start fresh
+        if(swReg) swReg.update().catch(()=>{});
+        if(token) refresh().catch(()=>{}); });
+      window.addEventListener("pageshow",e=>{ if(e.persisted){ if(ymd(new Date())!==todayKey) location.reload(); else if(token) refresh().catch(()=>{}); } });
     }
     try{ await refresh(); }catch(e){ if(e.status!==401) status("読み込めませんでした。電波のよい場所で開き直してください。",true); }
     pushUI();

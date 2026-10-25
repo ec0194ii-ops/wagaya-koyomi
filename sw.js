@@ -1,5 +1,5 @@
 // わが家のこよみ service worker: push notifications + offline shell.
-const SHELL = 'koyomi-shell-v21';
+const SHELL = 'koyomi-shell-v22';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -8,14 +8,29 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== SHELL).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
-// Pages: network first so updates arrive right away; the cached copy is only for when there is no signal.
+// Pages: always ask the network for the newest copy (bypassing the browser's HTTP cache),
+// but never leave a blank screen — if the network is slow (e.g. right after returning from another app), show the saved copy.
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
-  e.respondWith(fetch(req).then(res => {
-    if (res.ok) { const copy = res.clone(); caches.open(SHELL).then(c => c.put(req, copy)); }
-    return res;
-  }).catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));
+  const nav = req.mode === 'navigate';
+  e.respondWith((async () => {
+    const cached = async () => (await caches.match(req, { ignoreSearch: nav })) || (nav ? ((await caches.match('./index.html')) || (await caches.match('./'))) : null);
+    const net = fetch(req, { cache: 'no-cache' }).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(SHELL).then(c => c.put(nav ? './index.html' : req, copy)); }
+      return res;
+    });
+    const timeout = new Promise(r => setTimeout(r, nav ? 3500 : 6000, null));
+    try {
+      const first = await Promise.race([net, timeout]);
+      if (first) return first;
+      const c = await cached(); if (c) return c;       // slow network: use the saved page now (it refreshes in the background)
+      return await net;
+    } catch {
+      const c = await cached(); if (c) return c;
+      return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="font-family:system-ui;padding:40px 24px;text-align:center"><p>つながりません。電波のよいところで</p><button onclick="location.reload()" style="font-size:16px;padding:10px 18px;border-radius:999px;border:0;background:#222;color:#fff">もう一度ひらく</button>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    }
+  })());
 });
 
 self.addEventListener('push', e => {
