@@ -691,6 +691,20 @@ a.btn{text-decoration:none;display:inline-block}
 .aisle .item{padding:9px 2px}
 .aisle .qty{display:inline-block;margin-left:6px;font-family:var(--f-num);font-size:12px;color:var(--accent);font-weight:700}
 .aisle.bought{opacity:.7}
+.where{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.where .fl{font-size:11.5px;color:var(--muted);font-weight:700}
+.where .fchip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.where .fchip.guess{border-style:dashed;border-color:var(--accent);color:var(--accent)}
+.whint{font-size:11.5px;color:var(--muted);margin-top:6px;min-height:1em}
+.stfilter{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.stfilter::-webkit-scrollbar{display:none}
+.stfilter .fchip{white-space:nowrap}
+.stfilter .fchip.on{background:var(--fg);border-color:var(--fg);color:var(--paper);font-weight:700}
+.stcard{margin-bottom:10px}
+.stcard h3{margin:0;font-size:15px;display:flex;align-items:center;gap:6px}
+.stcard h3 small{font-size:12px;color:var(--muted);font-weight:600}
+.stb{position:relative;flex:none;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:11px;color:var(--muted);margin-left:6px}
+.stb select{position:absolute;inset:0;opacity:0;width:100%;font-size:16px}
 
 
 /* weather, laid out like a weather app: today | tomorrow, hourly strip, week list */
@@ -1101,9 +1115,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
         <input type="text" id="shopInput" placeholder="買うもの（例：牛乳 2）" aria-label="買うもの" required>
         <button class="btn" type="submit">追加</button>
       </form>
+      <div class="where" id="shopWhereAdd" aria-label="買う場所"></div>
+      <div class="whint" id="shopWhint"></div>
       <div class="freq" id="shopFreq" aria-label="よく買うもの"></div>
     </div>
     <button type="button" class="gobtn" id="shopGo"><span aria-hidden="true">🛒</span><span><b>いまから買い物に行く</b><small>家族に「ほしいものは今のうちに」と通知します</small></span></button>
+    <div class="stfilter" id="shopFilter" aria-label="お店でしぼる"></div>
     <div id="shopAisles"></div>
     <p class="empty card" id="shopEmpty">買うものはありません。</p>
     <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn ghost sm" id="shopClear" type="button" hidden>買ったものを消す</button></div>
@@ -2519,11 +2536,34 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     ["frozen","🧊 冷凍・お惣菜",/(冷凍|アイス|餃子|ぎょうざ|からあげ|唐揚げ|コロッケ|惣菜|お弁当)/],
     ["snack","🍪 おやつ・飲みもの",/(お菓子|おかし|チョコ|クッキー|せんべい|グミ|ジュース|お茶|麦茶|水|炭酸|コーヒー|紅茶|ビール|ワイン)/],
     ["kids","🧸 ゆづのもの",/(おむつ|オムツ|おしりふき|子ども|こども|キッズ|幼児|ベビー|園)/],
-    ["daily","🧻 日用品・薬",/(ティッシュ|トイレット|ペーパー|キッチンペーパー|ラップ|アルミ|ホイル|ゴミ袋|ごみ袋|洗剤|柔軟剤|シャンプー|リンス|ボディ|石けん|せっけん|歯ブラシ|歯磨き|マスク|電池|薬|絆創膏|ばんそうこう|綿棒|スポンジ|ハンドソープ)/],
+    ["daily","🧻 日用品・薬",/(ティッシュ|トイレット|ペーパー|キッチンペーパー|ラップ|アルミ|ホイル|ゴミ袋|ごみ袋|洗剤|柔軟剤|シャンプー|リンス|ボディ|石けん|せっけん|歯ブラシ|歯磨き|マスク|電池|薬|絆創膏|ばんそうこう|綿棒|スポンジ|ハンドソープ|ハイター|ブリーチ|漂白|カビ|除菌|消臭|ファブリーズ|入浴剤|化粧水|日焼け止め|目薬|湿布|ビタミン|サプリ|生理|ナプキン)/],
   ];
   const AISLE_CHECK=["dairy","kids","frozen","snack","season","staple","meat","veg","daily"];   // 牛乳 is dairy, not meat
   function aisleOf(name){ for(const k of AISLE_CHECK){ const a=AISLES.find(x=>x[0]===k); if(a&&a[2].test(name)) return k; } return "other"; }
   function splitQty(v){ const m=String(v).trim().match(/^(.*?)[\s　]*(?:[x×✕*]\s*)?(\d{1,3})(個|本|袋|パック|枚|缶|箱|玉)?$/); return m&&m[1]?{name:m[1].trim(),qty:m[2]+(m[3]||"")}:{name:String(v).trim(),qty:""}; }
+  // where to buy it: a guess, then whatever the family taught it (shared, one small note record)
+  const STORES=[["super","🛒","スーパー"],["drug","💊","ドラッグストア"],["daiso","💯","100均"],["home","🔨","ホームセンター"],["net","📦","ネット"],["other","🛍","そのほか"]];
+  const STORE=Object.fromEntries(STORES.map(x=>[x[0],x]));
+  const DRUG=/(薬|ハイター|ブリーチ|漂白|カビ|除菌|消臭|ファブリーズ|洗剤|柔軟剤|シャンプー|リンス|コンディショナー|ボディソープ|石けん|せっけん|ハンドソープ|歯ブラシ|歯磨き|マスク|絆創膏|ばんそうこう|綿棒|入浴剤|化粧水|日焼け止め|目薬|湿布|ビタミン|サプリ|生理|ナプキン|おむつ|オムツ|おしりふき|ティッシュ|トイレット)/;
+  let storeRec=null, addStore="";
+  const learned=n=>{ const m=(storeRec&&storeRec.map)||{}; return STORE[m[n]]?m[n]:""; };
+  function guessStore(n){ return learned(n)||(DRUG.test(n)?"drug":"super"); }
+  const storeOf=s=>STORE[s.store]?s.store:guessStore(s.name);
+  function learnStore(name,store){ if(!db||!name||!STORE[store]||learned(name)===store) return;
+    const m=Object.assign({},(storeRec&&storeRec.map)||{}); delete m[name]; m[name]=store;
+    const keys=Object.keys(m); if(keys.length>300) keys.slice(0,keys.length-300).forEach(k=>delete m[k]);
+    storeRec=Object.assign({},storeRec||{key:"shopstore"},{map:m});
+    const ref=db.collection("notes").doc("note-shopstore"); (storeRec.id?ref.update({map:m}):ref.set({key:"shopstore",map:m})).catch(()=>{}); }
+  function renderWhereAdd(){
+    const box=$("shopWhereAdd"); box.replaceChildren(); box.append(el("span","fl","買う場所："));
+    const v=splitQty($("shopInput").value).name, g=v?guessStore(v):"";
+    [["","おまかせ"],...STORES.filter(x=>x[0]!=="other").map(x=>[x[0],x[1]+x[2]])].forEach(([k,t])=>{
+      const b=el("button","fchip"+(addStore===k?" on":"")+(!addStore&&k&&k===g?" guess":""),t); b.type="button"; b.setAttribute("aria-pressed",addStore===k?"true":"false");
+      b.addEventListener("click",()=>{ addStore=addStore===k?"":k; renderWhereAdd(); $("shopInput").focus(); }); box.append(b); });
+    $("shopWhint").textContent=addStore?"「"+(v||"この品")+"」は"+STORE[addStore][2]+"で買う、と覚えます":v?"→ "+STORE[g][1]+STORE[g][2]+(learned(v)?"（覚えた場所）":"（予想）"):"";
+  }
+  $("shopInput").addEventListener("input",renderWhereAdd);
+  let shopFilter="all";
   let freqRec=null;   // shared "よく買うもの" counts live in one small note record
   function bumpFreq(names){ if(!db||!names.length) return; const cur=Object.assign({},(freqRec&&freqRec.counts)||{}); names.forEach(n=>{ cur[n]=Math.min(999,(cur[n]||0)+1); });
     const top=Object.entries(cur).sort((a,b)=>b[1]-a[1]).slice(0,40); const counts=Object.fromEntries(top);
@@ -2532,14 +2572,25 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const box=$("shopAisles"); box.replaceChildren();
     const order=[...AISLES.map(a=>a[0]),"other"], label=Object.fromEntries([...AISLES.map(a=>[a[0],a[1]]),["other","🛍 そのほか"]]);
     const left=shop.filter(s=>!s.done);
-    const card=el("div","card aisle");
-    order.forEach(key=>{
-      const list=left.filter(s=>aisleOf(s.name)===key).sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
-      if(!list.length) return;
-      card.append(el("h4","",label[key]));
-      const ul=el("ul","items"); list.forEach(s=>ul.append(shopRow(s))); card.append(ul);
+    const used=STORES.filter(st=>left.some(s=>storeOf(s)===st[0]));
+    if(shopFilter!=="all"&&!used.some(u=>u[0]===shopFilter)) shopFilter="all";
+    const fb=$("shopFilter"); fb.replaceChildren();
+    if(used.length>1){ [["all","ぜんぶ "+left.length]].concat(used.map(st=>[st[0],st[1]+st[2]+" "+left.filter(s=>storeOf(s)===st[0]).length])).forEach(([k,t])=>{
+      const b=el("button","fchip"+(shopFilter===k?" on":""),t); b.type="button"; b.addEventListener("click",()=>{shopFilter=k;renderShop();}); fb.append(b); }); }
+    fb.hidden=used.length<2;
+    used.filter(st=>shopFilter==="all"||shopFilter===st[0]).forEach(st=>{
+      const items=left.filter(s=>storeOf(s)===st[0]);
+      const card=el("div","card aisle stcard"); const h=el("h3","",st[1]+" "+st[2]); h.append(el("small","",items.length+"品")); card.append(h);
+      if(st[0]==="super"){   // in the supermarket, walk it aisle by aisle
+        order.forEach(key=>{
+          const list=items.filter(s=>aisleOf(s.name)===key).sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
+          if(!list.length) return;
+          card.append(el("h4","",label[key]));
+          const ul=el("ul","items"); list.forEach(s=>ul.append(shopRow(s))); card.append(ul);
+        });
+      } else { const ul=el("ul","items"); items.sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt))).forEach(s=>ul.append(shopRow(s))); card.append(ul); }
+      box.append(card);
     });
-    if(card.children.length) box.append(card);
     const done=shop.filter(s=>s.done);
     if(done.length){ const c=el("div","card aisle bought"); c.append(el("h4","","✓ カゴに入れた（"+done.length+"）")); const ul=el("ul","items"); done.forEach(s=>ul.append(shopRow(s))); c.append(ul); box.append(c); }
     $("shopEmpty").hidden=shop.length>0; $("shopClear").hidden=!done.length;
@@ -2549,24 +2600,31 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(top.length){ fr.append(el("span","fl","よく買う：")); top.forEach(([n])=>{ const b=el("button","fchip","＋"+n); b.type="button"; b.addEventListener("click",()=>addShop(n)); fr.append(b); }); }
     fr.hidden=!top.length;
     $("shopGo").querySelector("small").textContent=left.length?"家族に通知します・いま"+left.length+"品":"家族に「ほしいものは今のうちに」と通知します";
+    renderWhereAdd();
   }
   function shopRow(s){
     const li=el("li","item"+(s.done?" done":"")); const c=el("button","chk"+(s.done?" on":""),s.done?"✓":""); c.type="button"; c.setAttribute("aria-label",(s.done?"カゴから戻す：":"カゴに入れた：")+s.name);
     c.addEventListener("click",async()=>{c.disabled=true;try{await db.collection("shopping").doc(s.id).update({done:!s.done})}catch(e){status("更新できませんでした。",true)}c.disabled=false});
     const tx=el("span","tx",s.name); if(s.qty) tx.append(el("span","qty","×"+s.qty)); if(s.note) tx.append(el("span","sb",s.note));
+    if(!s.done){ const cur=storeOf(s), b=el("span","stb","場所▾"); const sel=document.createElement("select"); sel.setAttribute("aria-label","「"+s.name+"」を買う場所");
+      STORES.forEach(st=>{ const o=document.createElement("option"); o.value=st[0]; o.textContent=st[1]+" "+st[2]; if(st[0]===cur) o.selected=true; sel.append(o); });
+      sel.addEventListener("change",async()=>{ const v=sel.value; learnStore(s.name,v); try{ await db.collection("shopping").doc(s.id).update({store:v}); status("「"+s.name+"」は"+STORE[v][2]+"で買う、と覚えました"); }catch(e){ status("変えられませんでした。",true); } });
+      b.append(sel); tx.append(b); }
     li.append(c,tx,armBtn("消す",()=>db.collection("shopping").doc(s.id).delete())); return li;
   }
   async function addShop(v){ if(!db) return; const {name,qty}=splitQty(v); if(!name) return;
     const dup=shop.find(s=>!s.done&&s.name===name); if(dup){ status("「"+name+"」はもう入っています"); return; }
-    try{ await db.collection("shopping").add({name,qty,aisle:aisleOf(name),done:false,createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } }
+    const store=addStore||guessStore(name); if(addStore) learnStore(name,addStore);
+    try{ await db.collection("shopping").add({name,qty,aisle:aisleOf(name),store,done:false,createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } }
   $("shopForm").addEventListener("submit",async ev=>{ev.preventDefault();const v=$("shopInput").value.trim();if(!v)return;$("shopInput").value="";
-    for(const part of v.split(/[、,，]/).map(x=>x.trim()).filter(Boolean)) await addShop(part); });
+    for(const part of v.split(/[、,，]/).map(x=>x.trim()).filter(Boolean)) await addShop(part); addStore=""; renderWhereAdd(); });
   $("shopClear").addEventListener("click",async()=>{ const d=shop.filter(s=>s.done); bumpFreq(d.map(s=>s.name)); try{for(const s of d)await db.collection("shopping").doc(s.id).delete();status("おつかれさま！買ったものを片づけました")}catch(e){status("一部消せませんでした。",true)}});
   $("shopGo").addEventListener("click",async()=>{ const b=$("shopGo"); b.disabled=true; try{ await window.__koyomiApi("shop_go",{count:shop.filter(s=>!s.done).length}); status("家族に知らせました。いってらっしゃい！"); }catch(e){ status(e&&e.status===429?"さっき知らせたばかりです":"知らせられませんでした。",true); } setTimeout(()=>b.disabled=false,4000); });
   $("shopShare").addEventListener("click",async()=>{
     const left=shop.filter(s=>!s.done); if(!left.length){ status("買うものはありません"); return; }
     const lines=["🛒 買い物リスト"]; const order=[...AISLES.map(a=>a[0]),"other"];
-    order.forEach(k=>{ const l=left.filter(s=>aisleOf(s.name)===k); if(l.length) l.forEach(s=>lines.push("・"+s.name+(s.qty?" ×"+s.qty:""))); });
+    STORES.forEach(st=>{ const inS=left.filter(s=>storeOf(s)===st[0]); if(!inS.length) return; lines.push("","【"+st[2]+"】");
+      order.forEach(k=>{ inS.filter(s=>aisleOf(s.name)===k).forEach(s=>lines.push("・"+s.name+(s.qty?" ×"+s.qty:""))); }); });
     const text=lines.join("\n");
     try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
     try{ await navigator.clipboard.writeText(text); status("コピーしました。LINEに貼りつけてください"); }catch(e){ location.href="https://line.me/R/msg/text/?"+encodeURIComponent(text); }
@@ -2867,7 +2925,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       started=true;
       db.collection("events").onSnapshot(s=>{events=rows(s);renderHome();renderCal();renderWish()});
       db.collection("todos").onSnapshot(s=>{todos=rows(s);renderAll()});
-      db.collection("notes").onSnapshot(s=>{const r=rows(s).find(x=>x.key==="shopfreq"); freqRec=r||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
