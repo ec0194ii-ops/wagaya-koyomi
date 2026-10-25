@@ -176,13 +176,14 @@ async function updateWeather() {
   if (wk[1]) { const a = pick(wk[1].areas, '60216'); wk[1].timeDefines.forEach((t: string, i: number) => { const d = day(t); if (d.lo == null && a.tempsMin?.[i]) d.lo = Number(a.tempsMin[i]); if (d.hi == null && a.tempsMax?.[i]) d.hi = Number(a.tempsMax[i]); }); }
   const today = jstKey(0);
   const list = Object.values(days).filter((d: any) => d.date >= today && d.code).sort((a: any, b: any) => a.date.localeCompare(b.date)).slice(0, 7)
-    .map((d: any) => { const [icon, text] = codeInfo(d.code); return { date: d.date, icon, text, hi: d.hi ?? null, lo: d.lo ?? null, pop: d.pop ?? null, ...(d.detail ? { detail: d.detail } : {}), ...(d.rel ? { rel: d.rel } : {}) }; });
+    .map((d: any) => { const [icon, text] = codeInfo(d.code); return { date: d.date, icon, text, hi: d.hi ?? null, lo: (d.lo != null && d.hi != null && d.lo >= d.hi) ? null : (d.lo ?? null), pop: d.pop ?? null, ...(d.detail ? { detail: d.detail } : {}), ...(d.rel ? { rel: d.rel } : {}) }; });
   if (!list.length) fail(502, 'jma_empty');
   const now = new Date(Date.now() + 9 * 3600000);
   const updated = `${now.getUTCMonth() + 1}/${now.getUTCDate()} ${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
-  let hourly: unknown[] = [];
-  try { hourly = await hourlyForecast(blocks); } catch { /* the daily forecast still goes out */ }
-  await saveInfo('weather', { key: 'weather', area: '大津市', source: '気象庁・Open-Meteo', updated, url: 'https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html', days: list, hourly });
+  let hourly: unknown[] = [], hsrc = '気象庁';
+  try { hourly = await jmaHourly(blocks); } catch { hourly = []; }
+  if (hourly.length < 4) { try { hourly = await hourlyForecast(blocks); hsrc = '気象庁・Open-Meteo'; } catch { /* the daily forecast still goes out */ } }
+  await saveInfo('weather', { key: 'weather', area: '大津市', source: hsrc, updated, url: 'https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html', days: list, hourly });
   return list.length;
 }
 function wmo(c: number): [string, string] {
@@ -196,7 +197,37 @@ function wmo(c: number): [string, string] {
   if (c >= 95) return ['⛈', '雷雨'];
   return ['☁️', 'くもり'];
 }
-// 3-hourly temperature, weather and rain chance for the next ~27 hours (大津市役所付近).
+// 3-hourly forecast straight from 気象庁 (地域時系列予報: 滋賀県南部 weather, 大津 temperature).
+function jmaIcon(t: string): [string, string] {
+  const s = String(t || '');
+  if (/雪/.test(s) && /雨/.test(s)) return ['🌨', s];
+  if (/雪/.test(s)) return ['❄️', s];
+  if (/雨/.test(s)) return ['☔', s];
+  if (/くもり|曇/.test(s)) return ['☁️', s];
+  if (/晴/.test(s)) return ['☀️', s];
+  return ['☁️', s || 'くもり'];
+}
+async function jmaHourly(blocks: { from: number; pop: number }[] = []) {
+  const r = await fetch('https://www.jma.go.jp/bosai/jmatile/data/wdist/VPFD/250010.json', { headers: { Accept: 'application/json' } });
+  if (!r.ok) fail(502, 'jma_hourly_unavailable');
+  const j = await r.json();
+  const at = j.areaTimeSeries || {}, pt = j.pointTimeSeries || {};
+  const wx: Record<string, string> = {};
+  (at.timeDefines || []).forEach((d: any, i: number) => { wx[String(d.dateTime || d).slice(0, 13)] = (at.weather || [])[i]; });
+  const nowSlot = Date.now() - 3 * 3600000;
+  const out: unknown[] = [];
+  (pt.timeDefines || []).forEach((d: any, i: number) => {
+    const iso = String(d.dateTime || d); const ms = Date.parse(iso);
+    if (!(ms >= nowSlot) || out.length >= 10) return;
+    const temp = (pt.temperature || [])[i]; if (temp === '' || temp == null) return;
+    const key = iso.slice(0, 13); const w = wx[key]; if (!w) return;
+    const [icon, text] = jmaIcon(w);
+    const blk = blocks.find(b => ms >= b.from && ms < b.from + 6 * 3600000);
+    out.push({ t: iso.slice(0, 16), h: Number(iso.slice(11, 13)), temp: Number(temp), pop: blk ? blk.pop : null, src: 'jma', icon, text });
+  });
+  return out;
+}
+// Fallback: 3-hourly temperature, weather and rain chance for the next ~27 hours (大津市役所付近).
 async function hourlyForecast(blocks: { from: number; pop: number }[] = []) {
   const u = 'https://api.open-meteo.com/v1/forecast?latitude=35.0045&longitude=135.8686&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Asia%2FTokyo&forecast_days=3';
   const r = await fetch(u); if (!r.ok) fail(502, 'hourly_unavailable');
@@ -274,7 +305,8 @@ async function morningText() {
   const wx = wxRow && Array.isArray(wxRow.payload.days) ? wxRow.payload.days.find((x: any) => x.date === today) : null;
   const parts: string[] = [];
   parts.push(`${+today.slice(5, 7)}/${+today.slice(8, 10)}（${DOW[dow]}）`);
-  if (wx) parts.push(`${wx.icon || ''}${wx.text || ''} ${wx.hi ?? '-'}°/${wx.lo ?? '-'}°${wx.pop != null ? ' ☂' + wx.pop + '%' : ''}`);
+  const hs = wxRow && Array.isArray(wxRow.payload.hourly) ? wxRow.payload.hourly.filter((x: any) => String(x.t || '').slice(0, 10) === today && x.temp != null).map((x: any) => Number(x.temp)) : [];
+  if (wx) parts.push(`${wx.icon || ''}${wx.text || ''} ${wx.hi ?? (hs.length ? Math.max(...hs) : '-')}°/${wx.lo ?? (hs.length ? Math.min(...hs) : '-')}°${wx.pop != null ? ' ☂' + wx.pop + '%' : ''}`);
   parts.push(evs.length ? '予定：' + evs.slice(0, 4).map((e: any) => (e.time ? e.time + ' ' : '') + e.title).join('、') + (evs.length > 4 ? ` ほか${evs.length - 4}件` : '') : '予定なし');
   if (due.length) parts.push('締切：' + due.slice(0, 3).map((t: any) => t.title + (t.due < today ? '（期限切れ）' : t.due === today ? '（今日）' : '（明日）')).join('、'));
   if (garb.length) parts.push('🗑 ' + garb.join('・') + 'の日');

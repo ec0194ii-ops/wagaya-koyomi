@@ -664,13 +664,16 @@ a.btn{text-decoration:none;display:inline-block}
 .suggest .ac button.pri{background:var(--fg);color:var(--paper)}
 .day .spark{position:absolute;right:4px;bottom:3px;font-size:9px;color:#c9a23a;opacity:.9}
 /* calendar: this week's note (like the margin of a wall calendar) */
-.wknote{margin:10px 0 4px;border-radius:18px;padding:10px 14px;background:#fbf6e9;color:#2b2b2b;box-shadow:0 1px 2px rgba(0,0,0,.05),0 6px 16px -12px rgba(0,0,0,.3);background-image:repeating-linear-gradient(transparent 0 27px,rgba(0,0,0,.06) 27px 28px)}
-.wknote h4{margin:0 0 2px;font-size:12px;font-weight:700;color:#8a7a55;display:flex;justify-content:space-between}
-.wknote h4 button{border:0;background:transparent;color:#8a7a55;font-weight:700;font-size:12px}
+.wknote{margin:10px 0 4px;border-radius:18px;padding:12px 16px 10px;background:var(--paper);color:var(--fg);box-shadow:var(--shadow);border-left:4px solid var(--accent)}
+.wknote h4{margin:0 0 4px;font-size:12.5px;font-weight:700;color:var(--accent);display:flex;justify-content:space-between}
+.wknote h4 button{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:12px}
+.wknote .wbli+.wbli{border-top:1px solid var(--line)}
+.wknote .wbadd input{color:var(--fg)}
+.wknote .wbadd input::placeholder{color:var(--muted)}
 .wknote .wbli{padding:3px 0;min-height:28px}
 .wknote .wbli .tx{font-size:14px}
 .wknote .chk{width:20px;height:20px;border-radius:6px}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wknote{filter:brightness(.9)}}
+
 
 
 /* shopping */
@@ -1328,7 +1331,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     const nE=eventsOn(todayKey).length, nD=todos.filter(t=>!t.done&&t.due&&t.due<=todayKey).length;
     const hl=$("hello"); hl.replaceChildren(greet+"。今日は ",el("b","",nE?"予定 "+nE+" 件":"予定なし"), nD?"、締め切りが "+nD+" 件あります。":" です。");
     const tw=wxFor(todayKey); $("hWx").hidden=!tw;
-    if(tw){$("hWxI").textContent=tw.icon||"";{const dt=dayTemps(todayKey)||{};$("hWxH").textContent=(tw.hi??dt.hi??"-")+"°";$("hWxL").textContent=(tw.lo??dt.lo??"-")+"°";}$("hWxP").textContent=(tw.text||"")+(tw.pop!=null?" ☂"+tw.pop+"%":"")}
+    if(tw){$("hWxI").textContent=tw.icon||"";{const dt=dayTemps(todayKey)||{};$("hWxH").textContent=(tw.hi??dt.hi??"-")+"°";$("hWxL").textContent=(loOf(tw)??"-")+"°";}$("hWxP").textContent=(tw.text||"")+(tw.pop!=null?" ☂"+tw.pop+"%":"")}
     // ribbon: today first
     const rb=$("ribbon"); if(rb) rb.replaceChildren();
     for(let i=0;rb&&i<7;i++){
@@ -1362,7 +1365,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   /* ---------- weather ---------- */
   let wxSel=todayKey;
   function dayTemps(k){ const h=(weather&&Array.isArray(weather.hourly)?weather.hourly:[]).filter(x=>x&&x.t&&x.t.slice(0,10)===k&&x.temp!=null).map(x=>x.temp); return h.length?{hi:Math.max(...h),lo:Math.min(...h)}:null; }
-  const hiOf=x=>x.hi??(dayTemps(x.date)||{}).hi; const loOf=x=>x.lo??(dayTemps(x.date)||{}).lo;
+  const hiOf=x=>x.hi??(dayTemps(x.date)||{}).hi;
+  const loOf=x=>(x.lo!=null&&!(x.hi!=null&&x.lo>=x.hi))?x.lo:(dayTemps(x.date)||{}).lo;   // 気象庁 sometimes repeats the max in the min slot
   const yahooUrl=()=>(weather&&typeof weather.url==="string"&&/^https:\/\/weather\.yahoo\.co\.jp\//.test(weather.url))?weather.url:"https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html";
   function wxPanel(k){
     const days=weather&&Array.isArray(weather.days)?weather.days:[];
