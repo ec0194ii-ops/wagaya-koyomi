@@ -545,6 +545,8 @@ a.btn{text-decoration:none;display:inline-block}
 .mem .img{cursor:zoom-in}
 .pv{position:fixed;inset:0;z-index:80;background:rgba(10,10,12,.94);display:flex;align-items:center;justify-content:center}
 .pv img{max-width:100%;max-height:82vh;object-fit:contain;touch-action:pan-y}
+.pvcap{position:absolute;left:0;right:0;bottom:0;padding:16px 18px max(18px,env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;display:flex;flex-direction:column;gap:3px}
+.pvcap b{font-size:17px} .pvcap small{font-size:12px;opacity:.8} .pvcap p{margin:4px 0 0;font-size:14px;line-height:1.6;white-space:pre-wrap;max-height:30vh;overflow:auto}
 .pvtop{position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;display:flex;align-items:center;gap:8px;color:#fff;font-size:13px}
 .pvtop span{flex:1}
 .pvtop button{border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;padding:7px 12px;font-size:13px;font-weight:700}
@@ -567,6 +569,22 @@ a.btn{text-decoration:none;display:inline-block}
 .kuit .tx b{display:block;font-size:14.5px} .kuit .tx small{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kuit .go{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--accent)}
 .kuh{font-size:11.5px;font-weight:700;color:var(--muted);margin:10px 2px 0}
+.keepentry{display:flex;align-items:center;gap:12px;width:100%;border:0;background:var(--paper);border-radius:20px;padding:10px 14px 10px 10px;margin:4px 0 12px;box-shadow:var(--shadow);text-align:left;color:var(--fg)}
+.keepentry .kth{flex:none;width:52px;height:52px;border-radius:14px;background:color-mix(in srgb,var(--accent) 10%,var(--paper)) center/cover no-repeat;display:grid;place-items:center;font-size:24px}
+.keepentry b{display:block;font-size:15px} .keepentry small{display:block;font-size:12px;color:var(--muted)} .keepentry>span:nth-child(2){flex:1;min-width:0}
+.keepnote{margin:6px 0 10px;font-size:12.5px;color:var(--muted)}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ktile{position:relative;border:0;padding:0;border-radius:18px;overflow:hidden;background:var(--paper);box-shadow:var(--shadow);text-align:left;color:var(--fg)}
+.ktile .im{display:block;aspect-ratio:1;background:var(--sunk) center/cover no-repeat}
+.ktile .im.none{display:grid;place-items:center;font-size:34px}
+.ktile b{display:block;font-size:13.5px;padding:8px 10px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ktile small{display:block;font-size:11.5px;color:var(--muted);padding:0 10px 9px}
+.ktile .gone{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.92);color:#333;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700}
+.ktile .cnt{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;border-radius:999px;padding:2px 7px;font-size:11px}
+.kpphotos{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.kpphotos .ph{position:relative;flex:none;width:84px;height:84px;border-radius:14px;background:var(--sunk) center/cover no-repeat}
+.kpphotos .ph button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:24px;padding:0}
+.kpphotos .add{flex:none;width:84px;height:84px;border-radius:14px;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:transparent;color:var(--accent);font-weight:700;font-size:12px}
 .pvt{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
 .pvt input{width:20px;height:20px;accent-color:#5b4a8a}
 .pvt span{display:flex;flex-direction:column} .pvt b{font-size:14px} .pvt small{font-size:11.5px;color:var(--muted)}
@@ -1061,6 +1079,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
     <div class="playrow" id="playRow"></div>
     <div id="onThis"></div>
+    <button type="button" class="keepentry" id="keepEntry"><span class="kth" id="keepTh">🧸</span><span><b>もの思い出</b><small id="keepSub">おもちゃ・作ってくれたもの・記念のものを写真で残す</small></span><span aria-hidden="true">›</span></button>
     <div class="mstrip" id="mStrip"></div>
   </div>
   <div class="sec" id="ogTodaySec" hidden>
@@ -1228,6 +1247,31 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </form>
 </div>
 
+<!-- ================= KEEPSAKES (shared) ================= -->
+<section id="pane-keep" role="tabpanel" hidden>
+  <div class="mhead"><button type="button" class="tbtn" id="keepBack">‹ もどる</button><h2>もの思い出</h2><button type="button" class="tbtn" id="keepAdd">＋ 残す</button></div>
+  <p class="keepnote">手放すおもちゃ、ゆづが作ってくれたもの、記念のもの。写真とエピソードで家族の棚にしまっておけます。</p>
+  <div class="stfilter" id="keepFilter" aria-label="しぼりこみ"></div>
+  <div class="kgrid" id="keepGrid"></div>
+  <p class="empty card" id="keepEmpty">まだありません。右上の「＋ 残す」から最初の1つをどうぞ。</p>
+</section>
+
+<div class="scrim" id="kpScrim" hidden>
+  <form class="sheet" id="kpForm" role="dialog" aria-modal="true" aria-labelledby="kpTitleH" autocomplete="off">
+    <div class="grab"></div>
+    <div class="shh"><h3 id="kpTitleH">もの思い出を残す</h3><button type="button" class="lnk" id="kpClose" style="font-size:14px">閉じる</button></div>
+    <div class="kpphotos" id="kpPhotos"></div>
+    <input type="file" accept="image/*" id="kpFile" multiple hidden>
+    <label class="f">なに？<input type="text" id="kpName" maxlength="60" placeholder="例：くまのぬいぐるみ、はじめて描いたパパの絵" required></label>
+    <div class="row"><label class="f">いつ<input type="date" id="kpDate"></label><label class="f">種類<select id="kpCat"></select></label></div>
+    <label class="f">だれの<select id="kpWho"><option value="yuzu">ゆづ</option><option value="">家族</option><option value="papa">パパ</option><option value="mama">ママ</option></select></label>
+    <label class="f">エピソード<textarea id="kpMemo" rows="3" placeholder="例：2歳のころ毎晩いっしょに寝ていた。名前は「くーちゃん」"></textarea></label>
+    <label class="toggle"><input type="checkbox" id="kpGone">手放した（写真で残しておく）</label>
+    <p class="phnote">家族だけが見られます。撮った場所などの情報は消してから保存します。</p>
+    <div style="display:flex;justify-content:space-between;gap:8px"><button type="button" class="btn ghost sm" id="kpDel" hidden>消す</button><button type="submit" class="btn" id="kpSave" style="margin-left:auto">残す</button></div>
+  </form>
+</div>
+
 <!-- ================= MORE ================= -->
 <section id="pane-more" role="tabpanel" aria-labelledby="tab-more" hidden>
   <div class="mhead"><button type="button" class="tbtn" id="moreBack">‹ もどる</button><h2>その他・設定</h2></div>
@@ -1385,8 +1429,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 <input type="file" accept="image/*" id="memFile" hidden>
 <input type="file" accept="image/*" id="memMore" multiple hidden>
 <div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-label="この日の写真">
-  <div class="pvtop"><span id="pvN"></span><button type="button" id="pvDel">この写真を消す</button><button type="button" id="pvClose" aria-label="閉じる">×</button></div>
+  <div class="pvtop"><span id="pvN"></span><button type="button" id="pvDel">この写真を消す</button><button type="button" id="pvEdit" hidden>編集</button><button type="button" id="pvClose" aria-label="閉じる">×</button></div>
   <img id="pvImg" alt="">
+  <div class="pvcap" id="pvCap" hidden></div>
   <button type="button" class="pvnav l" id="pvPrev" aria-label="前の写真">‹</button><button type="button" class="pvnav r" id="pvNext" aria-label="次の写真">›</button>
 </div>
 <div class="movie" id="movie" hidden role="dialog" aria-modal="true" aria-label="思い出ムービー">
@@ -1458,7 +1503,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -1812,7 +1857,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       Object.entries(j.urls||{}).forEach(([p,u])=>phUrl.set(p,{url:u,exp})); }
     catch(e){}
     paths.forEach(p=>phPending.delete(p));
-    renderHome(); renderCal();
+    renderHome(); renderCal(); renderKeeps(); if(!$("pv").hidden) showViewer(); if(!$("kpScrim").hidden) renderKpPhotos();
     if(phPending.size) fetchPhotoUrls();
   }
   const photoOf=k=>{ const p=photos.find(x=>x.date===k&&x.path); return p?Object.assign({},p,{src:urlFor(p.path)}):null; };
@@ -2295,11 +2340,20 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     status(ok?ok+"枚のせました":"のせられませんでした。電波のよいところでもう一度。",!ok); await window.__koyomiRefresh();
   });
   // full-screen viewer for a day's photos: swipe or ‹ › to move, delete one at a time
-  let pvDay=null, pvI=0;
-  function openViewer(k,i){ pvDay=k; pvI=i||0; showViewer(); $("pv").hidden=false; }
-  function showViewer(){ const shots=dayShots(photoOf(pvDay)); if(!shots.length){ $("pv").hidden=true; return; }
-    pvI=Math.max(0,Math.min(pvI,shots.length-1)); const u=urlFor(shots[pvI].path); $("pvImg").src=u||""; $("pvImg").alt=md(pvDay)+"の写真 "+(pvI+1)+"枚目";
-    $("pvN").textContent=md(pvDay)+"　"+(pvI+1)+" / "+shots.length; $("pvPrev").hidden=pvI===0; $("pvNext").hidden=pvI>=shots.length-1; }
+  let pvDay=null, pvI=0, pvKeep=null;
+  function openViewer(k,i){ pvKeep=null; pvDay=k; pvI=i||0; showViewer(); $("pv").hidden=false; }
+  function openKeepViewer(kp,i){ pvKeep=kp.id; pvDay=null; pvI=i||0; showViewer(); $("pv").hidden=false; }
+  function showViewer(){
+    const kp=pvKeep?keeps.find(x=>x.id===pvKeep):null;
+    const shots=kp?(kp.photos||[]).map(path=>({path})):dayShots(photoOf(pvDay)); if(!shots.length&&!kp){ $("pv").hidden=true; return; }
+    pvI=Math.max(0,Math.min(pvI,Math.max(0,shots.length-1))); const u=shots[pvI]?urlFor(shots[pvI].path):""; $("pvImg").src=u||""; $("pvImg").hidden=!shots.length;
+    const label=kp?(kp.title||"もの思い出"):md(pvDay); $("pvImg").alt=label+"の写真 "+(pvI+1)+"枚目";
+    $("pvN").textContent=label+(shots.length>1?"　"+(pvI+1)+" / "+shots.length:""); $("pvPrev").hidden=pvI===0; $("pvNext").hidden=pvI>=shots.length-1;
+    $("pvDel").hidden=!!kp; $("pvEdit").hidden=!kp;
+    const cap=$("pvCap"); cap.replaceChildren(); cap.hidden=!kp;
+    if(kp){ cap.append(el("b","",kp.title||"")); const meta=[kp.date?fmtDay(kp.date):"",KEEP_CAT[kp.cat]||"",kp.who&&WHO[kp.who]?WHO[kp.who].n+"の":"",kp.gone?"手放した":""].filter(Boolean).join("・"); if(meta) cap.append(el("small","",meta)); if(kp.memo) cap.append(el("p","",kp.memo)); }
+  }
+  $("pvEdit").addEventListener("click",()=>{ const kp=keeps.find(x=>x.id===pvKeep); $("pv").hidden=true; if(kp) openKeepForm(kp); });
   $("pvClose").addEventListener("click",()=>{$("pv").hidden=true});
   $("pvPrev").addEventListener("click",()=>{pvI--;showViewer()}); $("pvNext").addEventListener("click",()=>{pvI++;showViewer()});
   { let sx=0; $("pvImg").addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true}); $("pvImg").addEventListener("touchend",e=>{ const dx=(e.changedTouches[0]||{}).clientX-sx; if(Math.abs(dx)>50){ pvI+=dx<0?1:-1; showViewer(); } },{passive:true}); }
@@ -2430,6 +2484,19 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const r=Math.max(W/img.width,H/img.height)*scale, w=img.width*r, h=img.height*r;
     ctx.drawImage(img,(W-w)/2+dx*(w-W)/2,(H-h)/2+dy*(h-H)/2,w,h);
   }
+  // a soft, blurred copy for behind the photo (works on every iPhone: shrink then stretch, no canvas filters needed)
+  const blurCache=new WeakMap();
+  function blurOf(img){ let c=blurCache.get(img); if(c) return c; c=document.createElement("canvas"); const k=24/Math.max(img.width,img.height); c.width=Math.max(2,Math.round(img.width*k)); c.height=Math.max(2,Math.round(img.height*k)); c.getContext("2d").drawImage(img,0,0,c.width,c.height); blurCache.set(img,c); return c; }
+  // keep the whole picture (people included): photos close to the frame's shape fill it; others sit on a blurred backdrop
+  function frame(ctx,img,W,H,prog,d){
+    const ar=img.width/img.height, car=W/H;
+    if(Math.abs(ar/car-1)<0.2){ cover(ctx,img,W,H,1.02+0.05*prog,d[0]*0.25*(prog-.5),d[1]*0.25*(prog-.5)); return; }
+    ctx.save(); ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high"; ctx.globalAlpha*=0.9; cover(ctx,blurOf(img),W,H,1.15,0,0); ctx.restore();
+    ctx.save(); ctx.fillStyle="rgba(10,8,14,.35)"; ctx.fillRect(0,0,W,H); ctx.restore();
+    const r=Math.min(W*0.94/img.width,H*0.8/img.height)*(1+0.04*prog), w=img.width*r, h=img.height*r;
+    const x=(W-w)/2, y=Math.max(H*0.06,(H*0.44)-h/2);
+    ctx.save(); ctx.shadowColor="rgba(0,0,0,.45)"; ctx.shadowBlur=40; ctx.shadowOffsetY=12; ctx.drawImage(img,x,y,w,h); ctx.restore();
+  }
   const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
   function mvDraw(){
     const cv=$("mvCanvas"), ctx=cv.getContext("2d"), W=cv.width, H=cv.height, t=MV.t, n=MV.list.length;
@@ -2437,7 +2504,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const serif='"Fraunces","Shippori Mincho B1",serif', jp='"Zen Kaku Gothic New",system-ui,sans-serif', mincho='"Shippori Mincho B1",serif';
     const photoAt=(i,local)=>{ const img=MV.imgs[i]; if(!img) return; const prog=Math.min(1,Math.max(0,local/(T_PH+T_X)));
       const dirs=[[-.6,.3],[.6,-.3],[.3,.6],[-.3,-.6]], d=dirs[i%4];
-      cover(ctx,img,W,H,1.06+0.10*prog,d[0]*(prog-.5),d[1]*(prog-.5)); };
+      frame(ctx,img,W,H,prog,d); };
     const overlay=(i,a)=>{ const p=MV.list[i]; ctx.save(); ctx.globalAlpha=a;
       const g=ctx.createLinearGradient(0,H*.58,0,H); g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,.62)"); ctx.fillStyle=g; ctx.fillRect(0,H*.55,W,H*.45);
       const d=k2d(p.date); ctx.fillStyle="#fff"; ctx.textBaseline="alphabetic";
@@ -2448,7 +2515,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(t<T_TITLE+T_X){
       const a=t<T_TITLE?1:1-(t-T_TITLE)/T_X;
       ctx.save(); ctx.globalAlpha=a;
-      if(MV.imgs[n-1]){ ctx.filter="blur(28px) brightness(.62)"; cover(ctx,MV.imgs[n-1],W,H,1.2,0,0); ctx.filter="none"; }
+      if(MV.imgs[n-1]){ cover(ctx,blurOf(MV.imgs[n-1]),W,H,1.2,0,0); ctx.fillStyle="rgba(0,0,0,.38)"; ctx.fillRect(0,0,W,H); }
       ctx.fillStyle="rgba(20,18,24,.25)"; ctx.fillRect(0,0,W,H);
       ctx.fillStyle="#fff"; ctx.textAlign="center";
       const k=ease(Math.min(1,t/1200));
@@ -2866,6 +2933,59 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     try{ await navigator.clipboard.writeText(text); status("コピーしました。LINEに貼りつけてください"); }catch(e){ location.href="https://line.me/R/msg/text/?"+encodeURIComponent(text); }
   });
 
+  /* ---------- もの思い出: keepsakes, shared with the family ---------- */
+  const KEEP_CAT={toy:"おもちゃ",made:"作ってくれたもの",memento:"記念のもの",clothes:"服・小物",other:"そのほか"};
+  const KEEP_MAX=6;
+  let keepFilter="all", kpEditing=null, kpPhotos=[];   // kpPhotos: [{path}|{blob,url,w,h}]
+  function renderKeeps(){
+    const g=$("keepGrid"); if(!g) return; g.replaceChildren();
+    const F=[["all","ぜんぶ"],...Object.entries(KEEP_CAT).filter(([k])=>keeps.some(x=>x.cat===k)),["gone","手放したもの"]];
+    const fb=$("keepFilter"); fb.replaceChildren(); if(keeps.length>2) F.forEach(([k,l])=>{ const b=el("button","fchip"+(keepFilter===k?" on":""),l); b.type="button"; b.addEventListener("click",()=>{keepFilter=k;renderKeeps()}); fb.append(b); });
+    fb.hidden=keeps.length<=2;
+    const list=keeps.filter(x=>keepFilter==="all"||(keepFilter==="gone"?x.gone:x.cat===keepFilter)).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||String(b.createdAt).localeCompare(String(a.createdAt)));
+    list.forEach(x=>{ const t=el("button","ktile"); t.type="button"; const ph=(x.photos||[])[0]; const im=el("span","im"+(ph?"":" none"),ph?"":"🧸"); if(ph){ const u=urlFor(ph); if(u) im.style.backgroundImage=cssUrl(u); }
+      t.append(im, el("b","",x.title||""), el("small","",[x.date?md(x.date):"",KEEP_CAT[x.cat]||""].filter(Boolean).join("・")));
+      if(x.gone) t.append(el("span","gone","手放した")); if((x.photos||[]).length>1) t.append(el("span","cnt",(x.photos||[]).length+"枚"));
+      t.addEventListener("click",()=>openKeepViewer(x,0)); g.append(t); });
+    $("keepEmpty").hidden=keeps.length>0;
+    // home entry
+    const last=keeps.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).find(x=>(x.photos||[]).length);
+    const th=$("keepTh"); if(last){ const u=urlFor(last.photos[0]); th.textContent=u?"":"🧸"; th.style.backgroundImage=u?cssUrl(u):""; } else { th.textContent="🧸"; th.style.backgroundImage=""; }
+    $("keepSub").textContent=keeps.length?keeps.length+"点・最近「"+(keeps.slice().sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))[0].title||"")+"」":"おもちゃ・作ってくれたもの・記念のものを写真で残す";
+  }
+  $("keepEntry").addEventListener("click",()=>selectTab("keep"));
+  $("keepBack").addEventListener("click",()=>selectTab("home"));
+  $("keepAdd").addEventListener("click",()=>openKeepForm(null));
+  function renderKpPhotos(){ const box=$("kpPhotos"); box.replaceChildren();
+    kpPhotos.forEach((p,i)=>{ const d=el("span","ph"); const u=p.url||urlFor(p.path); if(u) d.style.backgroundImage=cssUrl(u);
+      const x=el("button","","×"); x.type="button"; x.setAttribute("aria-label",(i+1)+"枚目を外す"); x.addEventListener("click",()=>{ kpPhotos.splice(i,1); renderKpPhotos(); }); d.append(x); box.append(d); });
+    if(kpPhotos.length<KEEP_MAX){ const a=el("button","add","＋ 写真"); a.type="button"; a.addEventListener("click",()=>{ $("kpFile").value=""; $("kpFile").click(); }); box.append(a); } }
+  function openKeepForm(x){
+    kpEditing=x&&x.id?x:null; kpPhotos=(x&&x.photos||[]).map(path=>({path}));
+    const cs=$("kpCat"); if(!cs.options.length) Object.entries(KEEP_CAT).forEach(([k,l])=>{ const o=document.createElement("option"); o.value=k; o.textContent=l; cs.append(o); });
+    $("kpTitleH").textContent=kpEditing?"もの思い出を直す":"もの思い出を残す"; $("kpSave").textContent=kpEditing?"保存する":"残す"; $("kpDel").hidden=!kpEditing;
+    $("kpName").value=x&&x.title||""; $("kpDate").value=x&&x.date||todayKey; cs.value=x&&KEEP_CAT[x.cat]?x.cat:"toy"; $("kpWho").value=x?(x.who||""):"yuzu"; $("kpMemo").value=x&&x.memo||""; $("kpGone").checked=!!(x&&x.gone);
+    renderKpPhotos(); $("kpScrim").hidden=false;
+  }
+  $("kpFile").addEventListener("change",async()=>{ const files=[...($("kpFile").files||[])].slice(0,KEEP_MAX-kpPhotos.length);
+    for(const f of files){ try{ const r=await shrinkPhoto(f); kpPhotos.push({blob:r.blob,w:r.w,h:r.h,url:URL.createObjectURL(r.blob)}); }catch(e){ status("使えない写真がありました",true); } }
+    renderKpPhotos(); });
+  $("kpClose").addEventListener("click",()=>{$("kpScrim").hidden=true});
+  $("kpScrim").addEventListener("click",e=>{if(e.target===$("kpScrim"))$("kpScrim").hidden=true});
+  $("kpForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return; const title=$("kpName").value.trim(); if(!title) return;
+    const btn=$("kpSave"); btn.disabled=true;
+    try{
+      const paths=[]; let n=0;
+      for(const p of kpPhotos){ if(p.path){ paths.push(p.path); continue; } n++; btn.textContent="写真をのせています… "+n; const j=await window.__koyomiApi("keep_upload",{image:await toB64(p.blob),w:p.w,h:p.h}); paths.push(j.path); }
+      const data={title,date:$("kpDate").value||todayKey,cat:$("kpCat").value,who:$("kpWho").value,memo:$("kpMemo").value.trim(),gone:$("kpGone").checked,photos:paths};
+      if(kpEditing){ const removed=(kpEditing.photos||[]).filter(x=>!paths.includes(x)); await db.collection("keeps").doc(kpEditing.id).update(data); if(removed.length) window.__koyomiApi("keep_remove",{paths:removed}).catch(()=>{}); }
+      else await db.collection("keeps").add(Object.assign({createdAt:new Date().toISOString()},data));
+      $("kpScrim").hidden=true; status(kpEditing?"保存しました":"もの思い出に残しました"); selectTab("keep");
+    }catch(e){ status("保存できませんでした。電波のよいところでもう一度。",true); }
+    finally{ btn.disabled=false; btn.textContent=kpEditing?"保存する":"残す"; } });
+  $("kpDel").addEventListener("click",async()=>{ if(!kpEditing) return; if(!confirm("「"+(kpEditing.title||"")+"」を消しますか？写真も消えます。")) return;
+    try{ const ph=kpEditing.photos||[]; await db.collection("keeps").doc(kpEditing.id).delete(); if(ph.length) window.__koyomiApi("keep_remove",{paths:ph}).catch(()=>{}); $("kpScrim").hidden=true; status("消しました"); }catch(e){ status("消せませんでした。",true); } });
+
   /* ---------- パパのノート: personal space (server keeps it to the owner) ---------- */
   const meName=()=>{ const m=window.__koyomiMe?window.__koyomiMe():"papa"; return m==="mama"?"ママ":"パパ"; };
   let kuMode="thing", kuEditing=null;
@@ -3118,7 +3238,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   }
 
   /* ---------- tabs ---------- */
-  const TABS=["home","cal","todo","shop","wish","more","me"];
+  const TABS=["home","cal","todo","shop","wish","more","me","keep"];
   let lastTab="home";
   function selectTab(k){
     if(k!=="more") lastTab=k; $("fab").hidden=(k==="more");
@@ -3147,7 +3267,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     return j;
   }
   window.__koyomiApi=(a,d)=>api(a,d);
-  const KIND={notes:"note",photos:"photo",events:"event",todos:"todo",shopping:"shop",wishes:"wish",garbage:"garbage",places:"place",outings:"outing",things:"thing",recipes:"recipe",routines:"routine"};
+  const KIND={notes:"note",photos:"photo",events:"event",todos:"todo",shopping:"shop",wishes:"wish",garbage:"garbage",places:"place",outings:"outing",things:"thing",recipes:"recipe",routines:"routine",keeps:"keep"};
   const recs=new Map(); const L={}; const DL={};
   const snapOf=c=>({docs:[...recs.values()].filter(r=>r.kind===KIND[c]).map(r=>({id:r.id,data:()=>r.owner?Object.assign({},r.payload,{_private:true}):r.payload}))});
   const infoOf=k=>{const r=[...recs.values()].find(x=>x.kind==="info"&&x.payload&&x.payload.key===k);return {exists:!!r,data:()=>r?r.payload:undefined}};
@@ -3262,6 +3382,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("things").onSnapshot(s=>{things=rows(s);renderMe();renderShop()});
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
+      db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
       db.collection("notes").onSnapshot(s=>{const all=rows(s); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});

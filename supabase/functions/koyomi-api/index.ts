@@ -4,7 +4,7 @@ const ORIGINS = ['https://ec0194ii-ops.github.io', ...(Deno.env.get('KOYOMI_EXTR
 const BASE = Deno.env.get('SUPABASE_URL')!;
 const ADMIN = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const MEMBERS: Record<string, string> = { papa: 'パパ', mama: 'ママ' };
-const WRITABLE = ['event', 'todo', 'shop', 'wish', 'garbage', 'place', 'note', 'thing', 'recipe', 'routine'];
+const WRITABLE = ['event', 'todo', 'shop', 'wish', 'garbage', 'place', 'note', 'thing', 'recipe', 'routine', 'keep'];
 // Privacy: a record with an owner belongs to that person only. It is never sent to, shown to, or notified to anyone else.
 const visibleTo = (member: string | null) => (r: any) => !r.owner || (member !== null && r.owner === member);
 const enc = new TextEncoder();
@@ -132,7 +132,7 @@ const later = (p: Promise<unknown>) => { const w = (globalThis as any).EdgeRunti
 const md = (k: unknown) => { const m = String(k || '').match(/^\d{4}-(\d{2})-(\d{2})$/); return m ? `${+m[1]}/${+m[2]}` : ''; };
 function describe(kind: string, p: any, old: any, created: boolean, deleted: boolean) {
   const t = kind === 'shop' ? p.name : p.title;
-  const label = kind === 'event' ? `予定「${t}」${p.date ? `（${md(p.date)}）` : ''}` : kind === 'todo' ? `Todo「${t}」` : kind === 'shop' ? `買い物「${t}」` : kind === 'wish' ? `Wish「${t}」` : '';
+  const label = kind === 'event' ? `予定「${t}」${p.date ? `（${md(p.date)}）` : ''}` : kind === 'todo' ? `Todo「${t}」` : kind === 'shop' ? `買い物「${t}」` : kind === 'wish' ? `Wish「${t}」` : kind === 'keep' ? `もの思い出「${t}」` : '';
   if (!label) return '';
   if (deleted) return `${label}を消しました`;
   if (created) return `${label}を追加しました`;
@@ -344,7 +344,7 @@ async function morningText(member: string) {
 
 /* ---------- memories: one photo per day in a private bucket; only this function can read or write it ---------- */
 const BUCKET = 'koyomi-photos';
-const PHOTO_PATH = /^\d{4}-\d{2}-\d{2}\/[0-9a-f]{24}\.jpg$/;
+const PHOTO_PATH = /^(\d{4}-\d{2}-\d{2}|keep)\/[0-9a-f]{24}\.jpg$/;   // day photos, and もの思い出 (keepsakes)
 async function storage(method: string, path: string, body?: BodyInit, type = 'application/json', extra: Record<string, string> = {}) {
   const r = await fetch(`${BASE}/storage/v1/${path}`, { method, headers: { apikey: ADMIN, Authorization: `Bearer ${ADMIN}`, 'Content-Type': type, ...extra }, body });
   if (!r.ok) fail(503, 'photo_storage_unavailable');
@@ -495,7 +495,7 @@ async function readBody(req: Request) {
   const chunks: Uint8Array[] = []; let size = 0;
   while (true) { const { done, value } = await reader!.read(); if (done) break; size += value.length; if (size > 1500000) { await reader!.cancel(); fail(413, 'body_too_large'); } chunks.push(value); }
   let out: any; try { out = JSON.parse(new TextDecoder().decode(cat(...chunks))); } catch { fail(400, 'invalid_json'); }
-  if (size > 200000 && out?.action !== 'photo_upload') fail(413, 'body_too_large');   // only photos may be big
+  if (size > 200000 && out?.action !== 'photo_upload' && out?.action !== 'keep_upload') fail(413, 'body_too_large');   // only photos may be big
   return out;
 }
 
@@ -675,6 +675,22 @@ Deno.serve(async req => {
       if (live && !body.add) await removeObject(old.payload.path);
       await later(sendPush(session.member, `${who}が${md(date)}の思い出写真を${body.add && live ? '足しました' : live ? '変えました' : 'のせました'}${caption ? `「${caption.slice(0, 30)}」` : ''}`, 'koyomi-photo'));
       return response({ record: r });
+    }
+    if (body.action === 'keep_upload') {   // a photo for もの思い出; the record itself is saved like any other item
+      await limit(`keep:${actor}`, 60);
+      const b64 = text(body.image, 1450000, true);
+      let bytes: Uint8Array; try { bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0)); } catch { fail(400, 'invalid_image'); }
+      if (bytes!.length > 1000000) fail(413, 'image_too_large');
+      if (!(bytes![0] === 0xff && bytes![1] === 0xd8 && bytes![2] === 0xff)) fail(400, 'jpeg_required');
+      const path = `keep/${hex(crypto.getRandomValues(new Uint8Array(12)))}.jpg`;
+      await storage('POST', `object/${BUCKET}/${path}`, bytes! as any, 'image/jpeg', { 'x-upsert': 'false', 'cache-control': 'private, max-age=600' });
+      return response({ path });
+    }
+    if (body.action === 'keep_remove') {
+      await limit(`write:${actor}`, 120, 60000);
+      const paths = (Array.isArray(body.paths) ? body.paths : []).filter((x: unknown) => typeof x === 'string' && /^keep\/[0-9a-f]{24}\.jpg$/.test(x as string)).slice(0, 20);
+      for (const x of paths) await removeObject(x);
+      return response({ ok: true });
     }
     if (body.action === 'photo_caption') {
       await limit(`write:${actor}`, 120, 60000);
