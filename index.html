@@ -692,6 +692,46 @@ a.btn{text-decoration:none;display:inline-block}
 .aisle .qty{display:inline-block;margin-left:6px;font-family:var(--f-num);font-size:12px;color:var(--accent);font-weight:700}
 .aisle.bought{opacity:.7}
 
+
+/* weather, laid out like a weather app: today | tomorrow, hourly strip, week list */
+.yw{padding:0;overflow:hidden}
+.yw .td2{display:grid;grid-template-columns:1fr 1fr}
+.yw .dcard{padding:14px 12px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.yw .dcard+.dcard{border-left:1px solid var(--line)}
+.yw .dcard .dl{font-size:13px;font-weight:700;color:var(--muted)}
+.yw .dcard .dl b{color:var(--fg)}
+.yw .dcard .wi{width:74px;height:52px}
+.yw .dcard .tx{font-size:14px;font-weight:700}
+.yw .dcard .ywp{font-family:var(--f-num);font-size:15px;color:var(--cold)}
+.yw .dcard .ywp small{font-size:11px}
+.yw .dcard .tt{font-family:var(--f-num);font-size:22px;display:flex;gap:10px;align-items:baseline}
+.yw .dcard .tt .hi{color:var(--hot)} .yw .dcard .tt .lo{color:var(--cold)}
+.yw .dcard .tt small{font-size:12px}
+.yw .hrs{border-top:1px solid var(--line);display:flex}
+.yw .hrs .lab{flex:none;width:44px;display:grid;grid-template-rows:26px 34px 24px 22px;font-size:11px;color:var(--muted);padding:6px 0 8px 10px;align-items:center}
+.yw .hscroll2{overflow-x:auto;scrollbar-width:none;flex:1}
+.yw .hscroll2::-webkit-scrollbar{display:none}
+.yw .hcols{display:flex}
+.yw .hc{flex:none;width:58px;display:grid;grid-template-rows:26px 34px 24px 22px;justify-items:center;align-items:center;padding:6px 0 8px;font-family:var(--f-num)}
+.yw .hc .h{font-size:13px;color:var(--fg);width:100%;text-align:center;border-bottom:2px solid var(--line)}
+.yw .hc.now .h{border-color:var(--accent);color:var(--accent);font-weight:700}
+.yw .hc.day0 .h{position:relative}
+.yw .hc .d{font-size:9.5px;color:var(--muted);display:block;line-height:1}
+.yw .hc .wi{width:30px;height:26px}
+.yw .hc .t{font-size:14px}
+.yw .hc .p{font-size:12.5px;color:var(--cold)}
+.yw .week{border-top:1px solid var(--line)}
+.yw .wr{display:grid;grid-template-columns:62px 54px 1fr 1fr 48px 22px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);font-family:var(--f-num);font-size:15px}
+.yw .wr:first-child{border-top:0}
+.yw .wr .dd{font-size:14px} .yw .wr .dd span{font-size:12px;margin-left:2px}
+.yw .wr .dd.sun span,.yw .wr .dd.hol span{color:var(--hot)} .yw .wr .dd.sat span{color:var(--cold)}
+.yw .wr .wi{width:40px;height:28px}
+.yw .wr .hi{color:var(--hot);text-align:right;padding-right:8px} .yw .wr .lo{color:var(--cold);text-align:left;padding-left:8px}
+.yw .wr .ywp{text-align:right;font-size:13px}
+.yw .wr .rl{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--sunk);color:var(--muted);font-size:10px;font-weight:700;justify-self:end}
+.yw .foot{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);text-decoration:none}
+.yw .foot b{color:var(--accent);font-size:12.5px}
+
 /* ---------- bottom nav + fab ---------- */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
@@ -900,10 +940,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="card"><div id="dlList"></div></div>
   </div>
   <div class="sec" id="wxSec" hidden>
-    <div class="sech"><div><div class="eyebrow">Weather</div><h2>今日の天気</h2></div><span class="sub">大津市</span></div>
-    <div class="card wxcard" id="wxHome">
-      <div class="wxfoot"><span id="wxMeta"></span><span class="wxhint">週間はカレンダーの「週」で</span></div>
-    </div>
+    <div class="sech"><div><div class="eyebrow">Weather</div><h2>大津市の天気</h2></div><span class="sub" id="wxMeta"></span></div>
+    <div class="card yw" id="wxHome"></div>
   </div>
   <div class="sec" id="memSec">
     <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
@@ -1366,7 +1404,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   let wxSel=todayKey;
   function dayTemps(k){ const h=(weather&&Array.isArray(weather.hourly)?weather.hourly:[]).filter(x=>x&&x.t&&x.t.slice(0,10)===k&&x.temp!=null).map(x=>x.temp); return h.length?{hi:Math.max(...h),lo:Math.min(...h)}:null; }
   const hiOf=x=>x.hi??(dayTemps(x.date)||{}).hi;
-  const loOf=x=>(x.lo!=null&&!(x.hi!=null&&x.lo>=x.hi))?x.lo:(dayTemps(x.date)||{}).lo;   // 気象庁 sometimes repeats the max in the min slot
+  const loOf=x=>(x.lo!=null&&!(x.hi!=null&&x.lo>=x.hi))?x.lo:(x.date===todayKey?null:(dayTemps(x.date)||{}).lo);   // today's early-morning low is no longer in the 3-hourly data   // 気象庁 sometimes repeats the max in the min slot
   const yahooUrl=()=>(weather&&typeof weather.url==="string"&&/^https:\/\/weather\.yahoo\.co\.jp\//.test(weather.url))?weather.url:"https://weather.yahoo.co.jp/weather/jp/25/6010/25201.html";
   function wxPanel(k){
     const days=weather&&Array.isArray(weather.days)?weather.days:[];
@@ -1376,6 +1414,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     const pnl=el("a","wxpanel"); pnl.href=yahooUrl(); pnl.target="_blank"; pnl.rel="noopener";
     const head=el("div","wxph"); head.append(el("b","",k===todayKey?"今日の3時間ごとの天気":fmtDay(k)+"の天気"), el("span","","Yahoo!天気で見る ›"));
     pnl.append(head);
+    if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ st.style.borderTop="0"; pnl.append(st); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
     if(k===todayKey&&hourly.length>=3){
       const n=hourly.length, W=58, H=78, w=n*W;
       const temps=hourly.map(h=>h.temp), mx=Math.max(...temps), mn=Math.min(...temps), rg=Math.max(1,mx-mn);
@@ -1408,12 +1447,53 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     }
     return pnl;
   }
+
+  /* flat weather icons (sun / cloud / umbrella / snow), combined for 「くもり時々雨」 etc. */
+  function wxKind(t){ t=String(t||""); const k=[]; if(/晴/.test(t)) k.push("sun"); if(/くもり|曇/.test(t)) k.push("cloud"); if(/雨/.test(t)) k.push("rain"); if(/雪/.test(t)) k.push("snow"); if(/雷/.test(t)) k.push("rain"); return k.length?[...new Set(k)].slice(0,2):["cloud"]; }
+  const WXSVG={
+    sun:(x,y,r)=>`<g transform="translate(${x} ${y})"><circle r="${r*.55}" fill="#f2994a" stroke="#fff" stroke-width="2"/>${[...Array(8)].map((_,i)=>{const a=i*Math.PI/4,c=Math.cos(a),s=Math.sin(a);return `<line x1="${c*r*.72}" y1="${s*r*.72}" x2="${c*r*.95}" y2="${s*r*.95}" stroke="#f2994a" stroke-width="${r*.12}" stroke-linecap="round"/>`}).join("")}</g>`,
+    cloud:(x,y,r)=>`<g transform="translate(${x} ${y})"><path d="M${-r*.9} ${r*.35}a${r*.38} ${r*.38} 0 0 1 ${r*.12}-${r*.74}a${r*.5} ${r*.5} 0 0 1 ${r*.92}-${r*.16}a${r*.36} ${r*.36} 0 0 1 ${r*.66} ${r*.9}z" fill="#a3a7ad" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></g>`,
+    rain:(x,y,r)=>`<g transform="translate(${x} ${y})"><path d="M${-r*.9} 0a${r*.9} ${r*.9} 0 0 1 ${r*1.8} 0z" fill="#5b7fe0"/><path d="M0 0v${r*.75}a${r*.22} ${r*.22} 0 0 1-${r*.44} 0" fill="none" stroke="#5b7fe0" stroke-width="${r*.16}" stroke-linecap="round"/></g>`,
+    snow:(x,y,r)=>`<g transform="translate(${x} ${y})" stroke="#7cb6d8" stroke-width="${r*.14}" stroke-linecap="round">${[0,60,120].map(a=>`<line x1="0" y1="${-r*.8}" x2="0" y2="${r*.8}" transform="rotate(${a})"/>`).join("")}</g>`
+  };
+  function wxIcon(text,cls){
+    const k=wxKind(text), sp=document.createElement("span"); sp.className="wi "+(cls||""); sp.setAttribute("aria-hidden","true");
+    const one=k.length===1;
+    const body=one?WXSVG[k[0]](50,36,30):(WXSVG[k[0]](36,38,26)+WXSVG[k[1]](70,30,22));
+    sp.innerHTML=`<svg viewBox="0 0 100 70" width="100%" height="100%">${body}</svg>`; return sp;
+  }
+  const dowCls=k=>{const dw=k2d(k).getDay();return dw===0?" sun":dw===6?" sat":""};
+  function hourlyStrip(k){
+    const hs=(Array.isArray(weather&&weather.hourly)?weather.hourly:[]).filter(h=>h&&h.t&&h.temp!=null);
+    if(!hs.length) return null;
+    const wrap=el("div","hrs"); const lab=el("div","lab"); lab.append(el("span","","時刻"),el("span",""),el("span","","気温"),el("span","","降水")); wrap.append(lab);
+    const sc=el("div","hscroll2"); const cols=el("div","hcols");
+    const nowH=now.getHours();
+    hs.forEach((h,i)=>{ const d=h.t.slice(0,10); const c=el("div","hc"+(d===todayKey&&h.h<=nowH&&nowH<h.h+3?" now":""));
+      const hh=el("span","h",String(h.h)); if(i===0||h.h===0) hh.append(el("span","d",d===todayKey?"今日":d===tmrKey?"明日":md(d))); c.append(hh);
+      c.append(wxIcon(h.text||h.icon||"")); c.append(el("span","t",h.temp+"°")); c.append(el("span","p",h.pop!=null?h.pop+"%":"—")); cols.append(c); });
+    sc.append(cols); wrap.append(sc); return wrap;
+  }
   function renderWx(){
-    const home=$("wxHome"); [...home.querySelectorAll(".wxpanel")].forEach(n=>n.remove());
-    const pnl=weather?wxPanel(todayKey):null;
-    $("wxSec").hidden=!pnl; if(!pnl) return;
-    pnl.style.marginTop="0"; home.prepend(pnl);
+    const box=$("wxHome"); box.replaceChildren();
+    const days=weather&&Array.isArray(weather.days)?weather.days:[];
+    $("wxSec").hidden=!days.length; if(!days.length) return;
     $("wxMeta").textContent=(weather.updated?weather.updated+" 更新":"");
+    const top=el("div","td2");
+    [todayKey,tmrKey].forEach((k,i)=>{ const d=days.find(x=>x.date===k); const c=el("div","dcard"); const dl=el("span","dl"); dl.append(el("b","",i?"明日":"今日")," "+md(k)+"（"+DOW[k2d(k).getDay()]+"）"); c.append(dl);
+      if(d){ c.append(wxIcon(d.text)); c.append(el("span","tx",d.text||"")); if(d.pop!=null){const p=el("span","ywp");p.append("💧"+d.pop,el("small","","%"));c.append(p)}
+        const tt=el("span","tt"); tt.append(el("span","hi",(hiOf(d)??"--")+"°"),el("span","lo",loOf(d)!=null?loOf(d)+"°":"--")); c.append(tt); }
+      else c.append(el("span","tx","—"));
+      top.append(c); });
+    box.append(top);
+    const hs=hourlyStrip(todayKey); if(hs) box.append(hs);
+    const rest=days.filter(d=>d.date>tmrKey);
+    if(rest.length){ const w=el("div","week");
+      rest.forEach(d=>{ const r=el("div","wr"); const dd=el("span","dd"+dowCls(d.date)+(HOL[d.date]?" hol":"")); dd.append(String(k2d(d.date).getDate()),el("span","","（"+DOW[k2d(d.date).getDay()]+"）")); r.append(dd);
+        r.append(wxIcon(d.text)); r.append(el("span","hi",(hiOf(d)??"-")+"°")); r.append(el("span","lo",(loOf(d)??"-")+"°")); r.append(el("span","ywp",d.pop!=null?d.pop+"%":"")); r.append(el("span","rl",d.rel||"")); if(!d.rel) r.lastChild.style.visibility="hidden";
+        w.append(r); });
+      box.append(w); }
+    const a=el("a","foot"); a.href=yahooUrl(); a.target="_blank"; a.rel="noopener"; a.append(el("span","","予報：気象庁"+(weather.source&&/Open/.test(weather.source)?"・Open-Meteo":"")+"　信頼度 A〜C"), el("b","","Yahoo!天気で見る ›")); box.append(a);
   }
 
   /* ---------- this-month overview ---------- */
