@@ -199,6 +199,19 @@ async function rainMm() {
   (j.hourly?.time || []).forEach((t: string, i: number) => { const v = j.hourly.precipitation?.[i]; if (v != null) out[t.slice(0, 13)] = Number(v); });
   return out;
 }
+// 雨雲レーダー: the frame times of 気象庁's 高解像度降水ナウキャスト (the tiles themselves load straight from jma.go.jp)
+let radarCache: { at: number; data: unknown } | null = null;
+async function radarTimes() {
+  if (radarCache && Date.now() - radarCache.at < 60000) return radarCache.data;
+  const get = async (n: string) => { const r = await fetch(`https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_${n}.json`); if (!r.ok) fail(502, 'radar_unavailable'); return await r.json(); };
+  const [a, b] = await Promise.all([get('N1'), get('N2')]);
+  const ok = (x: any) => x && /^\d{14}$/.test(x.basetime) && /^\d{14}$/.test(x.validtime) && Array.isArray(x.elements) && x.elements.includes('hrpns');
+  const by = (x: any, y: any) => String(x.validtime).localeCompare(String(y.validtime));
+  const past = (Array.isArray(a) ? a : []).filter(ok).sort(by).slice(-13);
+  const fut = (Array.isArray(b) ? b : []).filter(ok).sort(by).slice(0, 12);
+  const data = { frames: [...past.map((x: any) => ({ b: x.basetime, v: x.validtime, f: 0 })), ...fut.map((x: any) => ({ b: x.basetime, v: x.validtime, f: 1 }))] };
+  radarCache = { at: Date.now(), data }; return data;
+}
 function wmo(c: number): [string, string] {
   if (c === 0) return ['☀️', '晴れ'];
   if (c === 1 || c === 2) return ['⛅', '晴れ時々くもり'];
@@ -618,6 +631,7 @@ Deno.serve(async req => {
       const u = `${BASE}/functions/v1/koyomi-api?ics=${t}`;
       return response({ url: u, webcal: u.replace(/^https:/, 'webcal:') });
     }
+    if (body.action === 'radar_times') { await limit(`radar:${actor}`, 300); return response(await radarTimes()); }
     if (body.action === 'og_image') { await limit(`og:${actor}`, 120); return response({ image: await ogImage(httpsUrl(body.url)) }); }
 
 

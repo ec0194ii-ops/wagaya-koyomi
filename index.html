@@ -318,6 +318,25 @@ a.btn{text-decoration:none;display:inline-block}
 .wxpanel:active{opacity:.85}
 .wxph{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
 .wxph b{font-size:14px}
+#wxHome,.wxpanel{cursor:pointer}
+.radar{margin-top:12px;background:var(--paper);border-radius:22px;box-shadow:inset 0 0 0 1px var(--line);padding:12px;cursor:default}
+.radar .rh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.radar .rh b{font-size:14px}
+.radar .rt{flex:1;font-family:var(--f-num);font-size:12.5px;color:var(--muted)} .radar .rt.fc{color:var(--accent);font-weight:700}
+.radar .rz,.radar .rp{border:1px solid var(--line);background:var(--paper);color:var(--fg);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700}
+.radar .rp{min-width:40px}
+.rmap{position:relative;height:240px;border-radius:14px;overflow:hidden;background:#eef0ee;touch-action:pan-y}
+.rlayer,.rf{position:absolute;inset:0}
+.rmap img{position:absolute;width:256px;height:256px;max-width:none;user-select:none;-webkit-user-drag:none}
+.rlayer.rain img{opacity:.85}
+.rpin{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--hot);box-shadow:0 0 0 3px #fff}
+.rpin span{position:absolute;left:12px;top:-6px;font-size:11px;font-weight:700;color:#333;background:rgba(255,255,255,.85);padding:1px 5px;border-radius:6px;white-space:nowrap}
+.rsl{width:100%;margin:10px 0 4px;accent-color:var(--accent)}
+.rleg{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:10.5px;color:var(--muted);align-items:center}
+.rleg .rlc{display:inline-flex;align-items:center;gap:3px} .rleg .rlc span{display:inline-block;width:12px;height:8px;border-radius:2px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.rsrc{font-size:10.5px;color:var(--faint,var(--muted));margin:6px 0 0}
+.rdet{margin-top:8px} .rdet summary{font-size:13px;font-weight:700;color:var(--accent);padding:6px 2px;cursor:pointer}
+.rdet .radar{margin-top:6px;box-shadow:none;padding:4px 0 0}
 .wxph span,.wxph a{font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap;text-decoration:none;padding:6px 0 6px 10px}
 .hscroll{overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
 .hscroll::-webkit-scrollbar{display:none}
@@ -1019,6 +1038,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="sec" id="wxSec" hidden>
     <div class="sech"><div><div class="eyebrow">Weather</div><h2>大津市の天気</h2></div><span class="sub" id="wxMeta"></span></div>
     <div class="card yw" id="wxHome"></div>
+    <div id="radarHome"></div>
   </div>
   <div class="sec" id="memSec">
     <div class="sech"><div><div class="eyebrow">Memories</div><h2>思い出</h2></div><span class="sub" id="memSub"></span></div>
@@ -1557,6 +1577,20 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const hiOf=x=>x.hi??(dayTemps(x.date)||{}).hi;
   const loOf=x=>(x.lo!=null&&!(x.hi!=null&&x.lo>=x.hi))?x.lo:(x.date===todayKey?null:(dayTemps(x.date)||{}).lo);   // today's early-morning low is no longer in the 3-hourly data   // 気象庁 sometimes repeats the max in the min slot
   const isStandalone=()=>(window.navigator.standalone===true)||matchMedia("(display-mode: standalone)").matches;
+  function openYahoo(u){
+    u=u||yahooUrl();
+    if(!(isStandalone()&&/iPhone|iPad|iPod/.test(navigator.userAgent))){ window.open(u,"_blank","noopener"); return; }
+    let left=false;
+    const onHide=()=>{left=true}; document.addEventListener("visibilitychange",onHide,{once:true});
+    location.href="x-safari-"+u;
+    setTimeout(()=>{ document.removeEventListener("visibilitychange",onHide); if(!left) window.open(u,"_blank"); },700);
+  }
+  // tapping the weather anywhere (not a button, not the radar) opens Yahoo!天気 for the details
+  document.addEventListener("click",ev=>{
+    const w=ev.target.closest("#wxHome,.wxpanel"); if(!w||ev.defaultPrevented) return;
+    if(ev.target.closest("a,button,input,select,summary,.radar,.rdet")) return;
+    openYahoo();
+  });
   document.addEventListener("click",ev=>{
     const a=ev.target.closest("a[href^='https://weather.yahoo.co.jp/']"); if(!a) return;
     if(!(isStandalone()&&/iPhone|iPad|iPod/.test(navigator.userAgent))) return;
@@ -1576,7 +1610,8 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const yl=el("a","","Yahoo!天気で見る ›"); yl.href=yahooUrl(); yl.target="_blank"; yl.rel="noopener";
     const head=el("div","wxph"); head.append(el("b","",k===todayKey?"今日の3時間ごとの天気":fmtDay(k)+"の天気"), yl);
     pnl.append(head);
-    if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ const w0=el("div","yw"); w0.append(st); pnl.append(w0); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
+    if(k===todayKey&&hourly.length>=3&&window.__useStrip!==false){ const st=hourlyStrip(k); if(st){ const w0=el("div","yw"); w0.append(st); pnl.append(w0);
+      const det=el("details","rdet"); const sm=el("summary","","☂ 雨雲レーダーを見る"); const rh=el("div"); det.append(sm,rh); det.addEventListener("toggle",()=>{ if(det.open) radarMount(rh); }); pnl.append(det); pnl.setAttribute("aria-label","今日の3時間ごとの天気。Yahoo!天気で詳しく見る"); return pnl; } }
     if(k===todayKey&&hourly.length>=3){
       const n=hourly.length, W=58, H=78, w=n*W;
       const temps=hourly.map(h=>h.temp), mx=Math.max(...temps), mn=Math.min(...temps), rg=Math.max(1,mx-mn);
@@ -1636,6 +1671,52 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       c.append(wxIcon(h.text||h.icon||"")); c.append(el("span","t",h.temp+"°")); c.append(el("span","p",h.pop!=null?h.pop+"%":"—")); cols.append(c); });
     sc.append(cols); wrap.append(sc); return wrap;
   }
+  /* ---------- 雨雲レーダー: 気象庁 高解像度降水ナウキャスト on 地理院タイル, 1 hour back and 1 hour ahead ---------- */
+  const RADAR_CENTER=[35.0045,135.8686];   // 大津市役所あたり
+  let radarFrames=null, radarAt=0;
+  async function radarTimes(){ if(radarFrames&&Date.now()-radarAt<120000) return radarFrames;
+    const r=await window.__koyomiApi("radar_times",{}); radarFrames=Array.isArray(r&&r.frames)?r.frames:[]; radarAt=Date.now(); return radarFrames; }
+  const utcToJst=t=>new Date(Date.UTC(+t.slice(0,4),+t.slice(4,6)-1,+t.slice(6,8),+t.slice(8,10),+t.slice(10,12)));
+  const hm=d=>d.getHours()+":"+pad(d.getMinutes());
+  const RCOL=[["#F2F2FF","〜1"],["#A0D2FF","1"],["#218CFF","5"],["#0041FF","10"],["#FAF500","20"],["#FF9900","30"],["#FF2800","50"],["#B40068","80〜"]];
+  function radarMount(host){
+    if(!host||host.dataset.on) return; host.dataset.on="1";
+    const box=el("div","radar");
+    const head=el("div","rh"); const ttl=el("b","","雨雲レーダー"); const when=el("span","rt","読みこみ中…");
+    const zb=el("button","rz","広く"); zb.type="button"; const pb=el("button","rp","▶"); pb.type="button"; pb.setAttribute("aria-label","動かして見る");
+    head.append(ttl,when,zb,pb); box.append(head);
+    const map=el("div","rmap"); map.setAttribute("role","img"); map.setAttribute("aria-label","大津周辺の雨雲の様子");
+    const base=el("div","rlayer"), rain=el("div","rlayer rain"), pin=el("div","rpin"); pin.append(el("span","","大津")); map.append(base,rain,pin); box.append(map);
+    const sl=document.createElement("input"); sl.type="range"; sl.className="rsl"; sl.min="0"; sl.step="1"; sl.setAttribute("aria-label","時刻"); box.append(sl);
+    const scale=el("div","rleg"); RCOL.forEach(([c,t])=>{ const i=el("span"); i.style.background=c; scale.append(el("span","rlc",""),); scale.lastChild.append(i,t); }); scale.append(el("span","rlu","mm/h")); box.append(scale);
+    box.append(el("p","rsrc","出典：気象庁（高解像度降水ナウキャスト）・地理院タイル　｜　右上の▶で1時間先まで動きます"));
+    host.append(box);
+    let z=10, frames=[], idx=0, timer=null; const layers={};
+    function tiles(){ const W=map.clientWidth||340, H=map.clientHeight||240, n=2**z, la=RADAR_CENTER[0]*Math.PI/180;
+      const cx=(RADAR_CENTER[1]+180)/360*n*256, cy=(1-Math.log(Math.tan(la)+1/Math.cos(la))/Math.PI)/2*n*256;
+      const out=[]; for(let tx=Math.floor((cx-W/2)/256);tx<=Math.floor((cx+W/2)/256);tx++) for(let ty=Math.floor((cy-H/2)/256);ty<=Math.floor((cy+H/2)/256);ty++) out.push({tx,ty,l:Math.round(tx*256-cx+W/2),t:Math.round(ty*256-cy+H/2)}); return out; }
+    function img(src,t){ const i=new Image(); i.alt=""; i.decoding="async"; i.src=src; i.style.left=t.l+"px"; i.style.top=t.t+"px"; i.onerror=()=>{i.style.visibility="hidden"}; return i; }
+    function drawBase(){ base.replaceChildren(); tiles().forEach(t=>base.append(img(`https://cyberjapandata.gsi.go.jp/xyz/pale/${z}/${t.tx}/${t.ty}.png`,t))); }
+    function layer(i){ const f=frames[i], key=z+"|"+f.b+"|"+f.v; if(layers[key]) return layers[key];
+      const d=el("div","rf"); tiles().forEach(t=>d.append(img(`https://www.jma.go.jp/bosai/jmatile/data/nowc/${f.b}/none/${f.v}/surf/hrpns/${z}/${t.tx}/${t.ty}.png`,t))); rain.append(d); layers[key]=d; return d; }
+    function show(i){ idx=i; sl.value=i; const f=frames[i]; if(!f) return;
+      [...rain.children].forEach(c=>c.hidden=true); layer(i).hidden=false;
+      const t=utcToJst(f.v), now=frames.findIndex(x=>x.f===1), diff=Math.round((t-utcToJst(frames[Math.max(0,(now<0?frames.length:now)-1)].v))/60000);
+      when.textContent=hm(t)+(diff===0?"（いま）":diff>0?"（"+diff+"分後の予報）":"（"+(-diff)+"分前）"); when.classList.toggle("fc",f.f===1);
+      if(i+1<frames.length) layer(i+1); }
+    function stop(){ if(timer){clearInterval(timer);timer=null;} pb.textContent="▶"; }
+    pb.addEventListener("click",()=>{ if(timer){stop();return;} let i=idx>=frames.length-1?0:idx; pb.textContent="❚❚"; show(i); timer=setInterval(()=>{ i++; if(i>=frames.length){stop();return;} show(i); },550); });
+    sl.addEventListener("input",()=>{ stop(); show(+sl.value); });
+    zb.addEventListener("click",()=>{ stop(); z=z===10?8:10; zb.textContent=z===10?"広く":"近く"; for(const k in layers){ layers[k].remove(); delete layers[k]; } drawBase(); show(idx); });
+    async function load(){
+      try{ frames=await radarTimes(); }catch(e){ frames=[]; }
+      if(!frames.length){ when.textContent="いまは表示できません"; return; }
+      sl.max=String(frames.length-1); drawBase();
+      const nowI=Math.max(0,frames.findIndex(x=>x.f===1)-1); show(nowI<0?frames.length-1:nowI);
+    }
+    load();
+    document.addEventListener("visibilitychange",()=>{ if(!document.hidden&&Date.now()-radarAt>300000){ for(const k in layers){ layers[k].remove(); delete layers[k]; } radarFrames=null; load(); } });
+  }
   function renderWx(){
     const box=$("wxHome"); box.replaceChildren();
     const days=weather&&Array.isArray(weather.days)?weather.days:[];
@@ -1655,6 +1736,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         r.append(wxIcon(d.text)); r.append(el("span","hi",(hiOf(d)??"-")+"°")); r.append(el("span","lo",(loOf(d)??"-")+"°")); r.append(el("span","ywp",d.pop!=null?d.pop+"%":"")); r.append(el("span","rl",d.rel||"")); if(!d.rel) r.lastChild.style.visibility="hidden";
         w.append(r); });
       box.append(w); }
+    radarMount($("radarHome"));
     const a=el("a","foot"); a.href=yahooUrl(); a.target="_blank"; a.rel="noopener"; a.append(el("span","","予報：気象庁"+(weather.source&&/Open/.test(weather.source)?"・Open-Meteo":"")+"　信頼度 A〜C"), el("b","","Yahoo!天気で見る ›")); box.append(a);
   }
 
@@ -1866,7 +1948,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const pane=document;
     pane.addEventListener("touchstart",e=>{
       const t=e.target;
-      on=!$("pane-cal").hidden&&e.touches.length===1&&!t.closest(".hscroll,.hscroll2,.hrs,.hcols,.foldbtn,.nav,.fab,.sheet,.scrim,.login,input,textarea,select,dialog");
+      on=!$("pane-cal").hidden&&e.touches.length===1&&!t.closest(".hscroll,.hscroll2,.hrs,.hcols,.radar,.foldbtn,.nav,.fab,.sheet,.scrim,.login,input,textarea,select,dialog");
       area=t.closest("#calMonth")?"cal":t.closest(".mhead,#calLegend")?"":"day";
       if(!area) on=false;
       if(!on) return;
