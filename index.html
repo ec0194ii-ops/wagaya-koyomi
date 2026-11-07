@@ -577,6 +577,16 @@ a.btn{text-decoration:none;display:inline-block}
 .seg.hlseg{grid-template-columns:repeat(4,1fr);margin:4px 0 6px} .seg.hlseg button{font-size:12px;padding-left:2px;padding-right:2px}
 .rth{padding:6px 0 8px} .rthh b{display:block;font-size:13.5px} .rthh small{display:block;font-size:11px;color:var(--muted);margin:1px 0 6px}
 .rtg{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:2px} .rtg i{display:block;aspect-ratio:1;border-radius:2px;background:var(--sunk)} .rtg i.on{background:var(--accent)} .rtg i.fu{background:transparent}
+.nwdays{display:flex;gap:6px;overflow-x:auto;margin:0 0 8px;padding-bottom:2px} .nwdays button{flex:none;border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;font-weight:700} .nwdays button[aria-pressed="true"]{background:var(--fg);color:var(--paper);border-color:var(--fg)}
+.nwh{font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.nwov{font-size:14px;line-height:1.7;margin:0 0 6px}
+.nwpt{margin:2px 0 6px;padding-left:18px;font-size:13px;line-height:1.6} .nwpt li{margin:2px 0}
+.nwsec{border-top:1px solid var(--line);padding:4px 0}
+.nwsec summary{display:flex;justify-content:space-between;align-items:baseline;cursor:pointer;list-style:none;padding:8px 0} .nwsec summary::-webkit-details-marker{display:none}
+.nwsec summary b{font-size:14.5px;color:var(--fg)} .nwsec summary small{font-size:11px;color:var(--muted)}
+.nwit{display:block;text-decoration:none;color:inherit;padding:8px 0 10px;border-top:1px dashed var(--line)}
+.nwit b{display:block;font-size:14px;line-height:1.45;color:var(--fg)} .nwm{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:var(--accent);border:1px solid currentColor;border-radius:4px;padding:0 4px;vertical-align:2px}
+.nws{display:block;font-size:12.5px;line-height:1.6;color:var(--fg);opacity:.85;margin-top:3px} .nwit small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
 .hlrh{font-size:11.5px;font-weight:700;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
 .hlr{border-bottom:1px solid var(--line);padding:6px 0} .hlr:last-child{border-bottom:0}
 .hlr summary{display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer;list-style:none;padding:4px 0} .hlr summary::-webkit-details-marker{display:none}
@@ -1231,6 +1241,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="sech"><div><div class="eyebrow">Today</div><h2 id="meToday">今日</h2></div><button type="button" class="lnk" id="meAddEv">＋ 自分の予定</button></div>
     <div class="card" id="meDay"></div>
   </div>
+  <div class="sec" id="nwSec" hidden>
+    <div class="sech"><div><div class="eyebrow">News</div><h2>けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
+    <div class="nwdays" id="nwDays"></div>
+    <div class="card" id="nwBox"></div>
+  </div>
   <div class="sec">
     <div class="sech"><div><div class="eyebrow">Routine</div><h2>毎日のルーティン</h2></div><span class="sub" id="meRtSub"></span></div>
     <div class="card"><div id="meRt"></div>
@@ -1553,7 +1568,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3088,7 +3103,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         for(let i=0;i<26*7;i++){ const k=addDays(start,i); const c=el("i",k>todayKey?"fu":lg[k]?"on":""); c.title=md(k); g.append(c); }
         w.append(g); hb.append(w); }); }
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
-    renderKu(); renderBody();
+    renderKu(); renderBody(); renderNews();
   }
   $("meRtForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("meRtIn").value.trim(); if(!v||!db) return; $("meRtIn").value="";
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
@@ -3161,6 +3176,29 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function usualFor(name){ const n=String(name||"").trim(); if(!n) return null;
     return things.find(t=>t.name===n)||things.find(t=>t.name&&(n.includes(t.name)||t.name.includes(n))&&Math.min(n.length,t.name.length)>=2)||null; }
   const usualNote=t=>t&&usualText(t)?"いつもの："+usualText(t):"";
+
+  /* ---------- けさのニュース: a daily Nikkei digest written by the morning task (private note rows type:"news") ---------- */
+  let nwSel=null;
+  const safeUrl=u=>/^https:\/\/([a-z0-9-]+\.)?nikkei\.com(\/|$)/.test(String(u||""))?String(u):null;   // only Nikkei links
+  function renderNews(){
+    const sec=$("nwSec"); if(!sec) return; sec.hidden=!news.length; if(!news.length) return;
+    if(!nwSel||!news.some(n=>n.date===nwSel)) nwSel=news[0].date;
+    const ds=$("nwDays"); ds.replaceChildren();
+    news.slice(0,7).forEach(n=>{ const b=el("button","",n.date===todayKey?"今日":md(n.date)); b.type="button"; b.setAttribute("aria-pressed",n.date===nwSel?"true":"false"); b.addEventListener("click",()=>{ nwSel=n.date; renderNews(); }); ds.append(b); });
+    const n=news.find(x=>x.date===nwSel), box=$("nwBox"); box.replaceChildren();
+    $("nwSub").textContent=(n.source||"日本経済新聞")+(n.at?" ・"+n.at:"");
+    if(n.overview){ box.append(el("div","nwh","きょうの全体像")); String(n.overview).split(/\n+/).forEach(t=>t.trim()&&box.append(el("p","nwov",t.trim()))); }
+    if(Array.isArray(n.points)&&n.points.length){ const ul=el("ul","nwpt"); n.points.forEach(t=>ul.append(el("li","",String(t)))); box.append(ul); }
+    (Array.isArray(n.sections)?n.sections:[]).forEach((sc,i)=>{ const items=Array.isArray(sc.items)?sc.items:[]; if(!items.length) return;
+      const dt=document.createElement("details"); dt.className="nwsec"; if(i<2) dt.open=true;
+      const sm=document.createElement("summary"); sm.append(el("b","",String(sc.cat||"ニュース")), el("small","",items.length+"本")); dt.append(sm);
+      items.forEach(it=>{ const u=safeUrl(it.u); const a=document.createElement(u?"a":"div"); a.className="nwit"; if(u){ a.href=u; a.target="_blank"; a.rel="noopener"; }
+        const t=el("b","",String(it.t||"")); if(it.m) t.append(el("span","nwm","会員限定")); a.append(t);
+        if(it.s) a.append(el("span","nws",String(it.s))); if(it.time) a.append(el("small","",String(it.time)+(u?" ・日経で読む ›":"")));
+        dt.append(a); });
+      box.append(dt); });
+    if(n.note) box.append(el("p","hlrn",String(n.note)));
+  }
 
   /* ---------- からだ: health numbers (private "note" records type:"health", one per day; the iPhone Shortcut also writes them) ---------- */
   const HL=[["weight","体重","kg",1],["steps","歩数","歩",0],["sleep_h","睡眠","時間",1],["rhr","安静時心拍","bpm",0],["bodyfat","体脂肪","%",1],["hrv","HRV","ms",0],["kcal","活動","kcal",0],["spo2","酸素","%",0]];
@@ -3546,7 +3584,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
