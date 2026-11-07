@@ -575,6 +575,12 @@ a.btn{text-decoration:none;display:inline-block}
 .hlt em{display:block;font-style:normal;font-size:11px;color:var(--muted)}
 .hlc{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)} .hlc span{flex:none;width:64px;white-space:nowrap;font-size:11px;font-weight:700;color:var(--muted)} .hlc svg{flex:1;height:34px;color:var(--accent)} .hlc b{flex:none;font-size:12px;min-width:52px;text-align:right} .hlc b small{display:block;font-size:10px;font-weight:600;color:var(--muted)}
 .seg.hlseg{grid-template-columns:repeat(4,1fr);margin:4px 0 6px} .seg.hlseg button{font-size:12px;padding-left:2px;padding-right:2px}
+.hlrh{font-size:11.5px;font-weight:700;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
+.hlr{border-bottom:1px solid var(--line);padding:6px 0} .hlr:last-child{border-bottom:0}
+.hlr summary{display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer;list-style:none;padding:4px 0} .hlr summary::-webkit-details-marker{display:none}
+.hlr summary b{font-size:14px;color:var(--fg)} .hlr summary small{flex:none;font-size:11px;color:var(--muted)}
+.hlr ul{margin:4px 0 4px;padding-left:18px;font-size:13px;line-height:1.6} .hlr li{margin:3px 0}
+.hlrn{font-size:11px;color:var(--muted);margin:2px 0 0}
 .hlcap{font-size:11px;color:var(--muted);margin:2px 0 0;text-align:right}
 .hlform{border-top:1px solid var(--line);padding-top:10px;margin-top:4px;display:grid;gap:8px}
 .hlin{display:flex;gap:8px} .hlin label{flex:1;min-width:0;font-size:11.5px;font-weight:700;color:var(--muted)}
@@ -1234,6 +1240,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="card">
       <div class="hltiles" id="hlTiles"></div>
       <div id="hlCharts"></div>
+      <div id="hlRep"></div>
       <form class="hlform" id="hlForm" autocomplete="off">
         <div class="hlin"><label>体重<input type="number" id="hlW" step="0.1" min="20" max="200" inputmode="decimal" placeholder="kg"></label><label>体脂肪<input type="number" id="hlF" step="0.1" min="1" max="70" inputmode="decimal" placeholder="%"></label></div>
         <button type="submit" class="btn sm">今日の分を記録</button>
@@ -1543,7 +1550,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={};
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3178,6 +3185,12 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(from) cb.append(el("p","hlcap",(hlRange==="all"?from.slice(0,4)+"年"+(+from.slice(5,7))+"月":md(from))+" 〜 今日"+(hlRange==="1y"?"（週ごとの平均）":hlRange==="all"?"（月ごとの平均）":"")));
     if(!tb.children.length) tb.append(el("p","empty","体重・体脂肪はここから記録できます。Apple Watchの歩数や睡眠は、iPhoneのショートカットから毎朝届くようになります。"));
     tb.style.display=tb.querySelector(".empty")?"block":"";
+    const rb=$("hlRep"); rb.replaceChildren();
+    if(hlReps.length){ rb.append(el("div","hlrh","ふりかえり"));
+      hlReps.slice(0,12).forEach((r,i)=>{ const dt=document.createElement("details"); dt.className="hlr"; if(i===0) dt.open=true;
+        const sm=document.createElement("summary"); sm.append(el("b","",r.title||"ふりかえり"), el("small","",md(r.date))); dt.append(sm);
+        const ul=document.createElement("ul"); r.lines.forEach(t=>ul.append(el("li","",String(t)))); dt.append(ul);
+        if(r.note) dt.append(el("p","hlrn",r.note)); rb.append(dt); }); }
     const last=health.slice().sort((a,c)=>c.date.localeCompare(a.date))[0]; $("hlSub").textContent=last?"最新 "+md(last.date):"";
     const r=health.find(h=>h.id===hlId()); if(document.activeElement&&!$("hlForm").contains(document.activeElement)){ $("hlW").value=r&&r.weight||""; $("hlF").value=r&&r.bodyfat||""; }
   }
@@ -3510,7 +3523,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
