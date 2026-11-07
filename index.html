@@ -584,8 +584,10 @@ a.btn{text-decoration:none;display:inline-block}
 .nwsec{border-top:1px solid var(--line);padding:4px 0}
 .nwsec summary{display:flex;justify-content:space-between;align-items:baseline;cursor:pointer;list-style:none;padding:8px 0} .nwsec summary::-webkit-details-marker{display:none}
 .nwsec summary b{font-size:14.5px;color:var(--fg)} .nwsec summary small{font-size:11px;color:var(--muted)}
-.nwit{display:block;text-decoration:none;color:inherit;padding:8px 0 10px;border-top:1px dashed var(--line)}
-.nwit b{display:block;font-size:14px;line-height:1.45;color:var(--fg)} .nwm{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:var(--accent);border:1px solid currentColor;border-radius:4px;padding:0 4px;vertical-align:2px}
+.nwit{display:block;padding:8px 0 10px;border-top:1px dashed var(--line)}
+.nwt{display:block;font-size:14px;font-weight:700;line-height:1.45;color:var(--fg);text-decoration:none}
+.nwbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px} .nwb{font:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--paper);color:var(--fg);border-radius:999px;padding:5px 11px;text-decoration:none;cursor:pointer} .nwb.go{background:var(--fg);color:var(--paper);border-color:var(--fg)} .nwb[aria-expanded="true"]{background:var(--sunk)}
+.nwex{margin-top:8px;background:var(--sunk);border-radius:10px;padding:8px 10px} .nwex p{margin:0 0 5px;font-size:13px;line-height:1.65} .nwex p:last-child{margin:0} .nwm{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:var(--accent);border:1px solid currentColor;border-radius:4px;padding:0 4px;vertical-align:2px}
 .nws{display:block;font-size:12.5px;line-height:1.6;color:var(--fg);opacity:.85;margin-top:3px} .nwit small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
 .hlrh{font-size:11.5px;font-weight:700;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
 .hlr{border-bottom:1px solid var(--line);padding:6px 0} .hlr:last-child{border-bottom:0}
@@ -3180,6 +3182,13 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- けさのニュース: a daily Nikkei digest written by the morning task (private note rows type:"news") ---------- */
   let nwSel=null;
   const safeUrl=u=>/^https:\/\/([a-z0-9-]+\.)?nikkei\.com(\/|$)/.test(String(u||""))?String(u):null;   // only Nikkei links
+  // opens Claude with the article already written into the question (also copied, in case the prefill is not picked up)
+  function askClaude(it,n){
+    const q=["日経の記事について相談したいです。経済やビジネスに詳しくない人にもわかるように、専門用語はかみくだいて説明してください。",
+      "見出し："+(it.t||""), it.s?"要点："+it.s:"", safeUrl(it.u)?"記事："+safeUrl(it.u):"", "日付："+(n&&n.date||""),
+      "知りたいこと：この記事は何が起きたのか、なぜ大事なのか、私の生活や仕事（商品企画・マーケティング）、米国株インデックス投資にどう関係しそうかを教えてください。そのあと質問させてください。"].filter(Boolean).join("\n");
+    try{ navigator.clipboard&&navigator.clipboard.writeText(q).catch(()=>{}); }catch(e){}
+    window.open("https://claude.ai/new?q="+encodeURIComponent(q),"_blank","noopener"); status("Claudeを開きます（質問はコピー済み）"); }
   function renderNews(){
     const sec=$("nwSec"); if(!sec) return; sec.hidden=!news.length; if(!news.length) return;
     if(!nwSel||!news.some(n=>n.date===nwSel)) nwSel=news[0].date;
@@ -3192,10 +3201,17 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     (Array.isArray(n.sections)?n.sections:[]).forEach((sc,i)=>{ const items=Array.isArray(sc.items)?sc.items:[]; if(!items.length) return;
       const dt=document.createElement("details"); dt.className="nwsec"; if(i<2) dt.open=true;
       const sm=document.createElement("summary"); sm.append(el("b","",String(sc.cat||"ニュース")), el("small","",items.length+"本")); dt.append(sm);
-      items.forEach(it=>{ const u=safeUrl(it.u); const a=document.createElement(u?"a":"div"); a.className="nwit"; if(u){ a.href=u; a.target="_blank"; a.rel="noopener"; }
-        const t=el("b","",String(it.t||"")); if(it.m) t.append(el("span","nwm","会員限定")); a.append(t);
-        if(it.s) a.append(el("span","nws",String(it.s))); if(it.time) a.append(el("small","",String(it.time)+(u?" ・日経で読む ›":"")));
-        dt.append(a); });
+      items.forEach(it=>{ const u=safeUrl(it.u); const w=el("div","nwit");
+        const t=document.createElement(u?"a":"b"); t.className="nwt"; t.textContent=String(it.t||""); if(u){ t.href=u; t.target="_blank"; t.rel="noopener"; }
+        if(it.m) t.append(el("span","nwm","会員限定")); w.append(t);
+        if(it.s) w.append(el("span","nws",String(it.s))); if(it.time) w.append(el("small","",String(it.time)));
+        const bar=el("div","nwbar");
+        if(u){ const g=document.createElement("a"); g.className="nwb go"; g.href=u; g.target="_blank"; g.rel="noopener"; g.textContent="日経で全文 ›"; bar.append(g); }
+        let ex=null;
+        if(it.e){ const eb=el("button","nwb","やさしく解説"); eb.type="button"; eb.setAttribute("aria-expanded","false");
+          eb.addEventListener("click",()=>{ if(!ex){ ex=el("div","nwex"); String(it.e).split(/\n+/).forEach(x=>x.trim()&&ex.append(el("p","",x.trim()))); w.append(ex); } else ex.hidden=!ex.hidden; eb.setAttribute("aria-expanded",ex.hidden?"false":"true"); }); bar.append(eb); }
+        const cb=el("button","nwb","💬 相談"); cb.type="button"; cb.addEventListener("click",()=>askClaude(it,n)); bar.append(cb);
+        w.append(bar); dt.append(w); });
       box.append(dt); });
     if(n.note) box.append(el("p","hlrn",String(n.note)));
   }
