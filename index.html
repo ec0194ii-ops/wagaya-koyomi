@@ -595,6 +595,9 @@ a.btn{text-decoration:none;display:inline-block}
 .mrit input{width:20px;height:20px;accent-color:var(--accent);flex:none} .mrit.on span{color:var(--muted);text-decoration:line-through}
 .mrg{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;align-items:end;height:56px} .mrd{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
 .mrd i{display:block;width:100%;background:var(--accent);opacity:.45;border-radius:3px 3px 0 0} .mrd i.full{opacity:1} .mrd small{font-size:9.5px;color:var(--muted);margin-top:2px}
+.dyform{display:flex;gap:8px;align-items:flex-end;margin-bottom:6px} .dyform textarea{flex:1;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--paper);color:var(--fg);resize:vertical}
+.dyit,.dyago{padding:8px 0;border-top:1px solid var(--line)} .dyit small,.dyago small{font-size:11px;font-weight:700;color:var(--muted)} .dyit p,.dyago p{margin:2px 0 0;font-size:14px;line-height:1.6;white-space:pre-wrap}
+.dyago{background:var(--sunk);border-radius:10px;padding:8px 10px;border-top:0;margin-bottom:4px}
 .hlrh{font-size:11.5px;font-weight:700;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
 .hlr{border-bottom:1px solid var(--line);padding:6px 0} .hlr:last-child{border-bottom:0}
 .hlr summary{display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer;list-style:none;padding:4px 0} .hlr summary::-webkit-details-marker{display:none}
@@ -1253,6 +1256,13 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="sech"><div><div class="eyebrow">Morning</div><h2 id="mrTitle">朝のルーティン</h2></div><span class="sub" id="mrSub"></span></div>
     <div class="card"><div class="mrbar"><i id="mrFill"></i></div><div id="mrList"></div><div id="mrHist"></div></div>
   </div>
+  <div class="sec" id="dySec">
+    <div class="sech"><div><div class="eyebrow">Diary</div><h2>ひとこと日記</h2></div><span class="sub" id="dySub"></span></div>
+    <div class="card">
+      <form class="dyform" id="dyForm" autocomplete="off"><textarea id="dyIn" rows="2" maxlength="600" placeholder="今日はどんな日だった？（1〜2行でOK）"></textarea><button type="submit" class="btn sm">保存</button></form>
+      <div id="dyList"></div>
+    </div>
+  </div>
   <div class="sec" id="nwSec" hidden>
     <div class="sech"><div><div class="eyebrow">News</div><h2>けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
     <div class="nwdays" id="nwDays"></div>
@@ -1580,7 +1590,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], checklists=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], checklists=[], diaries=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3115,7 +3125,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         for(let i=0;i<26*7;i++){ const k=addDays(start,i); const c=el("i",k>todayKey?"fu":lg[k]?"on":""); c.title=md(k); g.append(c); }
         w.append(g); hb.append(w); }); }
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
-    renderKu(); renderBody(); renderNews(); renderMorning();
+    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary();
   }
   $("meRtForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("meRtIn").value.trim(); if(!v||!db) return; $("meRtIn").value="";
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
@@ -3188,6 +3198,24 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function usualFor(name){ const n=String(name||"").trim(); if(!n) return null;
     return things.find(t=>t.name===n)||things.find(t=>t.name&&(n.includes(t.name)||t.name.includes(n))&&Math.min(n.length,t.name.length)>=2)||null; }
   const usualNote=t=>t&&usualText(t)?"いつもの："+usualText(t):"";
+
+  /* ---------- ひとこと日記 (private note rows type:"diary", one per day; Claude also writes them from chat) ---------- */
+  const dyId=k=>"diary-"+(window.__koyomiMe?window.__koyomiMe():"papa")+"-"+k;
+  let dyAll=false;
+  function renderDiary(){
+    const L=$("dyList"); if(!L) return; L.replaceChildren();
+    const t=diaries.find(d=>d.date===todayKey); const inp=$("dyIn"); if(document.activeElement!==inp) inp.value=t?String(t.text||""):"";
+    $("dySub").textContent=diaries.length?`${diaries.length}日分`:"";
+    // "1年前の今日" if there is one
+    const ago=diaries.find(d=>d.date===addDays(todayKey,-365)||d.date===addDays(todayKey,-366));
+    if(ago){ const a=el("div","dyago"); a.append(el("small","","1年前の今日"), el("p","",String(ago.text||""))); L.append(a); }
+    diaries.filter(d=>d.date!==todayKey).slice(0,dyAll?60:7).forEach(d=>{ const r=el("div","dyit"); r.append(el("small","",(d.date.slice(0,4)!==todayKey.slice(0,4)?d.date.slice(0,4)+"年":"")+md(d.date)+"（"+DOW[k2d(d.date).getDay()]+"）"), el("p","",String(d.text||""))); L.append(r); });
+    if(!dyAll&&diaries.filter(d=>d.date!==todayKey).length>7){ const m=el("button","nwb","もっと見る"); m.type="button"; m.addEventListener("click",()=>{dyAll=true;renderDiary();}); L.append(m); }
+  }
+  $("dyForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return; const v=$("dyIn").value.trim(); if(!v) return;
+    const id=dyId(todayKey), cur=diaries.find(d=>d.id===id);
+    try{ if(cur) await db.collection("notes").doc(id).update({text:v}); else await db.collection("notes").doc(id).set({type:"diary",date:todayKey,text:v,_private:true}); $("dyIn").blur(); status("日記を保存しました"); }
+    catch(e){ status("保存できませんでした。",true); } });
 
   /* ---------- 朝のルーティン: a step checklist (note type:"checklist"); done = {"d20261108":"110100…"} one char per step ---------- */
   const mrKey=k=>"d"+k.replace(/-/g,"");
@@ -3636,7 +3664,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
