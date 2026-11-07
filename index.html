@@ -3211,10 +3211,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
 
   /* ---------- けさのニュース: a daily Nikkei digest written by the morning task (private note rows type:"news") ---------- */
   let nwSel=null;
-  const safeUrl=u=>/^https:\/\/([a-z0-9-]+\.)?nikkei\.com(\/|$)/.test(String(u||""))?String(u):null;   // only Nikkei links
+  const safeUrl=u=>/^https:\/\/(([a-z0-9-]+\.)?nikkei\.com|news\.yahoo\.co\.jp)(\/|$)/.test(String(u||""))?String(u):null;   // only Nikkei / Yahoo!ニュース links
   // opens Claude with the article already written into the question (also copied, in case the prefill is not picked up)
   function askClaude(it,n){
-    const q=["日経の記事について相談したいです。経済やビジネスに詳しくない人にもわかるように、専門用語はかみくだいて説明してください。",
+    const q=[(/yahoo\.co\.jp/.test(String(it.u||""))?"Yahoo!ニュースの記事":"日経の記事")+"について相談したいです。経済やビジネスに詳しくない人にもわかるように、専門用語はかみくだいて説明してください。",
       "見出し："+(it.t||""), it.s?"要点："+it.s:"", safeUrl(it.u)?"記事："+safeUrl(it.u):"", "日付："+(n&&n.date||""),
       "知りたいこと：この記事は何が起きたのか、なぜ大事なのか、私の生活や仕事（商品企画・マーケティング）、米国株インデックス投資にどう関係しそうかを教えてください。そのあと質問させてください。"].filter(Boolean).join("\n");
     try{ navigator.clipboard&&navigator.clipboard.writeText(q).catch(()=>{}); }catch(e){}
@@ -3236,7 +3236,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         if(it.m) t.append(el("span","nwm","会員限定")); w.append(t);
         if(it.s) w.append(el("span","nws",String(it.s))); if(it.time) w.append(el("small","",String(it.time)));
         const bar=el("div","nwbar");
-        if(u){ const g=document.createElement("a"); g.className="nwb go"; g.href=u; g.target="_blank"; g.rel="noopener"; g.textContent="日経で全文 ›"; bar.append(g); }
+        if(u){ const g=document.createElement("a"); g.className="nwb go"; g.href=u; g.target="_blank"; g.rel="noopener"; g.textContent=/yahoo\.co\.jp/.test(u)?"Yahoo!で読む ›":"日経で全文 ›"; bar.append(g); }
         let ex=null;
         if(it.e){ const eb=el("button","nwb","やさしく解説"); eb.type="button"; eb.setAttribute("aria-expanded","false");
           eb.addEventListener("click",()=>{ if(!ex){ ex=el("div","nwex"); String(it.e).split(/\n+/).forEach(x=>x.trim()&&ex.append(el("p","",x.trim()))); w.append(ex); } else ex.hidden=!ex.hidden; eb.setAttribute("aria-expanded",ex.hidden?"false":"true"); }); bar.append(eb); }
