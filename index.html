@@ -575,6 +575,8 @@ a.btn{text-decoration:none;display:inline-block}
 .hlt em{display:block;font-style:normal;font-size:11px;color:var(--muted)}
 .hlc{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)} .hlc span{flex:none;width:64px;white-space:nowrap;font-size:11px;font-weight:700;color:var(--muted)} .hlc svg{flex:1;height:34px;color:var(--accent)} .hlc b{flex:none;font-size:12px;min-width:52px;text-align:right} .hlc b small{display:block;font-size:10px;font-weight:600;color:var(--muted)}
 .seg.hlseg{grid-template-columns:repeat(4,1fr);margin:4px 0 6px} .seg.hlseg button{font-size:12px;padding-left:2px;padding-right:2px}
+.rth{padding:6px 0 8px} .rthh b{display:block;font-size:13.5px} .rthh small{display:block;font-size:11px;color:var(--muted);margin:1px 0 6px}
+.rtg{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:2px} .rtg i{display:block;aspect-ratio:1;border-radius:2px;background:var(--sunk)} .rtg i.on{background:var(--accent)} .rtg i.fu{background:transparent}
 .hlrh{font-size:11.5px;font-weight:700;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
 .hlr{border-bottom:1px solid var(--line);padding:6px 0} .hlr:last-child{border-bottom:0}
 .hlr summary{display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer;list-style:none;padding:4px 0} .hlr summary::-webkit-details-marker{display:none}
@@ -1232,6 +1234,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="sec">
     <div class="sech"><div><div class="eyebrow">Routine</div><h2>毎日のルーティン</h2></div><span class="sub" id="meRtSub"></span></div>
     <div class="card"><div id="meRt"></div>
+      <div id="meRtHist"></div>
       <form class="wbadd" id="meRtForm" autocomplete="off"><input type="text" id="meRtIn" maxlength="40" placeholder="＋ ルーティンを追加（例：ストレッチ10分）" aria-label="ルーティン"><button type="submit">追加</button></form>
     </div>
   </div>
@@ -3036,7 +3039,20 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- パパのノート: personal space (server keeps it to the owner) ---------- */
   const meName=()=>{ const m=window.__koyomiMe?window.__koyomiMe():"papa"; return m==="mama"?"ママ":"パパ"; };
   let kuMode="thing", kuEditing=null;
-  const rtLog=r=>r&&r.log&&typeof r.log==="object"?r.log:{};
+  /* routine history: months {"m202611":"0010110…"} — one character per day ("1" = done). (The API only allows [A-Za-z0-9_] keys,
+     so the old {"2026-11-07":1} log could never be saved.) Old log entries are still read if any exist. */
+  function rtLog(r){ const o={}; if(!r) return o; const L=r.log;
+    if(L&&typeof L==="object"&&!Array.isArray(L)) Object.keys(L).forEach(k=>{ if(L[k]) o[k]=1; });
+    const M=r.months&&typeof r.months==="object"?r.months:{};
+    Object.keys(M).forEach(mk=>{ if(!/^m\d{6}$/.test(mk)) return; const y=mk.slice(1,5), m=mk.slice(5,7); String(M[mk]).split("").forEach((c,i)=>{ if(c==="1") o[y+"-"+m+"-"+String(i+1).padStart(2,"0")]=1; }); });
+    return o; }
+  function rtMonths(L){ const M={}; Object.keys(L).sort().forEach(k=>{ if(!L[k]||!/^\d{4}-\d{2}-\d{2}$/.test(k)) return; const mk="m"+k.slice(0,4)+k.slice(5,7), d=+k.slice(8,10);
+      const a=(M[mk]||"").padEnd(d,"0").split(""); a[d-1]="1"; M[mk]=a.join(""); });
+    const ks=Object.keys(M).sort(); ks.slice(0,Math.max(0,ks.length-59)).forEach(k=>delete M[k]); return M; }   // 59 months (API allows 60 keys)
+  function rtStats(r){ const lg=rtLog(r); let n30=0; for(let i=0;i<30;i++) if(lg[addDays(todayKey,-i)]) n30++;
+    const ks=Object.keys(lg).sort(); let best=0, run=0, prev=null; ks.forEach(k=>{ run=(prev&&addDays(prev,1)===k)?run+1:1; if(run>best) best=run; prev=k; });
+    const mon=todayKey.slice(0,7), dim=+todayKey.slice(8,10); const nm=ks.filter(k=>k.startsWith(mon)).length;
+    return {n30,best,total:ks.length,nm,dim,first:ks[0]||null}; }
   function streak(r){ const lg=rtLog(r); let n=0, k=lg[todayKey]?todayKey:addDays(todayKey,-1); while(lg[k]){ n++; k=addDays(k,-1); } return n; }
   function renderMe(){
     if(!$("pane-me")) return;
@@ -3059,11 +3075,17 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     rts.forEach(r=>{ const lg=rtLog(r), done=!!lg[todayKey]; const row=el("div","merow");
       const c=el("button","chk"+(done?" on":""),done?"✓":""); c.type="button"; c.setAttribute("aria-label",(done?"取り消す：":"できた：")+r.title);
       c.addEventListener("click",async()=>{ const L=Object.assign({},lg); if(done) delete L[todayKey]; else L[todayKey]=1;
-        const keep=Object.keys(L).sort().slice(-120); const L2={}; keep.forEach(k=>L2[k]=1);   // ~4 months of history is plenty
-        try{ await db.collection("routines").doc(r.id).update({log:L2}); }catch(e){ status("更新できませんでした。",true); } });
+        c.disabled=true; try{ await db.collection("routines").doc(r.id).update({months:rtMonths(L),log:{}}); }catch(e){ status("更新できませんでした。",true); } c.disabled=false; });
       const n=streak(r); const t=el("span","tx",r.title); row.append(c,t); if(n>=2) row.append(el("span","rtk",n+"日連続"));
       row.append(armBtn("消す",()=>db.collection("routines").doc(r.id).delete())); rb.append(row); });
     if(!rts.length) rb.append(el("p","empty","毎日やりたいことを入れておくと、チェックして続いた日数が見えます。"));
+    const hb=$("meRtHist"); hb.replaceChildren();
+    if(rts.length){ hb.append(el("div","hlrh","つみかさね（最近半年）"));
+      rts.forEach(r=>{ const lg=rtLog(r), st=rtStats(r); const w=el("div","rth");
+        const hd=el("div","rthh"); hd.append(el("b","",r.title), el("small","",`30日で${st.n30}回・今月${st.nm}/${st.dim}日・最長${st.best}日連続・通算${st.total}回`)); w.append(hd);
+        const g=el("div","rtg"); const start=addDays(todayKey,-(7*25+k2d(todayKey).getDay()));   // Sunday 25 weeks ago → 26 columns
+        for(let i=0;i<26*7;i++){ const k=addDays(start,i); const c=el("i",k>todayKey?"fu":lg[k]?"on":""); c.title=md(k); g.append(c); }
+        w.append(g); hb.append(w); }); }
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
     renderKu(); renderBody();
   }
