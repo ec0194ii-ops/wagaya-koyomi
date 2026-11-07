@@ -562,7 +562,7 @@ a.btn{text-decoration:none;display:inline-block}
 .merow.fam{opacity:.6}
 .merow .chk{flex:none}
 .rtk{font-size:11px;color:var(--accent);font-weight:700;white-space:nowrap}
-.kuseg{margin:0 0 8px}
+.kuseg{margin:0 0 8px;grid-template-columns:repeat(3,1fr)}
 .kusearch{width:100%;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:var(--paper);color:var(--fg);margin-bottom:8px}
 .kuit{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid var(--line)} .kuit:first-child{border-top:0}
 .kuit .tx{flex:1;min-width:0;text-align:left;border:0;background:transparent;color:var(--fg);padding:0}
@@ -1220,7 +1220,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   </div>
   <div class="sec">
     <div class="sech"><div><div class="eyebrow">Life notes</div><h2>くらし帳</h2></div><button type="button" class="lnk" id="kuAdd">＋ 追加</button></div>
-    <div class="seg kuseg" role="group" aria-label="くらし帳の種類"><button type="button" id="kuThings" aria-pressed="true">いつも使うもの</button><button type="button" id="kuRecipes" aria-pressed="false">わが家の料理</button></div>
+    <div class="seg kuseg" role="group" aria-label="くらし帳の種類"><button type="button" id="kuThings" aria-pressed="true">いつも使うもの</button><button type="button" id="kuRecipes" aria-pressed="false">わが家の料理</button><button type="button" id="kuMemos" aria-pressed="false">わが家メモ</button></div>
     <input type="search" class="kusearch" id="kuQ" placeholder="さがす（例：シャンプー）" aria-label="くらし帳をさがす">
     <div class="card" id="kuList"></div>
   </div>
@@ -1243,7 +1243,13 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <label class="f">作り方・コツ<textarea id="kuSteps" rows="3" placeholder="例：皮から焼く、タレは最後に"></textarea></label>
       <label class="f">もとのレシピ（あれば）<input type="url" id="kuUrl" placeholder="https://"></label>
     </div>
-    <label class="f">メモ<textarea id="kuMemo" rows="2" placeholder="例：ゆづが好き、無香料のほう"></textarea></label>
+    <div id="kuMemoF" hidden>
+      <label class="f">何のこと<input type="text" id="kuMTitle" maxlength="60" placeholder="例：ゆづの服のサイズ"></label>
+      <label class="f">内容<textarea id="kuMBody" rows="4" placeholder="例：服 100cm、靴 15cm（11月時点）"></textarea></label>
+      <div class="row"><label class="f">分類<select id="kuMCat"><option>サイズ</option><option>家電・型番</option><option>契約・手続き</option><option>交換・更新</option><option>家・車</option><option>その他</option></select></label><label class="f">次に替える・更新する日<input type="date" id="kuMNext"></label></div>
+      <p class="s" style="font-size:12px;color:var(--muted);margin:0 0 10px">パスワードや口座番号は入れないでください。日付を入れると、近づいたら朝のお知らせに出ます。</p>
+    </div>
+    <label class="f" id="kuMemoW">メモ<textarea id="kuMemo" rows="2" placeholder="例：ゆづが好き、無香料のほう"></textarea></label>
     <div style="display:flex;justify-content:space-between;gap:8px"><button type="button" class="btn ghost sm" id="kuDel" hidden>消す</button><button type="submit" class="btn" style="margin-left:auto">保存する</button></div>
   </form>
 </div>
@@ -1515,7 +1521,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3038,8 +3044,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   $("meBack").addEventListener("click",()=>selectTab("home"));
   $("meEntry").addEventListener("click",()=>selectTab("me"));
   // くらし帳
-  function setKu(m){ kuMode=m; $("kuThings").setAttribute("aria-pressed",m==="thing"?"true":"false"); $("kuRecipes").setAttribute("aria-pressed",m==="recipe"?"true":"false"); renderKu(); }
-  $("kuThings").addEventListener("click",()=>setKu("thing")); $("kuRecipes").addEventListener("click",()=>setKu("recipe"));
+  const KU_PH={thing:"さがす（例：シャンプー）",recipe:"さがす（例：照り焼き）",memo:"さがす（例：サイズ、型番）"};
+  function setKu(m){ kuMode=m; [["kuThings","thing"],["kuRecipes","recipe"],["kuMemos","memo"]].forEach(([b,k])=>$(b).setAttribute("aria-pressed",m===k?"true":"false")); $("kuQ").placeholder=KU_PH[m]; renderKu(); }
+  $("kuThings").addEventListener("click",()=>setKu("thing")); $("kuRecipes").addEventListener("click",()=>setKu("recipe")); $("kuMemos").addEventListener("click",()=>setKu("memo"));
+  const KU_COLL={thing:"things",recipe:"recipes",memo:"notes"};   // わが家メモ = private "note" records with type:"memo"
   $("kuQ").addEventListener("input",renderKu);
   const usualText=t=>[t.product,t.size].filter(Boolean).join(" ");
   function renderKu(){
@@ -3052,6 +3060,16 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         const r=el("div","kuit"); const b=el("button","tx"); b.type="button"; b.append(el("b","",t.name||"（名前なし）"), el("small","",[usualText(t),STORE[t.store]?STORE[t.store][2]:"",t.price].filter(Boolean).join("・")||t.memo||"")); b.addEventListener("click",()=>openKu("thing",t));
         const g=el("button","go","🛒 買う"); g.type="button"; g.addEventListener("click",()=>addShop(t.name)); r.append(b,g); box.append(r); });
       if(!list.length) box.append(el("p","empty",q?"見つかりませんでした。":"シャンプー、パジャマ、洗剤…「いつもの」を登録しておくと、買うときに迷いません。"));
+    } else if(kuMode==="memo"){
+      const soon=addDays(todayKey,30);
+      const list=memos.filter(m=>hit(m.title,m.body,m.cat)).sort((a,b)=>String(a.cat).localeCompare(String(b.cat),"ja")||String(a.title).localeCompare(String(b.title),"ja"));
+      let cat=null;
+      list.forEach(m=>{ if(m.cat!==cat){ cat=m.cat; box.append(el("div","kuh",cat||"その他")); }
+        const r=el("div","kuit"); const b=el("button","tx"); b.type="button";
+        b.append(el("b","",m.title||"（名前なし）"), el("small","",String(m.body||"").replace(/\n+/g," / ")||m.memo||"")); b.addEventListener("click",()=>openKu("memo",m)); r.append(b);
+        if(m.next){ const late=m.next<todayKey, near=m.next<=soon; const t=el("span","go",(late?"⚠ ":"")+md(m.next)); if(!near) t.style.color="var(--muted)"; r.append(t); }
+        box.append(r); });
+      if(!list.length) box.append(el("p","empty",q?"見つかりませんでした。":"ゆづの服のサイズ、エアコンの型番、浄水器のフィルター交換日…覚えておきたいことを置いておく場所です。"));
     } else {
       const list=recipes.filter(r=>hit(r.title,r.ingredients,r.memo)).sort((a,b)=>String((b.made||[]).slice(-1)[0]||"").localeCompare(String((a.made||[]).slice(-1)[0]||""))||String(a.title).localeCompare(String(b.title),"ja"));
       list.forEach(rc=>{ const r=el("div","kuit"); const b=el("button","tx"); b.type="button"; const last=(rc.made||[]).slice(-1)[0];
@@ -3063,27 +3081,30 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     }
   }
   function openKu(kind,x){
-    kuEditing=x&&x.id?x:null; const th=kind==="thing";
-    $("kuTitle").textContent=th?"いつも使うもの":"わが家の料理"; $("kuThingF").hidden=!th; $("kuRecipeF").hidden=th; $("kuDel").hidden=!kuEditing; $("kuForm").dataset.kind=kind;
+    kuEditing=x&&x.id?x:null; const th=kind==="thing", mo=kind==="memo";
+    $("kuTitle").textContent=th?"いつも使うもの":mo?"わが家メモ":"わが家の料理"; $("kuThingF").hidden=!th; $("kuRecipeF").hidden=kind!=="recipe"; $("kuMemoF").hidden=!mo; $("kuMemoW").hidden=mo; $("kuDel").hidden=!kuEditing; $("kuForm").dataset.kind=kind;
+    $("kuMTitle").value=mo&&x&&x.title||""; $("kuMBody").value=x&&x.body||""; $("kuMCat").value=x&&x.cat&&mo?x.cat:"サイズ"; $("kuMNext").value=x&&x.next||"";
     const st=$("kuStore"); if(!st.options.length) STORES.forEach(s2=>{ const o=document.createElement("option"); o.value=s2[0]; o.textContent=s2[1]+" "+s2[2]; st.append(o); });
     $("kuName").value=x&&x.name||""; $("kuProduct").value=x&&x.product||""; $("kuSize").value=x&&x.size||""; $("kuPrice").value=x&&x.price||"";
     st.value=x&&STORE[x.store]?x.store:"drug"; $("kuCat").value=x&&x.cat||"日用品";
     $("kuRTitle").value=x&&x.title||""; $("kuIng").value=x&&x.ingredients||""; $("kuSteps").value=x&&x.steps||""; $("kuUrl").value=x&&x.url||""; $("kuMemo").value=x&&x.memo||"";
-    $("kuScrim").hidden=false; setTimeout(()=>(th?$("kuName"):$("kuRTitle")).focus(),60);
+    $("kuScrim").hidden=false; setTimeout(()=>(th?$("kuName"):mo?$("kuMTitle"):$("kuRTitle")).focus(),60);
   }
   $("kuAdd").addEventListener("click",()=>openKu(kuMode,null));
   $("kuClose").addEventListener("click",()=>{$("kuScrim").hidden=true});
   $("kuScrim").addEventListener("click",e=>{if(e.target===$("kuScrim"))$("kuScrim").hidden=true});
-  $("kuForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return; const th=$("kuForm").dataset.kind==="thing";
+  $("kuForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return; const kd=$("kuForm").dataset.kind, th=kd==="thing";
     let data, coll;
-    if(th){ const name=$("kuName").value.trim(); if(!name){ $("kuName").focus(); return; } coll="things";
+    if(kd==="memo"){ const title=$("kuMTitle").value.trim(); if(!title){ $("kuMTitle").focus(); return; } coll="notes";
+      const nx=$("kuMNext").value; data={type:"memo",_private:true,title,body:$("kuMBody").value.trim(),cat:$("kuMCat").value,next:/^\d{4}-\d{2}-\d{2}$/.test(nx)?nx:""}; }
+    else if(th){ const name=$("kuName").value.trim(); if(!name){ $("kuName").focus(); return; } coll="things";
       data={name,product:$("kuProduct").value.trim(),size:$("kuSize").value.trim(),price:$("kuPrice").value.trim(),store:$("kuStore").value,cat:$("kuCat").value,memo:$("kuMemo").value.trim()};
       if(STORE[data.store]) learnStore(name,data.store); }
     else { const title=$("kuRTitle").value.trim(); if(!title){ $("kuRTitle").focus(); return; } coll="recipes";
       const u=$("kuUrl").value.trim(); data={title,ingredients:$("kuIng").value.trim(),steps:$("kuSteps").value.trim(),url:/^https:\/\//.test(u)?u:"",memo:$("kuMemo").value.trim()}; }
     try{ if(kuEditing) await db.collection(coll).doc(kuEditing.id).update(data); else await db.collection(coll).add(Object.assign({createdAt:new Date().toISOString()},data)); $("kuScrim").hidden=true; status("くらし帳に保存しました"); }
     catch(e){ status("保存できませんでした。",true); } });
-  $("kuDel").addEventListener("click",async()=>{ if(!kuEditing) return; const coll=$("kuForm").dataset.kind==="thing"?"things":"recipes"; try{ await db.collection(coll).doc(kuEditing.id).delete(); $("kuScrim").hidden=true; status("消しました"); }catch(e){ status("消せませんでした。",true); } });
+  $("kuDel").addEventListener("click",async()=>{ if(!kuEditing) return; const coll=KU_COLL[$("kuForm").dataset.kind]||"recipes"; try{ await db.collection(coll).doc(kuEditing.id).delete(); $("kuScrim").hidden=true; status("消しました"); }catch(e){ status("消せませんでした。",true); } });
   // "いつもの" for the shopping list
   function usualFor(name){ const n=String(name||"").trim(); if(!n) return null;
     return things.find(t=>t.name===n)||things.find(t=>t.name&&(n.includes(t.name)||t.name.includes(n))&&Math.min(n.length,t.name.length)>=2)||null; }
@@ -3409,7 +3430,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
