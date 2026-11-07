@@ -573,7 +573,9 @@ a.btn{text-decoration:none;display:inline-block}
 .hlt small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hlt b{display:block;font-size:18px;line-height:1.3} .hlt b i{font-style:normal;font-size:11px;font-weight:600;color:var(--muted);margin-left:2px}
 .hlt em{display:block;font-style:normal;font-size:11px;color:var(--muted)}
-.hlc{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)} .hlc span{flex:none;width:52px;font-size:11.5px;font-weight:700;color:var(--muted)} .hlc svg{flex:1;height:34px;color:var(--accent)} .hlc b{flex:none;font-size:12px;min-width:44px;text-align:right}
+.hlc{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)} .hlc span{flex:none;width:64px;white-space:nowrap;font-size:11px;font-weight:700;color:var(--muted)} .hlc svg{flex:1;height:34px;color:var(--accent)} .hlc b{flex:none;font-size:12px;min-width:52px;text-align:right} .hlc b small{display:block;font-size:10px;font-weight:600;color:var(--muted)}
+.seg.hlseg{grid-template-columns:repeat(4,1fr);margin:4px 0 6px} .seg.hlseg button{font-size:12px;padding-left:2px;padding-right:2px}
+.hlcap{font-size:11px;color:var(--muted);margin:2px 0 0;text-align:right}
 .hlform{border-top:1px solid var(--line);padding-top:10px;margin-top:4px;display:grid;gap:8px}
 .hlin{display:flex;gap:8px} .hlin label{flex:1;min-width:0;font-size:11.5px;font-weight:700;color:var(--muted)}
 .hlin input{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;font-weight:400;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:7px 9px;background:var(--paper);margin-top:2px}
@@ -1541,7 +1543,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={};
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3136,14 +3138,32 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const hlNum=(v,d)=>{ const n=+v; return isFinite(n)?n.toLocaleString("ja-JP",{maximumFractionDigits:d}):""; };
   function hlLatest(f,days){ for(let i=0;i<days;i++){ const k=addDays(todayKey,-i), r=health.find(h=>h.date===k); if(!r) continue;
       if(f==="bp"){ if(r.bp_sys&&r.bp_dia) return {k,v:r.bp_sys+"/"+r.bp_dia}; } else if(r[f]!=null&&r[f]!=="") return {k,v:+r[f]}; } return null; }
-  function hlSpark(f){ const pts=[]; for(let i=13;i>=0;i--){ const k=addDays(todayKey,-i), r=health.find(h=>h.date===k); pts.push(r&&r[f]!=null&&r[f]!==""?+r[f]:null); }
-    const vs=pts.filter(v=>v!=null); if(vs.length<2) return null;
-    let lo=Math.min(...vs), hi=Math.max(...vs); if(hi-lo<1e-6){ lo-=1; hi+=1; } const W=140,H=34,x=i=>4+i*(W-8)/13, y=v=>H-4-(v-lo)/(hi-lo)*(H-8);
+  /* history: healthlog rows (pipe-encoded daily for the past year, monthly back to 2015) + per-day rows on top */
+  const HL_OK=(f,v)=>v!=null&&isFinite(v)&&!(f==="steps"&&v<300)&&!(f==="kcal"&&v<100);   // days the watch was off barely count
+  function hlDecode(log){ const out={}; if(!log||!log.rows) return out; const F=log.f||[];
+    Object.keys(log.rows).forEach(k=>{ const parts=String(log.rows[k]).split("|"), o={}; F.forEach((f,i)=>{ if(parts[i]!==undefined&&parts[i]!=="") o[f]=+parts[i]; }); out[k]=o; }); return out; }
+  function hlData(){ const day=hlDecode(hlLogs.day); health.forEach(h=>{ day[h.date]=Object.assign({},day[h.date]||{},h); }); return {day,month:hlDecode(hlLogs.month)}; }
+  const HL_RANGES=[["2w","2週間"],["3m","3か月"],["1y","1年"],["all","全期間"]];
+  let hlRange=null;   // read lazily: LS is defined further down
+  function hlSeries(f,D){ const avg=a=>{ const v=a.filter(x=>HL_OK(f,x)); return v.length?v.reduce((s,x)=>s+x,0)/v.length:null; };
+    const dv=k=>{ const o=D.day[k]; return o&&HL_OK(f,+o[f])?+o[f]:null; };
+    if(hlRange==="2w"||hlRange==="3m"){ const n=hlRange==="2w"?14:91, pts=[]; for(let i=n-1;i>=0;i--) pts.push(dv(addDays(todayKey,-i))); return {pts,from:addDays(todayKey,-(n-1))}; }
+    if(hlRange==="1y"){ const pts=[]; for(let w=51;w>=0;w--){ const a=[]; for(let i=6;i>=0;i--) a.push(dv(addDays(todayKey,-(w*7+i)))); pts.push(f==="weight"?(a.filter(x=>x!=null).pop()??null):avg(a)); } return {pts,from:addDays(todayKey,-363)}; }
+    const months={}; Object.keys(D.month).forEach(m=>{ const v=D.month[m][f]; if(HL_OK(f,v)) months[m]=v; });
+    const cur=todayKey.slice(0,7); if(!(cur in D.month)){ const a=Object.keys(D.day).filter(k=>k.startsWith(cur)).map(k=>+D.day[k][f]); const v=avg(a); if(v!=null) months[cur]=v; }
+    const ks=Object.keys(months).sort(); if(!ks.length) return {pts:[]};
+    const start=Object.keys(D.month).sort()[0]||ks[0];   // same timeline for every row
+    const pts=[]; let [y,m]=(start<ks[0]?start:ks[0]).split("-").map(Number); const end=cur;
+    for(let g=0;g<400;g++){ const k=y+"-"+String(m).padStart(2,"0"); pts.push(k in months?months[k]:null); if(k>=end) break; m++; if(m>12){m=1;y++;} }
+    return {pts,from:(start<ks[0]?start:ks[0])+"-01"}; }
+  function hlSpark(f,D){ const S=hlSeries(f,D), pts=S.pts, vs=pts.filter(v=>v!=null); if(vs.length<2) return null;
+    let lo=Math.min(...vs), hi=Math.max(...vs); if(hi-lo<1e-6){ lo-=1; hi+=1; } const n=pts.length, W=140,H=34,x=i=>4+i*(W-8)/Math.max(1,n-1), y=v=>H-4-(v-lo)/(hi-lo)*(H-8);
     const ns="http://www.w3.org/2000/svg", svg=document.createElementNS(ns,"svg"); svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("preserveAspectRatio","none");
-    let d="", pen=false; pts.forEach((v,i)=>{ if(v==null){ pen=false; return; } d+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(v).toFixed(1); pen=true; });
-    const p=document.createElementNS(ns,"path"); p.setAttribute("d",d); p.setAttribute("fill","none"); p.setAttribute("stroke","currentColor"); p.setAttribute("stroke-width","2"); p.setAttribute("stroke-linecap","round"); p.setAttribute("vector-effect","non-scaling-stroke"); svg.append(p);
-    pts.forEach((v,i)=>{ if(v==null) return; const c=document.createElementNS(ns,"circle"); c.setAttribute("cx",x(i)); c.setAttribute("cy",y(v)); c.setAttribute("r",i===13?3:1.6); c.setAttribute("fill","currentColor"); svg.append(c); });
-    return {svg,last:vs[vs.length-1]}; }
+    let d="", pen=false, gap=0; const lone=[]; const tol=n<=31?0:2;   // long stretches without data break the line
+    pts.forEach((v,i)=>{ if(v==null){ if(++gap>tol) pen=false; return; } gap=0; if(!pen&&(pts[i+1]==null)) lone.push(i); d+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(v).toFixed(1); pen=true; });
+    const p=document.createElementNS(ns,"path"); p.setAttribute("d",d); p.setAttribute("fill","none"); p.setAttribute("stroke","currentColor"); p.setAttribute("stroke-width",n>60?"1.4":"2"); p.setAttribute("stroke-linejoin","round"); p.setAttribute("stroke-linecap","round"); p.setAttribute("vector-effect","non-scaling-stroke"); svg.append(p);
+    pts.forEach((v,i)=>{ if(v==null||(n>31&&i!==n-1&&!lone.includes(i))) return; const c=document.createElementNS(ns,"circle"); c.setAttribute("cx",x(i)); c.setAttribute("cy",y(v)); c.setAttribute("r",i===n-1?3:1.6); c.setAttribute("fill","currentColor"); svg.append(c); });
+    return {svg,avg:vs.reduce((s,v)=>s+v,0)/vs.length,last:vs[vs.length-1],from:S.from}; }
   function renderBody(){
     const tb=$("hlTiles"); if(!tb) return; tb.replaceChildren(); const cb=$("hlCharts"); cb.replaceChildren();
     HL.forEach(([f,lab,unit,dg])=>{ const L=hlLatest(f,8); if(!L) return; const t=el("div","hlt"); t.append(el("small","",lab));
@@ -3151,7 +3171,11 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       let sub=L.k===todayKey?"今日":L.k===addDays(todayKey,-1)?"昨日":md(L.k);
       if(f==="weight"){ const prev=health.filter(h=>h.date<L.k&&h.weight).sort((a,c)=>c.date.localeCompare(a.date))[0]; if(prev){ const dv=L.v-prev.weight; sub+="・"+(dv>0?"+":dv<0?"−":"±")+hlNum(Math.abs(dv),1); } }
       t.append(el("em","",sub)); tb.append(t); });
-    [["weight","体重","kg",1],["steps","歩数","",0],["sleep_h","睡眠","h",1]].forEach(([f,lab,u,dg])=>{ const s=hlSpark(f); if(!s) return; const r=el("div","hlc"); r.append(el("span","",lab),s.svg,el("b","",hlNum(s.last,dg)+u)); cb.append(r); });
+    if(hlRange==null){ try{ hlRange=LS.get("koyomi-hlrange")||"2w"; }catch(e){ hlRange="2w"; } }
+    const D=hlData(); let from=null;
+    const seg=el("div","seg hlseg"); HL_RANGES.forEach(([k,lab])=>{ const b=el("button","",lab); b.type="button"; b.setAttribute("aria-pressed",hlRange===k?"true":"false"); b.addEventListener("click",()=>{ hlRange=k; LS.set("koyomi-hlrange",k); renderBody(); }); seg.append(b); }); cb.append(seg);
+    [["steps","歩数","",0],["sleep_h","睡眠","h",1],["rhr","安静時心拍","",0],["hrv","HRV","",0],["weight","体重","kg",1]].forEach(([f,lab,u,dg])=>{ const s=hlSpark(f,D); if(!s) return; if(!from||s.from<from) from=s.from; const r=el("div","hlc"); const b=el("b",""); b.append(el("small","",hlRange==="2w"?"最新":"平均"), document.createTextNode(hlNum(hlRange==="2w"?s.last:s.avg,dg)+u)); r.append(el("span","",lab),s.svg,b); cb.append(r); });
+    if(from) cb.append(el("p","hlcap",(hlRange==="all"?from.slice(0,4)+"年"+(+from.slice(5,7))+"月":md(from))+" 〜 今日"+(hlRange==="1y"?"（週ごとの平均）":hlRange==="all"?"（月ごとの平均）":"")));
     if(!tb.children.length) tb.append(el("p","empty","体重・体脂肪はここから記録できます。Apple Watchの歩数や睡眠は、iPhoneのショートカットから毎朝届くようになります。"));
     tb.style.display=tb.querySelector(".empty")?"block":"";
     const last=health.slice().sort((a,c)=>c.date.localeCompare(a.date))[0]; $("hlSub").textContent=last?"最新 "+md(last.date):"";
@@ -3486,7 +3510,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
