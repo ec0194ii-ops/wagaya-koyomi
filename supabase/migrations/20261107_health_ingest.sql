@@ -1,0 +1,3 @@
+-- iPhone Shortcut → health_ingest(k, d) via /rest/v1/rpc/health_ingest (applied 2026-11-07).
+-- Stores private kind='note' rows {type:'health', date, ...} with id health-<member>-<date>.
+-- Keys live hashed in koyomi_ingest_keys (RLS on, no grants). The full function body is in the Supabase migration "health_ingest".

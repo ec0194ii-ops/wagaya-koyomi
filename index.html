@@ -562,12 +562,21 @@ a.btn{text-decoration:none;display:inline-block}
 .merow.fam{opacity:.6}
 .merow .chk{flex:none}
 .rtk{font-size:11px;color:var(--accent);font-weight:700;white-space:nowrap}
-.kuseg{margin:0 0 8px;grid-template-columns:repeat(3,1fr)}
+.seg.kuseg{margin:0 0 8px;grid-template-columns:repeat(3,1fr)} .seg.kuseg button{font-size:12.5px;padding-left:2px;padding-right:2px;white-space:nowrap}
 .kusearch{width:100%;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:12px;padding:9px 12px;background:var(--paper);color:var(--fg);margin-bottom:8px}
 .kuit{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid var(--line)} .kuit:first-child{border-top:0}
 .kuit .tx{flex:1;min-width:0;text-align:left;border:0;background:transparent;color:var(--fg);padding:0}
 .kuit .tx b{display:block;font-size:14.5px} .kuit .tx small{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kuit .go{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--accent)}
+.hltiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.hlt{background:var(--sunk);border-radius:12px;padding:8px 10px;min-width:0}
+.hlt small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hlt b{display:block;font-size:18px;line-height:1.3} .hlt b i{font-style:normal;font-size:11px;font-weight:600;color:var(--muted);margin-left:2px}
+.hlt em{display:block;font-style:normal;font-size:11px;color:var(--muted)}
+.hlc{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)} .hlc span{flex:none;width:52px;font-size:11.5px;font-weight:700;color:var(--muted)} .hlc svg{flex:1;height:34px;color:var(--accent)} .hlc b{flex:none;font-size:12px;min-width:44px;text-align:right}
+.hlform{border-top:1px solid var(--line);padding-top:10px;margin-top:4px;display:grid;gap:8px}
+.hlin{display:flex;gap:8px} .hlin label{flex:1;min-width:0;font-size:11.5px;font-weight:700;color:var(--muted)}
+.hlin input{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;font-weight:400;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:7px 9px;background:var(--paper);margin-top:2px}
 .kuh{font-size:11.5px;font-weight:700;color:var(--muted);margin:10px 2px 0}
 .keepentry{display:flex;align-items:center;gap:12px;width:100%;border:0;background:var(--paper);border-radius:20px;padding:10px 14px 10px 10px;margin:4px 0 12px;box-shadow:var(--shadow);text-align:left;color:var(--fg)}
 .keepentry .kth{flex:none;width:52px;height:52px;border-radius:14px;background:color-mix(in srgb,var(--accent) 10%,var(--paper)) center/cover no-repeat;display:grid;place-items:center;font-size:24px}
@@ -1219,8 +1228,20 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     </div>
   </div>
   <div class="sec">
+    <div class="sech"><div><div class="eyebrow">Body</div><h2>からだ</h2></div><span class="sub" id="hlSub"></span></div>
+    <div class="card">
+      <div class="hltiles" id="hlTiles"></div>
+      <div id="hlCharts"></div>
+      <form class="hlform" id="hlForm" autocomplete="off">
+        <div class="hlin"><label>体重<input type="number" id="hlW" step="0.1" min="20" max="200" inputmode="decimal" placeholder="kg"></label><label>体脂肪<input type="number" id="hlF" step="0.1" min="1" max="70" inputmode="decimal" placeholder="%"></label></div>
+        <div class="hlin"><label>血圧 上<input type="number" id="hlS" min="60" max="250" inputmode="numeric" placeholder="mmHg"></label><label>下<input type="number" id="hlD" min="30" max="160" inputmode="numeric" placeholder="mmHg"></label><label>脈<input type="number" id="hlP" min="30" max="200" inputmode="numeric" placeholder="回"></label></div>
+        <button type="submit" class="btn sm">今日の分を記録</button>
+      </form>
+    </div>
+  </div>
+  <div class="sec">
     <div class="sech"><div><div class="eyebrow">Life notes</div><h2>くらし帳</h2></div><button type="button" class="lnk" id="kuAdd">＋ 追加</button></div>
-    <div class="seg kuseg" role="group" aria-label="くらし帳の種類"><button type="button" id="kuThings" aria-pressed="true">いつも使うもの</button><button type="button" id="kuRecipes" aria-pressed="false">わが家の料理</button><button type="button" id="kuMemos" aria-pressed="false">わが家メモ</button></div>
+    <div class="seg kuseg" role="group" aria-label="くらし帳の種類"><button type="button" id="kuThings" aria-pressed="true">いつものもの</button><button type="button" id="kuRecipes" aria-pressed="false">わが家の料理</button><button type="button" id="kuMemos" aria-pressed="false">わが家メモ</button></div>
     <input type="search" class="kusearch" id="kuQ" placeholder="さがす（例：シャンプー）" aria-label="くらし帳をさがす">
     <div class="card" id="kuList"></div>
   </div>
@@ -1521,7 +1542,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3036,7 +3057,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       row.append(armBtn("消す",()=>db.collection("routines").doc(r.id).delete())); rb.append(row); });
     if(!rts.length) rb.append(el("p","empty","毎日やりたいことを入れておくと、チェックして続いた日数が見えます。"));
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
-    renderKu();
+    renderKu(); renderBody();
   }
   $("meRtForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("meRtIn").value.trim(); if(!v||!db) return; $("meRtIn").value="";
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
@@ -3109,6 +3130,42 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function usualFor(name){ const n=String(name||"").trim(); if(!n) return null;
     return things.find(t=>t.name===n)||things.find(t=>t.name&&(n.includes(t.name)||t.name.includes(n))&&Math.min(n.length,t.name.length)>=2)||null; }
   const usualNote=t=>t&&usualText(t)?"いつもの："+usualText(t):"";
+
+  /* ---------- からだ: health numbers (private "note" records type:"health", one per day; the iPhone Shortcut also writes them) ---------- */
+  const HL=[["weight","体重","kg",1],["bp","血圧","",0],["steps","歩数","歩",0],["sleep_h","睡眠","時間",1],["rhr","安静時心拍","bpm",0],["bodyfat","体脂肪","%",1],["hrv","HRV","ms",0],["kcal","活動","kcal",0],["spo2","酸素","%",0]];
+  const hlId=()=>"health-"+(window.__koyomiMe?window.__koyomiMe():"papa")+"-"+todayKey;
+  const hlNum=(v,d)=>{ const n=+v; return isFinite(n)?n.toLocaleString("ja-JP",{maximumFractionDigits:d}):""; };
+  function hlLatest(f,days){ for(let i=0;i<days;i++){ const k=addDays(todayKey,-i), r=health.find(h=>h.date===k); if(!r) continue;
+      if(f==="bp"){ if(r.bp_sys&&r.bp_dia) return {k,v:r.bp_sys+"/"+r.bp_dia}; } else if(r[f]!=null&&r[f]!=="") return {k,v:+r[f]}; } return null; }
+  function hlSpark(f){ const pts=[]; for(let i=13;i>=0;i--){ const k=addDays(todayKey,-i), r=health.find(h=>h.date===k); pts.push(r&&r[f]!=null&&r[f]!==""?+r[f]:null); }
+    const vs=pts.filter(v=>v!=null); if(vs.length<2) return null;
+    let lo=Math.min(...vs), hi=Math.max(...vs); if(hi-lo<1e-6){ lo-=1; hi+=1; } const W=140,H=34,x=i=>4+i*(W-8)/13, y=v=>H-4-(v-lo)/(hi-lo)*(H-8);
+    const ns="http://www.w3.org/2000/svg", svg=document.createElementNS(ns,"svg"); svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("preserveAspectRatio","none");
+    let d="", pen=false; pts.forEach((v,i)=>{ if(v==null){ pen=false; return; } d+=(pen?"L":"M")+x(i).toFixed(1)+" "+y(v).toFixed(1); pen=true; });
+    const p=document.createElementNS(ns,"path"); p.setAttribute("d",d); p.setAttribute("fill","none"); p.setAttribute("stroke","currentColor"); p.setAttribute("stroke-width","2"); p.setAttribute("stroke-linecap","round"); p.setAttribute("vector-effect","non-scaling-stroke"); svg.append(p);
+    pts.forEach((v,i)=>{ if(v==null) return; const c=document.createElementNS(ns,"circle"); c.setAttribute("cx",x(i)); c.setAttribute("cy",y(v)); c.setAttribute("r",i===13?3:1.6); c.setAttribute("fill","currentColor"); svg.append(c); });
+    return {svg,last:vs[vs.length-1]}; }
+  function renderBody(){
+    const tb=$("hlTiles"); if(!tb) return; tb.replaceChildren(); const cb=$("hlCharts"); cb.replaceChildren();
+    HL.forEach(([f,lab,unit,dg])=>{ const L=hlLatest(f,8); if(!L) return; const t=el("div","hlt"); t.append(el("small","",lab));
+      const b=el("b","",f==="bp"?L.v:hlNum(L.v,dg)); if(unit) b.append(el("i","",unit)); t.append(b);
+      let sub=L.k===todayKey?"今日":L.k===addDays(todayKey,-1)?"昨日":md(L.k);
+      if(f==="weight"){ const prev=health.filter(h=>h.date<L.k&&h.weight).sort((a,c)=>c.date.localeCompare(a.date))[0]; if(prev){ const dv=L.v-prev.weight; sub+="・"+(dv>0?"+":dv<0?"−":"±")+hlNum(Math.abs(dv),1); } }
+      t.append(el("em","",sub)); tb.append(t); });
+    [["weight","体重","kg",1],["steps","歩数","",0],["sleep_h","睡眠","h",1]].forEach(([f,lab,u,dg])=>{ const s=hlSpark(f); if(!s) return; const r=el("div","hlc"); r.append(el("span","",lab),s.svg,el("b","",hlNum(s.last,dg)+u)); cb.append(r); });
+    if(!tb.children.length) tb.append(el("p","empty","体重・血圧はここから記録できます。Apple Watchの歩数や睡眠は、iPhoneのショートカットから毎朝届くようになります。"));
+    tb.style.display=tb.querySelector(".empty")?"block":"";
+    const last=health.slice().sort((a,c)=>c.date.localeCompare(a.date))[0]; $("hlSub").textContent=last?"最新 "+md(last.date):"";
+    const r=health.find(h=>h.id===hlId()); if(document.activeElement&&!$("hlForm").contains(document.activeElement)){ $("hlW").value=r&&r.weight||""; $("hlF").value=r&&r.bodyfat||""; $("hlS").value=r&&r.bp_sys||""; $("hlD").value=r&&r.bp_dia||""; $("hlP").value=r&&r.pulse||""; }
+  }
+  $("hlForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return;
+    const g=(id,lo,hi)=>{ const v=parseFloat($(id).value); return isFinite(v)&&v>=lo&&v<=hi?Math.round(v*10)/10:null; };
+    const patch={}, put=(k,v)=>{ if(v!=null) patch[k]=v; };
+    put("weight",g("hlW",20,200)); put("bodyfat",g("hlF",1,70)); const s=g("hlS",60,250), d=g("hlD",30,160); if(s&&d){ patch.bp_sys=s; patch.bp_dia=d; } else if(s||d){ status("血圧は上と下の両方を入れてください",true); return; } put("pulse",g("hlP",30,200));
+    if(!Object.keys(patch).length){ status("数字を入れてください",true); return; }
+    const id=hlId(), cur=health.find(h=>h.id===id);
+    try{ if(cur) await db.collection("notes").doc(id).update(patch); else await db.collection("notes").doc(id).set(Object.assign({type:"health",date:todayKey,_private:true},patch)); document.activeElement&&document.activeElement.blur(); status("からだの記録を保存しました"); }
+    catch(e){ status("保存できませんでした。",true); } });
 
   /* ---------- more ---------- */
   /* ---------- wishes: a family notebook, never a task list ---------- */
@@ -3430,7 +3487,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
