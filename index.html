@@ -3248,9 +3248,9 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const safeUrl=u=>/^https:\/\/(([a-z0-9-]+\.)?nikkei\.com|news\.yahoo\.co\.jp)(\/|$)/.test(String(u||""))?String(u):null;   // only Nikkei / Yahoo!ニュース links
   // opens Claude with the article already written into the question (also copied, in case the prefill is not picked up)
   function askClaude(it,n){
-    const q=[(/yahoo\.co\.jp/.test(String(it.u||""))?"Yahoo!ニュースの記事":"日経の記事")+"について相談したいです。経済やビジネスに詳しくない人にもわかるように、専門用語はかみくだいて説明してください。",
+    const q=[(/yahoo\.co\.jp/.test(String(it.u||""))?"Yahoo!ニュースの記事":"日経の記事")+"について質問したいです。",
       "見出し："+(it.t||""), it.s?"要点："+it.s:"", safeUrl(it.u)?"記事："+safeUrl(it.u):"", "日付："+(n&&n.date||""),
-      "知りたいこと：この記事は何が起きたのか、なぜ大事なのか、私の生活や仕事（商品企画・マーケティング）、米国株インデックス投資にどう関係しそうかを教えてください。そのあと質問させてください。"].filter(Boolean).join("\n");
+      "まず、この記事を小学生にもわかるように説明してください。背景やこれまでの経緯も丁寧に教えてください。そのあと質問させてください。"].filter(Boolean).join("\n");
     try{ navigator.clipboard&&navigator.clipboard.writeText(q).catch(()=>{}); }catch(e){}
     window.open("https://claude.ai/new?q="+encodeURIComponent(q),"_blank","noopener"); status("Claudeを開きます（質問はコピー済み）"); }
   function renderNews(){
