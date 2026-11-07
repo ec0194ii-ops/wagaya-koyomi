@@ -2855,8 +2855,9 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function renderTodos(){
     renderWeekBoard();
     const s0=weekStart(todayKey), e0=addDays(s0,6);
-    const open=todos.filter(t=>!t.done&&!inWeek(t,s0)).sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999"));
-    const G=[["すぎているもの",t=>t.due&&t.due<s0],["来週から",t=>t.due&&t.due>e0],["来週以降の今週分",t=>!t.due&&t.week&&t.week!==s0],["期限なし",t=>!t.due&&!t.week]];
+    // overdue items from earlier this week also go in the list (on the board they are only a faded chip) so it matches the badge
+    const open=todos.filter(t=>!t.done&&(!inWeek(t,s0)||(t.due&&t.due<todayKey))).sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999"));
+    const G=[["すぎているもの",t=>t.due&&t.due<todayKey],["来週から",t=>t.due&&t.due>e0],["来週以降の今週分",t=>!t.due&&t.week&&t.week!==s0],["期限なし",t=>!t.due&&!t.week]];
     const box=$("todoGroups"); box.replaceChildren();
     G.forEach(([n,f])=>{const it=open.filter(f);if(!it.length)return;box.append(el("div","tgh",n==="来週以降の今週分"?"前に書いた「今週中に」":n));const ul=el("ul","items");it.forEach(t=>ul.append(todoRow(t)));box.append(ul)});
     $("todoEmpty").hidden=open.length>0;
