@@ -1234,7 +1234,6 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <div id="hlCharts"></div>
       <form class="hlform" id="hlForm" autocomplete="off">
         <div class="hlin"><label>体重<input type="number" id="hlW" step="0.1" min="20" max="200" inputmode="decimal" placeholder="kg"></label><label>体脂肪<input type="number" id="hlF" step="0.1" min="1" max="70" inputmode="decimal" placeholder="%"></label></div>
-        <div class="hlin"><label>血圧 上<input type="number" id="hlS" min="60" max="250" inputmode="numeric" placeholder="mmHg"></label><label>下<input type="number" id="hlD" min="30" max="160" inputmode="numeric" placeholder="mmHg"></label><label>脈<input type="number" id="hlP" min="30" max="200" inputmode="numeric" placeholder="回"></label></div>
         <button type="submit" class="btn sm">今日の分を記録</button>
       </form>
     </div>
@@ -3132,7 +3131,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const usualNote=t=>t&&usualText(t)?"いつもの："+usualText(t):"";
 
   /* ---------- からだ: health numbers (private "note" records type:"health", one per day; the iPhone Shortcut also writes them) ---------- */
-  const HL=[["weight","体重","kg",1],["bp","血圧","",0],["steps","歩数","歩",0],["sleep_h","睡眠","時間",1],["rhr","安静時心拍","bpm",0],["bodyfat","体脂肪","%",1],["hrv","HRV","ms",0],["kcal","活動","kcal",0],["spo2","酸素","%",0]];
+  const HL=[["weight","体重","kg",1],["steps","歩数","歩",0],["sleep_h","睡眠","時間",1],["rhr","安静時心拍","bpm",0],["bodyfat","体脂肪","%",1],["hrv","HRV","ms",0],["kcal","活動","kcal",0],["spo2","酸素","%",0]];
   const hlId=()=>"health-"+(window.__koyomiMe?window.__koyomiMe():"papa")+"-"+todayKey;
   const hlNum=(v,d)=>{ const n=+v; return isFinite(n)?n.toLocaleString("ja-JP",{maximumFractionDigits:d}):""; };
   function hlLatest(f,days){ for(let i=0;i<days;i++){ const k=addDays(todayKey,-i), r=health.find(h=>h.date===k); if(!r) continue;
@@ -3153,15 +3152,15 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       if(f==="weight"){ const prev=health.filter(h=>h.date<L.k&&h.weight).sort((a,c)=>c.date.localeCompare(a.date))[0]; if(prev){ const dv=L.v-prev.weight; sub+="・"+(dv>0?"+":dv<0?"−":"±")+hlNum(Math.abs(dv),1); } }
       t.append(el("em","",sub)); tb.append(t); });
     [["weight","体重","kg",1],["steps","歩数","",0],["sleep_h","睡眠","h",1]].forEach(([f,lab,u,dg])=>{ const s=hlSpark(f); if(!s) return; const r=el("div","hlc"); r.append(el("span","",lab),s.svg,el("b","",hlNum(s.last,dg)+u)); cb.append(r); });
-    if(!tb.children.length) tb.append(el("p","empty","体重・血圧はここから記録できます。Apple Watchの歩数や睡眠は、iPhoneのショートカットから毎朝届くようになります。"));
+    if(!tb.children.length) tb.append(el("p","empty","体重・体脂肪はここから記録できます。Apple Watchの歩数や睡眠は、iPhoneのショートカットから毎朝届くようになります。"));
     tb.style.display=tb.querySelector(".empty")?"block":"";
     const last=health.slice().sort((a,c)=>c.date.localeCompare(a.date))[0]; $("hlSub").textContent=last?"最新 "+md(last.date):"";
-    const r=health.find(h=>h.id===hlId()); if(document.activeElement&&!$("hlForm").contains(document.activeElement)){ $("hlW").value=r&&r.weight||""; $("hlF").value=r&&r.bodyfat||""; $("hlS").value=r&&r.bp_sys||""; $("hlD").value=r&&r.bp_dia||""; $("hlP").value=r&&r.pulse||""; }
+    const r=health.find(h=>h.id===hlId()); if(document.activeElement&&!$("hlForm").contains(document.activeElement)){ $("hlW").value=r&&r.weight||""; $("hlF").value=r&&r.bodyfat||""; }
   }
   $("hlForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return;
     const g=(id,lo,hi)=>{ const v=parseFloat($(id).value); return isFinite(v)&&v>=lo&&v<=hi?Math.round(v*10)/10:null; };
     const patch={}, put=(k,v)=>{ if(v!=null) patch[k]=v; };
-    put("weight",g("hlW",20,200)); put("bodyfat",g("hlF",1,70)); const s=g("hlS",60,250), d=g("hlD",30,160); if(s&&d){ patch.bp_sys=s; patch.bp_dia=d; } else if(s||d){ status("血圧は上と下の両方を入れてください",true); return; } put("pulse",g("hlP",30,200));
+    put("weight",g("hlW",20,200)); put("bodyfat",g("hlF",1,70));
     if(!Object.keys(patch).length){ status("数字を入れてください",true); return; }
     const id=hlId(), cur=health.find(h=>h.id===id);
     try{ if(cur) await db.collection("notes").doc(id).update(patch); else await db.collection("notes").doc(id).set(Object.assign({type:"health",date:todayKey,_private:true},patch)); document.activeElement&&document.activeElement.blur(); status("からだの記録を保存しました"); }
