@@ -3253,11 +3253,11 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   }
 
   /* ---------- からだ: health numbers (private "note" records type:"health", one per day; the iPhone Shortcut also writes them) ---------- */
-  const HL=[["weight","体重","kg",1],["steps","歩数","歩",0],["sleep_h","睡眠","時間",1],["rhr","安静時心拍","bpm",0],["bodyfat","体脂肪","%",1],["hrv","HRV","ms",0],["kcal","活動","kcal",0],["spo2","酸素","%",0]];
+  const HL=[["wake","起床","",0],["weight","体重","kg",1],["steps","歩数","歩",0],["sleep_h","睡眠","時間",1],["rhr","安静時心拍","bpm",0],["bodyfat","体脂肪","%",1],["hrv","HRV","ms",0],["kcal","活動","kcal",0],["spo2","酸素","%",0]];
   const hlId=()=>"health-"+(window.__koyomiMe?window.__koyomiMe():"papa")+"-"+todayKey;
   const hlNum=(v,d)=>{ const n=+v; return isFinite(n)?n.toLocaleString("ja-JP",{maximumFractionDigits:d}):""; };
   function hlLatest(f,days){ for(let i=0;i<days;i++){ const k=addDays(todayKey,-i), r=health.find(h=>h.date===k); if(!r) continue;
-      if(f==="bp"){ if(r.bp_sys&&r.bp_dia) return {k,v:r.bp_sys+"/"+r.bp_dia}; } else if(r[f]!=null&&r[f]!=="") return {k,v:+r[f]}; } return null; }
+      if(f==="bp"){ if(r.bp_sys&&r.bp_dia) return {k,v:r.bp_sys+"/"+r.bp_dia}; } else if(f==="wake"){ if(/^\d{1,2}:\d{2}$/.test(r.wake||"")) return {k,v:r.wake}; } else if(r[f]!=null&&r[f]!=="") return {k,v:+r[f]}; } return null; }
   /* history: healthlog rows (pipe-encoded daily for the past year, monthly back to 2015) + per-day rows on top */
   const HL_OK=(f,v)=>v!=null&&isFinite(v)&&!(f==="steps"&&v<300)&&!(f==="kcal"&&v<100);   // days the watch was off barely count
   function hlDecode(log){ const out={}; if(!log||!log.rows) return out; const F=log.f||[];
@@ -3287,7 +3287,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function renderBody(){
     const tb=$("hlTiles"); if(!tb) return; tb.replaceChildren(); const cb=$("hlCharts"); cb.replaceChildren();
     HL.forEach(([f,lab,unit,dg])=>{ const L=hlLatest(f,8); if(!L) return; const t=el("div","hlt"); t.append(el("small","",lab));
-      const b=el("b","",f==="bp"?L.v:hlNum(L.v,dg)); if(unit) b.append(el("i","",unit)); t.append(b);
+      const b=el("b","",f==="bp"||f==="wake"?L.v:hlNum(L.v,dg)); if(unit) b.append(el("i","",unit)); t.append(b);
       let sub=L.k===todayKey?"今日":L.k===addDays(todayKey,-1)?"昨日":md(L.k);
       if(f==="weight"){ const prev=health.filter(h=>h.date<L.k&&h.weight).sort((a,c)=>c.date.localeCompare(a.date))[0]; if(prev){ const dv=L.v-prev.weight; sub+="・"+(dv>0?"+":dv<0?"−":"±")+hlNum(Math.abs(dv),1); } }
       t.append(el("em","",sub)); tb.append(t); });
