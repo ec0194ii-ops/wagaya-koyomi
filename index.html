@@ -604,6 +604,15 @@ a.btn{text-decoration:none;display:inline-block}
 .nwex{margin-top:8px;background:var(--sunk);border-radius:10px;padding:8px 10px} .nwex p{margin:0 0 5px;font-size:13px;line-height:1.65} .nwex p:last-child{margin:0} .nwm{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:var(--accent);border:1px solid currentColor;border-radius:4px;padding:0 4px;vertical-align:2px}
 /* ニュース：日経アプリ風のカード */
 .nwbox{display:flex;flex-direction:column;gap:10px}
+.nwdays button.rc{background:color-mix(in srgb,#1f3a68 10%,var(--paper));color:#1f3a68;border-color:color-mix(in srgb,#1f3a68 30%,var(--line))} .nwdays button.rc[aria-pressed="true"]{background:#1f3a68;color:#fff;border-color:#1f3a68}
+.rcap .rch{margin:2px 0 4px;font-size:16px;font-weight:800;line-height:1.6}
+.rckwh{font-size:11px;color:var(--muted);font-weight:700;margin-top:8px} .rckw{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px} .rckw button{font:inherit;font-size:12.5px;font-weight:800;border:0;border-radius:999px;padding:5px 11px;background:var(--sunk);color:var(--fg)}
+.rctip{margin-top:6px;font-size:13px;line-height:1.6;background:var(--sunk);border-radius:10px;padding:8px 10px}
+.rcquiz{background:linear-gradient(135deg,#fff7e6,#fdeee2);border:1px solid #f1d9b8;border-radius:16px;padding:14px;color:#3a2a14} .rcquiz .k{font-size:12px;font-weight:800;color:#b5651d;margin-bottom:6px}
+.rcqn{font-size:11px;font-weight:800;color:#b5651d} .rcq{margin:4px 0 10px;font-size:16px;font-weight:800;line-height:1.55}
+.rcch{display:flex;flex-direction:column;gap:7px} .rcch button{font:inherit;text-align:left;font-size:14px;font-weight:700;border:1.5px solid #ecd2ad;background:#fff;color:#3a2a14;border-radius:12px;padding:10px 12px}
+.rcch button.ok{background:#e3f4e6;border-color:#4caf6a} .rcch button.ng{background:#fde7e5;border-color:#e0675b} .rcch button:disabled:not(.ok):not(.ng){opacity:.55}
+.rcwhy{font-size:13.5px;line-height:1.7;margin:10px 0} .rcres{font-size:17px;font-weight:800;margin:4px 0 10px}
 .nwsum{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
 .nwsum .k{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
 .nwsum ul{margin:0;padding:0;list-style:none} .nwsum li{position:relative;padding:5px 0 5px 22px;font-size:14px;font-weight:700;line-height:1.5;border-top:1px dashed var(--line)} .nwsum li:first-child{border-top:0}
@@ -1633,7 +1642,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], checklists=[], diaries=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], checklists=[], diaries=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3306,11 +3315,45 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       "まず、この記事を小学生にもわかるように説明してください。背景やこれまでの経緯も丁寧に教えてください。そのあと質問させてください。"].filter(Boolean).join("\n");
     try{ navigator.clipboard&&navigator.clipboard.writeText(q).catch(()=>{}); }catch(e){}
     window.open("https://claude.ai/new?q="+encodeURIComponent(q),"_blank","noopener"); status("Claudeを開きます（質問はコピー済み）"); }
+  // 週・月のまとめ（毎週日曜／毎月1日に自動で作る type:"newsrecap"）とクイズ
+  const nwQuiz={};   // id -> {i, score, picked}
+  function renderRecap(r){ const box=$("nwBox"); box.replaceChildren();
+    $("nwSub").textContent=(r.title||"まとめ")+(r.at?" ・"+r.at:"");
+    const hd=el("div","nwsum rcap"); hd.append(el("div","k",r.period==="month"?"🗓️ この1か月をひとことで":"📅 この1週間をひとことで"));
+    if(r.headline) hd.append(el("p","rch",String(r.headline)));
+    if(Array.isArray(r.keywords)&&r.keywords.length){ const kw=el("div","rckw"); r.keywords.forEach(k=>{ const b=el("button","",String(k.w||k)); b.type="button"; let tip=null;
+        b.addEventListener("click",()=>{ if(!k.d) return; if(tip){ tip.remove(); tip=null; return; } tip=el("div","rctip",String(k.w)+"："+String(k.d)); kw.after(tip); }); kw.append(b); }); hd.append(el("div","rckwh","キーワード（押すと意味）"),kw); }
+    box.append(hd);
+    (Array.isArray(r.topics)?r.topics:[]).forEach((tp,i)=>{ const c=el("div","nwcard"+(i===0?" top":""));
+      const r1=el("div","row1"), tx=el("div","tx"); tx.append(el("h4","",String(tp.t||""))); if(tp.s) tx.append(el("div","lead",String(tp.s)));
+      const th=el("div","th",String(i+1)); th.style.background="#1f3a68"; th.style.color="#fff"; th.style.fontWeight="800"; th.style.fontSize=i===0?"30px":"24px"; th.style.width=th.style.height=i===0?"56px":"46px"; r1.append(tx,th); c.append(r1);
+      const dt=el("div","dt"); const ex=el("div","ex"); if(tp.why) ex.append(el("p","","【背景・経緯】"+tp.why)); if(tp.next) ex.append(el("p","","【これから】"+tp.next)); if(ex.children.length) dt.append(ex);
+      const bar=el("div","bar"); const cb=el("button","nwb go","💬 Claudeと深掘り"); cb.type="button"; cb.addEventListener("click",e=>{ e.stopPropagation(); askClaude({t:tp.t,s:tp.s},{date:r.date}); }); bar.append(cb); dt.append(bar); c.append(dt);
+      c.addEventListener("click",()=>c.classList.toggle("open")); box.append(c); });
+    const qs=(Array.isArray(r.quiz)?r.quiz:[]).filter(q=>q&&q.q&&Array.isArray(q.c)&&q.c.length>=2);
+    if(qs.length){ const st=nwQuiz[r.id]||(nwQuiz[r.id]={i:0,score:0,picked:null}); const qz=el("div","rcquiz");
+      qz.append(el("div","k","🧠 時事クイズ（"+qs.length+"問）"));
+      if(st.i>=qs.length){ qz.append(el("p","rcres",qs.length+"問中 "+st.score+"問 正解！"+(st.score===qs.length?" 🎉 完璧です":st.score>=qs.length*0.6?" 👍 いい調子":" 📖 解説を読んでもう一度")));
+        const again=el("button","nwb go","もう一回"); again.type="button"; again.addEventListener("click",()=>{ nwQuiz[r.id]={i:0,score:0,picked:null}; renderRecap(r); }); qz.append(again); }
+      else { const q=qs[st.i]; qz.append(el("div","rcqn","Q"+(st.i+1)+" / "+qs.length), el("p","rcq",String(q.q)));
+        const ch=el("div","rcch"); q.c.forEach((t,j)=>{ const b=el("button","",String(t)); b.type="button";
+          if(st.picked!=null){ b.disabled=true; if(j===+q.a) b.className="ok"; else if(j===st.picked) b.className="ng"; }
+          b.addEventListener("click",()=>{ if(st.picked!=null) return; st.picked=j; if(j===+q.a) st.score++; renderRecap(r); }); ch.append(b); }); qz.append(ch);
+        if(st.picked!=null){ qz.append(el("p","rcwhy",(st.picked===+q.a?"⭕ 正解！ ":"❌ ざんねん… ")+String(q.why||"")));
+          const nx=el("button","nwb go",st.i+1<qs.length?"次の問題 ›":"結果を見る ›"); nx.type="button"; nx.addEventListener("click",()=>{ st.i++; st.picked=null; renderRecap(r); }); qz.append(nx); } }
+      box.append(qz); }
+    if(r.note) box.append(el("p","hlrn",String(r.note)));
+  }
   function renderNews(){
-    const sec=$("nwSec"); if(!sec) return; sec.hidden=!news.length; if(!news.length) return;
-    if(!nwSel||!news.some(n=>n.date===nwSel)) nwSel=news[0].date;
+    const sec=$("nwSec"); if(!sec) return; sec.hidden=!news.length&&!recaps.length; if(sec.hidden) return;
+    const rw=recaps.find(r=>r.period==="week"), rm=recaps.find(r=>r.period==="month");
+    const valid=k=>(k==="rw"&&rw)||(k==="rm"&&rm)||news.some(n=>n.date===k);
+    if(!nwSel||!valid(nwSel)) nwSel=news.length?news[0].date:(rw?"rw":"rm");
     const ds=$("nwDays"); ds.replaceChildren();
-    news.slice(0,7).forEach(n=>{ const b=el("button","",n.date===todayKey?"今日":md(n.date)); b.type="button"; b.setAttribute("aria-pressed",n.date===nwSel?"true":"false"); b.addEventListener("click",()=>{ nwSel=n.date; renderNews(); }); ds.append(b); });
+    const chip=(label,key,cls)=>{ const b=el("button",cls||"",label); b.type="button"; b.setAttribute("aria-pressed",key===nwSel?"true":"false"); b.addEventListener("click",()=>{ nwSel=key; renderNews(); }); ds.append(b); };
+    if(rw) chip("📅 週のまとめ","rw","rc"); if(rm) chip("🗓️ 月のまとめ","rm","rc");
+    news.slice(0,7).forEach(n=>chip(n.date===todayKey?"今日":md(n.date),n.date));
+    if(nwSel==="rw"||nwSel==="rm"){ renderRecap(nwSel==="rw"?rw:rm); return; }
     const n=news.find(x=>x.date===nwSel), box=$("nwBox"); box.replaceChildren();
     $("nwSub").textContent=(n.source||"日本経済新聞")+(n.at?" ・"+n.at:"");
     // きょうのポイント（全体像はたたんでおく）
@@ -3729,7 +3772,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
