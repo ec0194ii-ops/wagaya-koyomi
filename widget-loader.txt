@@ -1,0 +1,21 @@
+// わが家のこよみ ウィジェット（自動更新版）
+// 中身は毎回こよみから最新を読み込むので、貼りつけ直しは不要です。
+// Parameter に「リスト」と入れると、Todoと買い物リストのウィジェットになります。
+const FEED = "__FEED__";
+const SRC = "https://ec0194ii-ops.github.io/wagaya-koyomi/widget.txt";
+const fm = FileManager.local();
+const path = fm.joinPath(fm.documentsDirectory(), "wagaya-koyomi-widget-code.js");
+let code = "";
+try {
+  const r = new Request(SRC + "?t=" + Date.now()); r.timeoutInterval = 10;
+  const s = await r.loadString();
+  if (/わが家のこよみ ウィジェット/.test(s) && /__FEED__/.test(s)) { code = s; fm.writeString(path, s); }
+} catch (e) {}
+if (!code && fm.fileExists(path)) code = fm.readString(path);   // つながらないときは前に読んだ中身で
+if (!code) {
+  const w = new ListWidget(); const t = w.addText("こよみ：読み込めませんでした。少し待って開き直してください"); t.font = Font.systemFont(12);
+  Script.setWidget(w); Script.complete();
+} else {
+  const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+  await new AsyncFunction(code.replace("__FEED__", FEED))();
+}

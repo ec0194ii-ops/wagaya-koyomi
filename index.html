@@ -1418,7 +1418,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
     <div class="card set">
       <ol class="steps">
         <li>無料アプリ <a href="https://apps.apple.com/jp/app/scriptable/id1405459188" target="_blank" rel="noopener">Scriptable</a> を入れる</li>
-        <li>下の「コードをコピー」を押す</li>
+        <li>下の「コードをコピー」を押す（中身は毎回自動で最新になるので、貼りつけは最初の1回だけ）</li>
         <li>Scriptableを開いて右上の「＋」→ 貼りつけ → 左上の名前を「こよみ」にして「Done」</li>
         <li>ホーム画面を長押し →「＋」→ Scriptable → 中サイズを追加</li>
         <li>置いたウィジェットを長押し →「ウィジェットを編集」→ Script で「こよみ」を選ぶ</li>
@@ -2873,7 +2873,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- home-screen widget (Scriptable) ---------- */
   let wgCode="";
   $("wgBtn").addEventListener("click",async()=>{ const b=$("wgBtn");
-    if(!wgCode){ b.disabled=true; try{ const j=await window.__koyomiApi("widget_link",{}); const tr=await fetch("widget.txt",{cache:"no-cache"}); if(!tr.ok) throw new Error("tpl"); wgCode=(await tr.text()).replace("__FEED__",j.url); }catch(e){ b.disabled=false; status("作れませんでした。",true); return; } b.disabled=false; }
+    if(!wgCode){ b.disabled=true; try{ const j=await window.__koyomiApi("widget_link",{}); const tr=await fetch("widget-loader.txt",{cache:"no-cache"}); if(!tr.ok) throw new Error("tpl"); wgCode=(await tr.text()).replace("__FEED__",j.url); }catch(e){ b.disabled=false; status("作れませんでした。",true); return; } b.disabled=false; }
     try{ await navigator.clipboard.writeText(wgCode); status("コピーしました。Scriptableに貼りつけてください"); b.textContent="もう一度コピー"; }
     catch(e){ const ta=document.createElement("textarea"); ta.value=wgCode; ta.style.cssText="width:100%;height:120px;font-size:11px;margin-top:8px"; $("wgNote").after(ta); ta.select(); status("下の文字を全部選んでコピーしてください"); }
   });
