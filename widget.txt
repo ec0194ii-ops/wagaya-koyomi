@@ -4,6 +4,7 @@
 // 小：今日のタイムライン／中：1週間＋今日／大：月＋今日のタイムライン＋1週間
 const FEED = "__FEED__";
 const CAL_NAME = "わが家のこよみ";
+const APP_URL = "https://ec0194ii-ops.github.io/wagaya-koyomi/";   // ウィジェットを押すとこよみを開く
 const C = {
   bg: Color.dynamic(new Color("#f5f4f0"), new Color("#1d1d20")),
   card: Color.dynamic(new Color("#ffffff"), new Color("#2a2a2e")),
@@ -139,7 +140,7 @@ function footer(w, d) {
   const nT = (d.todos || []).length, nS = (d.shop || []).length;
   txt(f, `✓ Todo ${nT}件　🛒 買い物 ${nS}品`, 9.5, C.muted, true);
   f.addSpacer();
-  txt(f, d.stale ? "前の内容です" : "押すと最新に", 8.5, C.muted);
+  txt(f, d.stale ? "前の内容です" : "押すとこよみ", 8.5, C.muted);
 }
 
 async function build(family) {
@@ -152,6 +153,7 @@ async function build(family) {
     return { title: e.title, start: s, end: e.time ? new Date(s.getTime() + 3600000) : new Date(today.getTime() + 86400000), allDay: !e.time }; });
   const w = new ListWidget(); w.backgroundColor = C.bg; w.setPadding(12, 13, 10, 13);
   w.refreshAfterDate = new Date(Date.now() + 10 * 60 * 1000);
+  w.url = APP_URL;
   head(w, d); w.addSpacer(6);
   if (family === "small") {
     timeline(w, todayEvs, 5, 11);
