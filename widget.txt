@@ -2,6 +2,7 @@
 // 月・週・今日のタイムラインを出します。
 // 予定はiPhoneのカレンダーに追加した「わが家のこよみ」から読みます（設定 → カレンダーアプリに表示）。
 // 小：今日のタイムライン／中：1週間＋今日／大：月＋今日のタイムライン＋1週間
+// ウィジェットの「Parameter」に「リスト」と入れると、Todoと買い物リストのウィジェットになります
 const FEED = "__FEED__";
 const CAL_NAME = "わが家のこよみ";
 const APP_URL = "https://ec0194ii-ops.github.io/wagaya-koyomi/";   // ウィジェットを押すとこよみを開く
@@ -17,6 +18,11 @@ const C = {
   sat: new Color("#4f7bc0"),
 };
 const DOW = ["日", "月", "火", "水", "木", "金", "土"];
+// 予定名の頭の【パ】【マ】【ゆ】【家】を色に置きかえる
+const WHO = { "パ": new Color("#4f7bc0"), "マ": new Color("#d46a8a"), "ゆ": new Color("#e09a3a"), "家": new Color("#4a6b5f") };
+function split(title) { const m = String(title || "").match(/^【(.)】\s*/); return m ? { who: m[1], t: title.slice(m[0].length) } : { who: "", t: String(title || "") }; }
+const whoColor = w => WHO[w] || C.accent;
+const MODE = String(args.widgetParameter || "").trim();
 const fm = FileManager.local();
 const cachePath = fm.joinPath(fm.documentsDirectory(), "wagaya-koyomi-widget.json");
 const pad = n => String(n).padStart(2, "0");
@@ -44,7 +50,7 @@ async function loadEvents() {
     const wkEnd = new Date(today.getTime() + 8 * 86400000);
     const end = wkEnd > to ? wkEnd : to;
     const evs = await CalendarEvent.between(from, end, [cal]);
-    return evs.map(e => ({ title: e.title || "", start: e.startDate, end: e.endDate, allDay: e.isAllDay }));
+    return evs.map(e => { const x = split(e.title); return { title: x.t, who: x.who, start: e.startDate, end: e.endDate, allDay: e.isAllDay }; });
   } catch (e) { return null; }
 }
 function onDay(evs, d) {
@@ -89,26 +95,32 @@ function timeline(col, todayEvs, max, size) {
       col.addSpacer(2); return;
     }
     const t = row.addStack(); t.size = new Size(36, 0); txt(t, r.label, size - 3, r.past ? C.faint : C.muted, true);
-    const dot = row.addStack(); dot.size = new Size(4, size + 2); dot.backgroundColor = r.past ? C.faint : C.accent; dot.cornerRadius = 2;
+    const dot = row.addStack(); dot.size = new Size(4, size + 2); dot.backgroundColor = r.past ? C.faint : whoColor(r.e.who); dot.cornerRadius = 2;
     row.addSpacer(5);
     txt(row, r.e.title, size, r.past ? C.faint : C.fg, !r.past);
     row.addSpacer(); col.addSpacer(2);
   });
 }
 
-// 1週間（今日から7日）
-function weekStrip(col, evs) {
+// 1週間（今日から7日）。だれの予定かは左の色で
+function weekStrip(col, evs, h, maxEv, fs) {
   const st = col.addStack(); st.spacing = 3;
   for (let i = 0; i < 7; i++) {
     const d = new Date(today.getTime() + i * 86400000), list = evs ? onDay(evs, d) : [];
-    const c = st.addStack(); c.layoutVertically(); c.size = new Size(43, 52); c.setPadding(3, 3, 3, 3);
+    const c = st.addStack(); c.layoutVertically(); c.size = new Size(43, h); c.setPadding(4, 3, 3, 2);
     c.cornerRadius = 8; c.backgroundColor = i === 0 ? C.accent : C.card;
-    const dc = i === 0 ? Color.white() : d.getDay() === 0 ? C.sun : d.getDay() === 6 ? C.sat : C.muted;
+    const on = i === 0;
+    const dc = on ? Color.white() : d.getDay() === 0 ? C.sun : d.getDay() === 6 ? C.sat : C.muted;
     const top = c.addStack(); top.centerAlignContent();
-    txt(top, DOW[d.getDay()], 8, dc, true); top.addSpacer(2); txt(top, String(d.getDate()), 11, i === 0 ? Color.white() : C.fg, true);
-    c.addSpacer(2);
-    list.slice(0, 2).forEach(e => txt(c, (e.allDay ? "" : hm(e.start) + " ") + e.title, 7.5, i === 0 ? Color.white() : C.fg));
-    if (list.length > 2) txt(c, `+${list.length - 2}`, 7.5, i === 0 ? Color.white() : C.muted, true);
+    txt(top, DOW[d.getDay()], 9, dc, true); top.addSpacer(2); txt(top, String(d.getDate()), 13, on ? Color.white() : C.fg, true);
+    c.addSpacer(3);
+    list.slice(0, maxEv).forEach(e => {
+      const r = c.addStack(); r.centerAlignContent(); r.spacing = 2;
+      const bar = r.addStack(); bar.size = new Size(2.5, fs + 2); bar.cornerRadius = 1; bar.backgroundColor = on ? Color.white() : whoColor(e.who);
+      txt(r, e.title, fs, on ? Color.white() : C.fg, true);
+      c.addSpacer(1.5);
+    });
+    if (list.length > maxEv) txt(c, `ほか${list.length - maxEv}`, fs - 1, on ? Color.white() : C.muted, true);
     c.addSpacer();
   }
 }
@@ -117,18 +129,18 @@ function weekStrip(col, evs) {
 function monthGrid(col, evs) {
   txt(col, `${today.getMonth() + 1}月`, 10, C.muted, true); col.addSpacer(2);
   const first = new Date(today.getFullYear(), today.getMonth(), 1), days = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const hr = col.addStack(); for (let i = 0; i < 7; i++) { const c = hr.addStack(); c.size = new Size(20, 11); c.centerAlignContent(); txt(c, DOW[i], 7.5, i === 0 ? C.sun : i === 6 ? C.sat : C.muted, true); }
+  const hr = col.addStack(); for (let i = 0; i < 7; i++) { const c = hr.addStack(); c.size = new Size(21, 12); c.centerAlignContent(); txt(c, DOW[i], 8.5, i === 0 ? C.sun : i === 6 ? C.sat : C.muted, true); }
   let d = 1 - first.getDay();
   while (d <= days) {
     const r = col.addStack();
     for (let i = 0; i < 7; i++, d++) {
-      const c = r.addStack(); c.layoutVertically(); c.size = new Size(20, 17); c.centerAlignContent();
+      const c = r.addStack(); c.layoutVertically(); c.size = new Size(21, 19); c.centerAlignContent();
       if (d < 1 || d > days) continue;
       const date = new Date(today.getFullYear(), today.getMonth(), d), isT = d === today.getDate();
       const n = evs ? onDay(evs, date).length : 0;
-      const top = c.addStack(); top.size = new Size(20, 11); top.centerAlignContent(); if (isT) { top.backgroundColor = C.accent; top.cornerRadius = 5; }
-      txt(top, String(d), 8.5, isT ? Color.white() : date < today ? C.faint : i === 0 ? C.sun : i === 6 ? C.sat : C.fg, isT);
-      const dots = c.addStack(); dots.size = new Size(20, 5); dots.centerAlignContent();
+      const top = c.addStack(); top.size = new Size(21, 13); top.centerAlignContent(); if (isT) { top.backgroundColor = C.accent; top.cornerRadius = 5; }
+      txt(top, String(d), 10, isT ? Color.white() : date < today ? C.faint : i === 0 ? C.sun : i === 6 ? C.sat : C.fg, isT);
+      const dots = c.addStack(); dots.size = new Size(21, 6); dots.centerAlignContent();
       if (n) txt(dots, n >= 3 ? "•••" : n === 2 ? "••" : "•", 6, isT ? C.accent : C.accent, true);
     }
   }
@@ -143,14 +155,38 @@ function footer(w, d) {
   txt(f, d.stale ? "前の内容です" : "押すとこよみ", 8.5, C.muted);
 }
 
+// Todoと買い物リストのウィジェット（Parameter に「リスト」）
+function listWidget(d, family) {
+  const w = new ListWidget(); w.backgroundColor = C.bg; w.setPadding(12, 14, 10, 14); w.url = APP_URL;
+  w.refreshAfterDate = new Date(Date.now() + 10 * 60 * 1000);
+  head(w, d); w.addSpacer(8);
+  const big = family === "large" || family === "extraLarge", fs = big ? 15 : 13, max = big ? 10 : 4;
+  const col = (parent, title, items, empty, render) => {
+    const c = parent.addStack(); c.layoutVertically();
+    const h = c.addStack(); h.centerAlignContent(); txt(h, title, 12, C.muted, true); h.addSpacer(4); txt(h, String(items.length), 12, C.accent, true);
+    c.addSpacer(5);
+    if (!items.length) { txt(c, empty, fs - 1, C.muted); return; }
+    items.slice(0, max).forEach(x => { const r = c.addStack(); r.centerAlignContent(); render(r, x); c.addSpacer(big ? 5 : 3); });
+    if (items.length > max) txt(c, `ほか${items.length - max}`, 11, C.muted, true);
+  };
+  const todo = (r, x) => { txt(r, "□ ", fs, C.muted); txt(r, x.title, fs, C.fg, true); r.addSpacer(); if (x.label) txt(r, x.label, 11, x.late ? C.now : C.muted, true); };
+  const shop = (r, x) => { txt(r, "□ ", fs, C.muted); txt(r, x.name, fs, C.fg, true); r.addSpacer(); if (x.qty) txt(r, "×" + x.qty, 11, C.muted, true); };
+  if (family === "small") col(w, "🛒 買い物", d.shop || [], "なし", shop);
+  else if (big) { col(w, "✓ Todo", d.todos || [], "今週の分はおしまい", todo); w.addSpacer(12); col(w, "🛒 買い物", d.shop || [], "買うものはありません", shop); }
+  else { const row = w.addStack(); row.topAlignContent(); col(row, "✓ Todo", d.todos || [], "おしまい", todo); row.addSpacer(14); col(row, "🛒 買い物", d.shop || [], "なし", shop); }
+  w.addSpacer();
+  return w;
+}
+
 async function build(family) {
   const d = await loadFeed();
+  if (/リスト|list|todo|買い物/i.test(MODE)) return listWidget(d, family);
   let evs = await loadEvents();
   let todayEvs;
   if (evs) todayEvs = onDay(evs, today);
   else todayEvs = (d.events || []).map(e => { const [h, m] = (e.time || "").split(":").map(Number);
     const s = e.time ? new Date(today.getFullYear(), today.getMonth(), today.getDate(), h, m) : today;
-    return { title: e.title, start: s, end: e.time ? new Date(s.getTime() + 3600000) : new Date(today.getTime() + 86400000), allDay: !e.time }; });
+    const x = split(e.title); return { title: x.t, who: x.who, start: s, end: e.time ? new Date(s.getTime() + 3600000) : new Date(today.getTime() + 86400000), allDay: !e.time }; });
   const w = new ListWidget(); w.backgroundColor = C.bg; w.setPadding(12, 13, 10, 13);
   w.refreshAfterDate = new Date(Date.now() + 10 * 60 * 1000);
   w.url = APP_URL;
@@ -163,11 +199,12 @@ async function build(family) {
     row.addSpacer(10);
     const b = row.addStack(); b.layoutVertically(); timeline(b, todayEvs, 7, 12);
     w.addSpacer(8); txt(w, "これから1週間", 10, C.muted, true); w.addSpacer(3);
-    weekStrip(w, evs || []);
+    weekStrip(w, evs || [], 104, 5, 9.5);
     footer(w, d);
   } else {
-    weekStrip(w, evs || []); w.addSpacer(5);
-    timeline(w, todayEvs, 2, 11);
+    weekStrip(w, evs || [], 62, 2, 9);
+    w.addSpacer(5);
+    timeline(w, todayEvs, 1, 11);
   }
   if (!evs && family !== "small") { w.addSpacer(2); txt(w, "※iPhoneのカレンダーに「わが家のこよみ」を追加すると週・月も出ます", 8, C.muted, false, 2); }
   return w;
