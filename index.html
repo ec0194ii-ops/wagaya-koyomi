@@ -602,6 +602,29 @@ a.btn{text-decoration:none;display:inline-block}
 .nwt{display:block;font-size:14px;font-weight:700;line-height:1.45;color:var(--fg);text-decoration:none}
 .nwbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px} .nwb{font:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--paper);color:var(--fg);border-radius:999px;padding:5px 11px;text-decoration:none;cursor:pointer} .nwb.go{background:var(--fg);color:var(--paper);border-color:var(--fg)} .nwb[aria-expanded="true"]{background:var(--sunk)}
 .nwex{margin-top:8px;background:var(--sunk);border-radius:10px;padding:8px 10px} .nwex p{margin:0 0 5px;font-size:13px;line-height:1.65} .nwex p:last-child{margin:0} .nwm{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;color:var(--accent);border:1px solid currentColor;border-radius:4px;padding:0 4px;vertical-align:2px}
+/* ニュース：日経アプリ風のカード */
+.nwbox{display:flex;flex-direction:column;gap:10px}
+.nwsum{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.nwsum .k{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+.nwsum ul{margin:0;padding:0;list-style:none} .nwsum li{position:relative;padding:5px 0 5px 22px;font-size:14px;font-weight:700;line-height:1.5;border-top:1px dashed var(--line)} .nwsum li:first-child{border-top:0}
+.nwsum li::before{content:attr(data-n);position:absolute;left:0;top:6px;width:16px;height:16px;border-radius:5px;background:var(--accent);color:#fff;font-size:10px;display:grid;place-items:center}
+.nwsum .more{margin-top:6px;font:inherit;font-size:12px;font-weight:700;color:var(--accent);background:none;border:0;padding:4px 0}
+.nwsum .ov p{font-size:13.5px;line-height:1.7;margin:6px 0 0}
+.nwcats{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none} .nwcats::-webkit-scrollbar{display:none}
+.nwcats button{flex:none;border:0;background:var(--sunk);color:var(--muted);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:800;white-space:nowrap}
+.nwcats button[aria-pressed="true"]{background:#1f3a68;color:#fff}
+.nwcard{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.nwcard .row1{display:flex;gap:12px;align-items:flex-start}
+.nwcard .tx{flex:1;min-width:0}
+.nwcard h4{margin:0;font-size:17px;font-weight:800;line-height:1.45;color:var(--fg);letter-spacing:.01em}
+.nwcard .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px} .nwcard .tag{font-size:10.5px;font-weight:800;border-radius:6px;padding:1px 7px;background:#1f3a68;color:#fff} .nwcard .tag.lt{background:var(--sunk);color:var(--muted)}
+.nwcard .lead{margin-top:7px;font-size:13px;line-height:1.65;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.nwcard.open .lead{-webkit-line-clamp:unset;display:block;color:var(--fg)}
+.nwcard .th{flex:none;width:68px;height:68px;border-radius:12px;display:grid;place-items:center;font-size:30px}
+.nwcard.top h4{font-size:19px} .nwcard.top .th{width:84px;height:84px;font-size:38px}
+.nwcard .dt{display:none;margin-top:10px} .nwcard.open .dt{display:block}
+.nwcard .ex{background:var(--sunk);border-radius:12px;padding:10px 12px} .nwcard .ex p{margin:0 0 6px;font-size:13.5px;line-height:1.7} .nwcard .ex p:last-child{margin:0}
+.nwcard .bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .nws{display:block;font-size:12.5px;line-height:1.6;color:var(--fg);opacity:.85;margin-top:3px} .nwit small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
 .mrbar{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-bottom:6px} .mrbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
 .mrit{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:15px;cursor:pointer} .mrit:last-child{border-bottom:0}
@@ -1286,7 +1309,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
   <div class="sec" id="nwSec" data-mtab="news" hidden>
     <div class="sech"><div><div class="eyebrow">News</div><h2 data-ic="📰">けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
     <div class="nwdays" id="nwDays"></div>
-    <div class="card" id="nwBox"></div>
+    <div class="nwbox" id="nwBox"></div>
   </div>
   <div class="sec" data-mtab="body" data-fold="routine">
     <div class="sech"><div><div class="eyebrow">Routine</div><h2 data-ic="🔁">毎日のルーティン</h2></div><span class="sub" id="meRtSub"></span></div>
@@ -3290,23 +3313,35 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     news.slice(0,7).forEach(n=>{ const b=el("button","",n.date===todayKey?"今日":md(n.date)); b.type="button"; b.setAttribute("aria-pressed",n.date===nwSel?"true":"false"); b.addEventListener("click",()=>{ nwSel=n.date; renderNews(); }); ds.append(b); });
     const n=news.find(x=>x.date===nwSel), box=$("nwBox"); box.replaceChildren();
     $("nwSub").textContent=(n.source||"日本経済新聞")+(n.at?" ・"+n.at:"");
-    if(n.overview){ box.append(el("div","nwh","きょうの全体像")); String(n.overview).split(/\n+/).forEach(t=>t.trim()&&box.append(el("p","nwov",t.trim()))); }
-    if(Array.isArray(n.points)&&n.points.length){ const ul=el("ul","nwpt"); n.points.forEach(t=>ul.append(el("li","",String(t)))); box.append(ul); }
-    (Array.isArray(n.sections)?n.sections:[]).forEach((sc,i)=>{ const items=Array.isArray(sc.items)?sc.items:[]; if(!items.length) return;
-      const dt=document.createElement("details"); dt.className="nwsec"; if(i<1) dt.open=true;
-      const sm=document.createElement("summary"); sm.append(el("b","",String(sc.cat||"ニュース")), el("small","",items.length+"本")); dt.append(sm);
-      items.forEach(it=>{ const u=safeUrl(it.u); const w=el("div","nwit");
-        const t=document.createElement(u?"a":"b"); t.className="nwt"; t.textContent=String(it.t||""); if(u){ t.href=u; t.target="_blank"; t.rel="noopener"; }
-        if(it.m) t.append(el("span","nwm","会員限定")); w.append(t);
-        if(it.s) w.append(el("span","nws",String(it.s))); if(it.time) w.append(el("small","",String(it.time)));
-        const bar=el("div","nwbar");
-        if(u){ const g=document.createElement("a"); g.className="nwb go"; g.href=u; g.target="_blank"; g.rel="noopener"; g.textContent=/yahoo\.co\.jp/.test(u)?"Yahoo!で読む ›":"日経で全文 ›"; bar.append(g); }
-        let ex=null;
-        if(it.e){ const eb=el("button","nwb","やさしく解説"); eb.type="button"; eb.setAttribute("aria-expanded","false");
-          eb.addEventListener("click",()=>{ if(!ex){ ex=el("div","nwex"); String(it.e).split(/\n+/).forEach(x=>x.trim()&&ex.append(el("p","",x.trim()))); w.append(ex); } else ex.hidden=!ex.hidden; eb.setAttribute("aria-expanded",ex.hidden?"false":"true"); }); bar.append(eb); }
-        const cb=el("button","nwb","💬 相談"); cb.type="button"; cb.addEventListener("click",()=>askClaude(it,n)); bar.append(cb);
-        w.append(bar); dt.append(w); });
-      box.append(dt); });
+    // きょうのポイント（全体像はたたんでおく）
+    const pts=Array.isArray(n.points)?n.points:[];
+    if(pts.length||n.overview){ const sm=el("div","nwsum"); sm.append(el("div","k","きょうのポイント"));
+      if(pts.length){ const ul=document.createElement("ul"); pts.forEach((t,i)=>{ const li=el("li","",String(t)); li.dataset.n=i+1; ul.append(li); }); sm.append(ul); }
+      if(n.overview){ const ov=el("div","ov"); ov.hidden=true; String(n.overview).split(/\n+/).forEach(t=>t.trim()&&ov.append(el("p","",t.trim())));
+        const mb=el("button","more","全体像を読む ▾"); mb.type="button"; mb.addEventListener("click",()=>{ ov.hidden=!ov.hidden; mb.textContent=ov.hidden?"全体像を読む ▾":"とじる ▴"; }); sm.append(mb,ov); }
+      box.append(sm); }
+    // 面（カテゴリ）をタブで切り替え
+    const secs=(Array.isArray(n.sections)?n.sections:[]).filter(sc=>Array.isArray(sc.items)&&sc.items.length);
+    if(!secs.length){ if(n.note) box.append(el("p","hlrn",String(n.note))); return; }
+    if(!window.__nwCat||!secs.some(sc=>sc.cat===window.__nwCat)) window.__nwCat=secs[0].cat;
+    const shortCat=c=>String(c||"ニュース").replace(/（.*?）/g,"");
+    const NW_IC=[[/朝刊/,"🗞️","#e6ecf7"],[/マーケット/,"📈","#e7f3ec"],[/経済|政策/,"🏛️","#eef0f6"],[/国際/,"🌏","#e8f1f8"],[/ビジネス|企業/,"🏢","#f3efe6"],[/テック|AI/,"🤖","#efeaf7"],[/消費|マーケティング/,"🛍️","#fbece9"],[/関西|滋賀/,"🏯","#f4eee4"],[/Yahoo/,"🔥","#fdeee2"],[/雑談|スポーツ/,"⚽","#e9f5ea"]];
+    const icOf=c=>{ for(const [re,ic,bg] of NW_IC) if(re.test(String(c))) return [ic,bg]; return ["📰","var(--sunk)"]; };
+    const cats=el("div","nwcats"); secs.forEach(sc=>{ const b=el("button","",shortCat(sc.cat)+" "+sc.items.length); b.type="button"; b.setAttribute("aria-pressed",sc.cat===window.__nwCat?"true":"false");
+      b.addEventListener("click",()=>{ window.__nwCat=sc.cat; renderNews(); }); cats.append(b); }); box.append(cats);
+    const sc=secs.find(x=>x.cat===window.__nwCat), [ic,bg]=icOf(sc.cat);
+    sc.items.forEach((it,i)=>{ const u=safeUrl(it.u); const c=el("div","nwcard"+(i===0?" top":""));
+      const r1=el("div","row1"), tx=el("div","tx"); tx.append(el("h4","",String(it.t||"")));
+      const tg=el("div","tags"); if(it.m) tg.append(el("span","tag","会員限定")); if(it.time) tg.append(el("span","tag lt",String(it.time))); if(tg.children.length) tx.append(tg);
+      if(it.s) tx.append(el("div","lead",String(it.s)));
+      const th=el("div","th",ic); th.style.background=bg; r1.append(tx,th); c.append(r1);
+      const dt=el("div","dt");
+      if(it.e){ const ex=el("div","ex"); String(it.e).split(/\n+/).forEach(x=>x.trim()&&ex.append(el("p","",x.trim()))); dt.append(ex); }
+      const bar=el("div","bar");
+      const cb=el("button","nwb go","💬 Claudeと深掘り"); cb.type="button"; cb.addEventListener("click",e=>{ e.stopPropagation(); askClaude(it,n); }); bar.append(cb);
+      if(u){ const g=document.createElement("a"); g.className="nwb"; g.href=u; g.target="_blank"; g.rel="noopener"; g.textContent=/yahoo\.co\.jp/.test(u)?"Yahoo!で読む ›":"日経で全文 ›"; g.addEventListener("click",e=>e.stopPropagation()); bar.append(g); }
+      dt.append(bar); c.append(dt);
+      c.addEventListener("click",()=>c.classList.toggle("open")); box.append(c); });
     if(n.note) box.append(el("p","hlrn",String(n.note)));
   }
 
