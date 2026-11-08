@@ -582,6 +582,15 @@ a.btn{text-decoration:none;display:inline-block}
 .kuit .tx{flex:1;min-width:0;text-align:left;border:0;background:transparent;color:var(--fg);padding:0}
 .kuit .tx b{display:block;font-size:14.5px} .kuit .tx small{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kuit .go{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--accent)}
+.mltop{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px} .mlbig b{font-size:30px;font-weight:800;font-family:var(--f-num)} .mlbig small{font-size:13px;color:var(--muted);font-weight:700}
+.mlleft{font-size:13px;font-weight:800;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--paper));border-radius:999px;padding:4px 10px} .mlleft.over{color:#c0545e;background:#fde7e5}
+.mlbar{height:10px;border-radius:999px;background:var(--sunk);overflow:hidden} .mlbar i{display:block;height:100%;border-radius:999px;background:var(--accent)} .mlbar i.over{background:#e0675b} .mlbar.sm{height:6px;margin-top:4px}
+.mlbar i.ok{background:#4caf6a} .mlbar i.mid{background:#e6a23c} .mlbar i.low{background:#e0675b}
+.mlnut{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 12px;margin:12px 0 6px} .mln{display:grid;grid-template-columns:auto 1fr;align-items:baseline;column-gap:6px} .mln .l{font-size:12px;font-weight:800;color:var(--muted)} .mln b{font-size:15px;text-align:right} .mln small{grid-column:1/-1;font-size:10.5px;color:var(--muted)} .mln .mlbar{grid-column:1/-1}
+.mllist{border-top:1px solid var(--line);margin-top:8px;padding-top:6px} .mlrow{display:grid;grid-template-columns:44px 1fr auto;gap:6px;font-size:13px;padding:4px 0} .mlrow .tm{color:var(--muted);font-weight:700} .mlrow .kc{font-weight:800;color:var(--accent)}
+.mlweek{margin-top:10px} .mlwk{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:70px;align-items:end;padding-bottom:14px} .mlwk .d{position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center} .mlwk .d i{width:70%;border-radius:6px 6px 2px 2px;background:var(--accent);display:block} .mlwk .d i.over{background:#e0675b} .mlwk .d small{position:absolute;bottom:-14px;font-size:10px;color:var(--muted)}
+.mlwkline{position:absolute;left:0;right:0;border-top:1.5px dashed color-mix(in srgb,var(--accent) 60%,transparent);pointer-events:none}
+.mlw{margin-top:12px} .mlwr{display:flex;align-items:baseline;gap:8px;margin:2px 0 4px} .mlwr b{font-size:20px} .mlwr small{font-size:12px;font-weight:800;color:var(--accent)}
 .hltiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
 .hlt{background:var(--sunk);border-radius:12px;padding:8px 10px;min-width:0}
 .hlt small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1327,6 +1336,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       <form class="wbadd" id="meRtForm" autocomplete="off"><input type="text" id="meRtIn" maxlength="40" placeholder="＋ ルーティンを追加（例：ストレッチ10分）" aria-label="ルーティン"><button type="submit">追加</button></form>
     </div>
   </div>
+  <div class="sec" id="mlSec" data-mtab="body" data-fold="meal" hidden>
+    <div class="sech"><div><div class="eyebrow">Meals</div><h2 data-ic="🍽️">食事</h2></div><span class="sub" id="mlSub"></span></div>
+    <div class="card" id="mlBox"></div>
+  </div>
   <div class="sec" data-mtab="body" data-fold="body">
     <div class="sech"><div><div class="eyebrow">Body</div><h2 data-ic="❤️">からだ</h2></div><span class="sub" id="hlSub"></span></div>
     <div class="card">
@@ -1644,7 +1657,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], checklists=[], diaries=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3178,7 +3191,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         for(let i=0;i<26*7;i++){ const k=addDays(start,i); const c=el("i",k>todayKey?"fu":lg[k]?"on":""); c.title=md(k); g.append(c); }
         w.append(g); hb.append(w); }); }
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
-    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary();
+    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary(); renderMeal();
   }
   $("meRtForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("meRtIn").value.trim(); if(!v||!db) return; $("meRtIn").value="";
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
@@ -3265,6 +3278,40 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- ひとこと日記 (private note rows type:"diary", one per day; Claude also writes them from chat) ---------- */
   const dyId=k=>"diary-"+(window.__koyomiMe?window.__koyomiMe():"papa")+"-"+k;
   let dyAll=false;
+  // 食事（チャットで送った食事をClaudeが type:"meal" に記録。目標は type:"mealcfg"）
+  function renderMeal(){
+    const sec=$("mlSec"); if(!sec) return; const cfg=mealCfg; sec.hidden=!cfg&&!meals.length; if(sec.hidden) return;
+    const box=$("mlBox"); box.replaceChildren();
+    const tgt={kcal:+(cfg&&cfg.kcal)||1800,p:+(cfg&&cfg.protein_g)||115,f:+(cfg&&cfg.fat_g)||50,c:+(cfg&&cfg.carb_g)||220,fiber:+(cfg&&cfg.fiber_g)||21,salt:+(cfg&&cfg.salt_g)||7.5};
+    const sumOf=m=>{ if(m&&m.total) return m.total; const t={kcal:0,p:0,f:0,c:0,fiber:0,salt:0}; ((m&&m.items)||[]).forEach(it=>Object.keys(t).forEach(k=>t[k]+=+it[k]||0)); return t; };
+    const td=meals.find(m=>m.date===todayKey), tot=sumOf(td);
+    const left=Math.round(tgt.kcal-(+tot.kcal||0));
+    $("mlSub").textContent=td?("今日 "+Math.round(+tot.kcal||0)+" / "+tgt.kcal+"kcal"):"今日はまだ記録なし";
+    // カロリーの大きいリング風バー
+    const top=el("div","mltop"); const big=el("div","mlbig"); big.append(el("b","",String(Math.round(+tot.kcal||0))), el("small",""," / "+tgt.kcal+" kcal"));
+    top.append(big, el("div","mlleft "+(left<0?"over":""), left>=0?"あと "+left+" kcal":Math.abs(left)+" kcal オーバー"));
+    const kb=el("div","mlbar"); const ki=el("i"); ki.style.width=Math.min(100,(+tot.kcal||0)/tgt.kcal*100)+"%"; if(left<0) ki.className="over"; kb.append(ki); box.append(top,kb);
+    // 栄養素
+    const NUT=[["p","たんぱく質","g","up"],["f","脂質","g","cap"],["c","炭水化物","g","cap"],["fiber","食物繊維","g","up"],["salt","塩分","g","cap"]];
+    const g=el("div","mlnut"); NUT.forEach(([k,lab,u,kind])=>{ const v=+tot[k]||0, t=tgt[k], r=v/t; const c=el("div","mln");
+      const st=kind==="up"?(r>=0.9?"ok":r>=0.6?"mid":"low"):(r>1.05?"over":r>=0.6?"ok":"low");
+      c.append(el("span","l",lab), el("b","",(k==="salt"?v.toFixed(1):Math.round(v))+u), el("small","",(kind==="up"?"目標 ":"上限 ")+t+u));
+      const b=el("div","mlbar sm"); const i=el("i",st); i.style.width=Math.min(100,r*100)+"%"; b.append(i); c.append(b); g.append(c); }); box.append(g);
+    // 今日の食事
+    if(td&&Array.isArray(td.items)&&td.items.length){ const ul=el("div","mllist"); td.items.forEach(it=>{ const r=el("div","mlrow"); r.append(el("span","tm",String(it.time||"")), el("span","tx",String(it.t||"")), el("span","kc",Math.round(+it.kcal||0)+"kcal")); ul.append(r); }); box.append(ul); }
+    else box.append(el("p","empty","食べたものをClaudeに送ると、ここに記録されます（例：「朝いつもの」「昼 牛丼並」）。"));
+    // この1週間
+    const wk=el("div","mlweek"); wk.append(el("div","hlrh","この1週間のカロリー"));
+    const bars=el("div","mlwk"); for(let i=6;i>=0;i--){ const k=addDays(todayKey,-i), m=meals.find(x=>x.date===k), v=m?(+sumOf(m).kcal||0):0;
+      const d=el("div","d"); const b=el("i",v>tgt.kcal*1.08?"over":""); b.style.height=(v?Math.max(6,Math.min(100,v/(tgt.kcal*1.3)*100)):0)+"%"; d.append(b, el("small","",String(+k.slice(8)))); d.title=md(k)+" "+(v?Math.round(v)+"kcal":"記録なし"); bars.append(d); }
+    const line=el("div","mlwkline"); line.style.bottom="calc(14px + (100% - 14px) * "+(1/1.3).toFixed(3)+")"; bars.append(line); wk.append(bars); box.append(wk);
+    // 体重の目標まで
+    const ws=health.filter(h=>+h.weight>0).sort((a,b)=>a.date.localeCompare(b.date)); const cw=ws.length?+ws[ws.length-1].weight:null;
+    if(cfg&&cw){ const goal=69.9, start=+cfg.start_weight||cw; const done=Math.max(0,start-cw), need=Math.max(0,start-goal);
+      const wbox=el("div","mlw"); wbox.append(el("div","hlrh","目標まで（"+(cfg.goal_weight||"69kg台")+"・"+(cfg.goal_date?md(cfg.goal_date):"")+"）"));
+      const row=el("div","mlwr"); row.append(el("b","",cw.toFixed(1)+"kg"), el("small","",cw<=goal?"🎉 達成！":"あと "+(cw-goal).toFixed(1)+"kg")); wbox.append(row);
+      const b=el("div","mlbar"); const i=el("i","ok"); i.style.width=(need?Math.min(100,done/need*100):100)+"%"; b.append(i); wbox.append(b); box.append(wbox); }
+  }
   function renderDiary(){
     const L=$("dyList"); if(!L) return; L.replaceChildren();
     const t=diaries.find(d=>d.date===todayKey); const inp=$("dyIn"); if(document.activeElement!==inp) inp.value=t?String(t.text||""):"";
@@ -3773,7 +3820,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{shop=rows(s);renderShop();renderHome()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
