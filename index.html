@@ -555,6 +555,20 @@ a.btn{text-decoration:none;display:inline-block}
 .meentry{margin-top:10px;border:0;border-radius:999px;padding:7px 14px;background:color-mix(in srgb,#8e7cc3 16%,var(--paper));color:#4b3d78;font-weight:700;font-size:13px}
 .meentry span{font-size:11px;font-weight:600;opacity:.75;margin-left:4px}
 #pane-me .mhead h2{color:#4b3d78}
+/* パパのノート：タブ＋たたみ */
+.metabs{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:10px -4px 0;padding:6px 4px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.metabs button{border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.metabs .mti{font-size:19px;line-height:1.1}
+.metabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px color-mix(in srgb,var(--accent) 35%,transparent)}
+#pane-me[data-mt="today"] [data-mtab]:not([data-mtab="today"]),#pane-me[data-mt="body"] [data-mtab]:not([data-mtab="body"]),#pane-me[data-mt="news"] [data-mtab]:not([data-mtab="news"]),#pane-me[data-mt="life"] [data-mtab]:not([data-mtab="life"]){display:none!important}
+#pane-me h2[data-ic]::before{content:attr(data-ic);display:inline-grid;place-items:center;width:30px;height:30px;margin-right:8px;border-radius:10px;background:color-mix(in srgb,var(--accent) 13%,var(--paper));font-size:16px;vertical-align:-5px}
+#pane-me .sec[data-fold] > .sech{cursor:pointer;-webkit-tap-highlight-color:transparent}
+#pane-me .sec[data-fold] > .sech::after{content:"▾";align-self:center;margin-left:6px;font-size:14px;color:var(--faint);transition:transform .15s}
+#pane-me .sec.folded > .sech::after{transform:rotate(-90deg)}
+#pane-me .sec.folded > :not(.sech){display:none!important}
+#pane-me .sec.folded > .sech{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+#pane-me .sec.folded .eyebrow{display:none}
+#pane-me .sec.folded .sech .sub{font-weight:700;color:var(--accent)}
 .menote{margin:4px 0 0;font-size:12px;color:#5b4a8a;background:color-mix(in srgb,#8e7cc3 12%,var(--paper));border-radius:12px;padding:8px 12px}
 .merow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line)} .merow:first-child{border-top:0}
 .merow .tm{font-family:var(--f-num);font-size:12.5px;color:var(--muted);min-width:42px}
@@ -1248,35 +1262,41 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 <section id="pane-me" role="tabpanel" hidden>
   <div class="mhead"><button type="button" class="tbtn" id="meBack">‹ わが家へ</button><h2 id="meTitle">パパのノート</h2></div>
   <p class="menote">🔒 ここはパパだけのページです。ママのスマホには出ません。</p>
-  <div class="sec">
-    <div class="sech"><div><div class="eyebrow">Today</div><h2 id="meToday">今日</h2></div><button type="button" class="lnk" id="meAddEv">＋ 自分の予定</button></div>
+  <div class="metabs" id="meTabs" role="group" aria-label="ノートの切り替え">
+    <button type="button" data-t="today" aria-pressed="true"><span class="mti">☀️</span>今日</button>
+    <button type="button" data-t="body" aria-pressed="false"><span class="mti">💪</span>習慣・からだ</button>
+    <button type="button" data-t="news" aria-pressed="false"><span class="mti">📰</span>ニュース</button>
+    <button type="button" data-t="life" aria-pressed="false"><span class="mti">📒</span>くらし帳</button>
+  </div>
+  <div class="sec" data-mtab="today" data-fold="meday">
+    <div class="sech"><div><div class="eyebrow">Today</div><h2 id="meToday" data-ic="📅">今日</h2></div><button type="button" class="lnk" id="meAddEv">＋ 自分の予定</button></div>
     <div class="card" id="meDay"></div>
   </div>
-  <div class="sec" id="mrSec" hidden>
-    <div class="sech"><div><div class="eyebrow">Morning</div><h2 id="mrTitle">朝のルーティン</h2></div><span class="sub" id="mrSub"></span></div>
+  <div class="sec" id="mrSec" data-mtab="today" data-fold="morning" hidden>
+    <div class="sech"><div><div class="eyebrow">Morning</div><h2 id="mrTitle" data-ic="🌅">朝のルーティン</h2></div><span class="sub" id="mrSub"></span></div>
     <div class="card"><div class="mrbar"><i id="mrFill"></i></div><div id="mrList"></div><div id="mrHist"></div></div>
   </div>
-  <div class="sec" id="dySec">
-    <div class="sech"><div><div class="eyebrow">Diary</div><h2>ひとこと日記</h2></div><span class="sub" id="dySub"></span></div>
+  <div class="sec" id="dySec" data-mtab="today" data-fold="diary">
+    <div class="sech"><div><div class="eyebrow">Diary</div><h2 data-ic="✏️">ひとこと日記</h2></div><span class="sub" id="dySub"></span></div>
     <div class="card">
       <form class="dyform" id="dyForm" autocomplete="off"><textarea id="dyIn" rows="2" maxlength="600" placeholder="今日はどんな日だった？（1〜2行でOK）"></textarea><button type="submit" class="btn sm">保存</button></form>
       <div id="dyList"></div>
     </div>
   </div>
-  <div class="sec" id="nwSec" hidden>
-    <div class="sech"><div><div class="eyebrow">News</div><h2>けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
+  <div class="sec" id="nwSec" data-mtab="news" hidden>
+    <div class="sech"><div><div class="eyebrow">News</div><h2 data-ic="📰">けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
     <div class="nwdays" id="nwDays"></div>
     <div class="card" id="nwBox"></div>
   </div>
-  <div class="sec">
-    <div class="sech"><div><div class="eyebrow">Routine</div><h2>毎日のルーティン</h2></div><span class="sub" id="meRtSub"></span></div>
+  <div class="sec" data-mtab="body" data-fold="routine">
+    <div class="sech"><div><div class="eyebrow">Routine</div><h2 data-ic="🔁">毎日のルーティン</h2></div><span class="sub" id="meRtSub"></span></div>
     <div class="card"><div id="meRt"></div>
       <div id="meRtHist"></div>
       <form class="wbadd" id="meRtForm" autocomplete="off"><input type="text" id="meRtIn" maxlength="40" placeholder="＋ ルーティンを追加（例：ストレッチ10分）" aria-label="ルーティン"><button type="submit">追加</button></form>
     </div>
   </div>
-  <div class="sec">
-    <div class="sech"><div><div class="eyebrow">Body</div><h2>からだ</h2></div><span class="sub" id="hlSub"></span></div>
+  <div class="sec" data-mtab="body" data-fold="body">
+    <div class="sech"><div><div class="eyebrow">Body</div><h2 data-ic="❤️">からだ</h2></div><span class="sub" id="hlSub"></span></div>
     <div class="card">
       <div class="hltiles" id="hlTiles"></div>
       <div id="hlCharts"></div>
@@ -1287,13 +1307,13 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
       </form>
     </div>
   </div>
-  <div class="sec">
-    <div class="sech"><div><div class="eyebrow">Life notes</div><h2>くらし帳</h2></div><button type="button" class="lnk" id="kuAdd">＋ 追加</button></div>
+  <div class="sec" data-mtab="life">
+    <div class="sech"><div><div class="eyebrow">Life notes</div><h2 data-ic="📒">くらし帳</h2></div><button type="button" class="lnk" id="kuAdd">＋ 追加</button></div>
     <div class="seg kuseg" role="group" aria-label="くらし帳の種類"><button type="button" id="kuThings" aria-pressed="true">いつものもの</button><button type="button" id="kuRecipes" aria-pressed="false">わが家の料理</button><button type="button" id="kuMemos" aria-pressed="false">わが家メモ</button></div>
     <input type="search" class="kusearch" id="kuQ" placeholder="さがす（例：シャンプー）" aria-label="くらし帳をさがす">
     <div class="card" id="kuList"></div>
   </div>
-  <p class="note">「シャンプー」と買い物リストに入れると、ここに登録した「いつもの」が品名の下に出ます（その一言は家族にも見えます）。</p>
+  <p class="note" data-mtab="life">「シャンプー」と買い物リストに入れると、ここに登録した「いつもの」が品名の下に出ます（その一言は家族にも見えます）。</p>
 </section>
 
 <div class="scrim" id="kuScrim" hidden>
@@ -3131,6 +3151,16 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
   $("meAddEv").addEventListener("click",()=>{ window.__meDefault=true; openSheet("ev"); window.__meDefault=false; });
   $("meBack").addEventListener("click",()=>selectTab("home"));
+  // パパのノート：上のタブで切り替え・見出しを押すとたたむ（選んだ状態はこの端末に覚えておく）
+  const lsGet=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, lsSet=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
+  function setMeTab(t){ if(!["today","body","news","life"].includes(t)) t="today"; $("pane-me").dataset.mt=t;
+    $("meTabs").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")); lsSet("koyomi-me-tab",t); }
+  $("meTabs").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-t]"); if(!b) return; setMeTab(b.dataset.t); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); });
+  setMeTab(lsGet("koyomi-me-tab")||"today");
+  let meFold={}; try{ meFold=JSON.parse(lsGet("koyomi-me-fold")||"{}")||{}; }catch(e){ meFold={}; }
+  $("pane-me").querySelectorAll(".sec[data-fold]").forEach(sec=>{ const k=sec.dataset.fold; if(meFold[k]) sec.classList.add("folded");
+    sec.querySelector(".sech").addEventListener("click",ev=>{ if(ev.target.closest("button,a,input,form")) return;
+      const f=sec.classList.toggle("folded"); meFold[k]=f; lsSet("koyomi-me-fold",JSON.stringify(meFold)); }); });
   $("meEntry").addEventListener("click",()=>selectTab("me"));
   // くらし帳
   const KU_PH={thing:"さがす（例：シャンプー）",recipe:"さがす（例：照り焼き）",memo:"さがす（例：サイズ、型番）"};
@@ -3263,7 +3293,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(n.overview){ box.append(el("div","nwh","きょうの全体像")); String(n.overview).split(/\n+/).forEach(t=>t.trim()&&box.append(el("p","nwov",t.trim()))); }
     if(Array.isArray(n.points)&&n.points.length){ const ul=el("ul","nwpt"); n.points.forEach(t=>ul.append(el("li","",String(t)))); box.append(ul); }
     (Array.isArray(n.sections)?n.sections:[]).forEach((sc,i)=>{ const items=Array.isArray(sc.items)?sc.items:[]; if(!items.length) return;
-      const dt=document.createElement("details"); dt.className="nwsec"; if(i<2) dt.open=true;
+      const dt=document.createElement("details"); dt.className="nwsec"; if(i<1) dt.open=true;
       const sm=document.createElement("summary"); sm.append(el("b","",String(sc.cat||"ニュース")), el("small","",items.length+"本")); dt.append(sm);
       items.forEach(it=>{ const u=safeUrl(it.u); const w=el("div","nwit");
         const t=document.createElement(u?"a":"b"); t.className="nwt"; t.textContent=String(it.t||""); if(u){ t.href=u; t.target="_blank"; t.rel="noopener"; }
