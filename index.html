@@ -658,7 +658,7 @@ a.btn{text-decoration:none;display:inline-block}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .nwsum .k{color:var(--accent)} :root:not([data-theme="light"]) .nwsum li::before{background:var(--accent);color:var(--accent-ink)}}
 .nwcard{border:0;box-shadow:var(--shadow);border-radius:18px;overflow:hidden;padding:14px 15px}
 .nwhero{margin:-14px -15px 12px;aspect-ratio:16/8;overflow:hidden}
-.nwhero svg,.nwth svg{display:block;width:100%;height:100%}
+.nwhero svg,.nwth svg{display:block;width:100%;height:100%} .nwhero.ph{background:var(--sunk)} .nwth.ph{background:var(--sunk)} .nwhero img,.nwth img{display:block;width:100%;height:100%;object-fit:cover}
 .nwth{flex:none;width:92px;height:68px;border-radius:12px;overflow:hidden}
 .nwcard.top h4{font-size:19.5px}
 .nwx{display:flex;flex-direction:column;gap:8px}
@@ -3516,6 +3516,11 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function nwArt(key,cls){ const a=NW_ART[key]||NW_ART.news; const d=el("div",cls);
     d.style.background="linear-gradient(135deg,"+a[0]+","+a[1]+")";
     d.innerHTML='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'+a[2]+'</svg>'; return d; }
+  // 記事の写真（日経の画像サーバーのURLだけ。人物が写っていない写真のみ入れる運用）。読めなければ挿絵に切り替え
+  const nwImg=u=>/^https:\/\/([a-z0-9-]+\.)*nikkei\.com\/[^\s"'<>]+$/.test(String(u||""))?String(u):null;
+  function nwPic(it,key,cls){ const u=nwImg(it&&it.img); if(!u) return nwArt(key,cls);
+    const d=el("div",cls+" ph"), im=document.createElement("img"); im.loading="lazy"; im.decoding="async"; im.referrerPolicy="no-referrer"; im.alt=""; im.src=u;
+    im.addEventListener("error",()=>d.replaceWith(nwArt(key,cls))); d.append(im); return d; }
   // 【ひとことで】【なぜ？】【あなたへ】を色つきのブロックにする
   const NW_EXL=[[/ひとこと/,"💡","a"],[/なぜ/,"❓","b"],[/あなたへ/,"👉","c"],[/背景|経緯/,"📜","b"],[/これから/,"🔭","c"]];
   function nwExplain(text){ const ex=el("div","nwx");
@@ -3594,7 +3599,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const r1=el("div","row1"), tx=el("div","tx"); tx.append(el("h4","",String(it.t||"")));
       const tg=el("div","tags"); if(it.m) tg.append(el("span","tag","会員限定")); if(it.time) tg.append(el("span","tag lt",String(it.time))); if(tg.children.length) tx.append(tg);
       if(it.s) tx.append(el("div","lead",String(it.s)));
-      const ak=nwArtKey(it,sc.cat); if(i===0){ c.append(nwArt(ak,"nwhero")); r1.append(tx); } else r1.append(tx,nwArt(ak,"nwth")); c.append(r1);
+      const ak=nwArtKey(it,sc.cat); if(i===0){ c.append(nwPic(it,ak,"nwhero")); r1.append(tx); } else r1.append(tx,nwPic(it,ak,"nwth")); c.append(r1);
       const dt=el("div","dt");
       if(it.e) dt.append(nwExplain(it.e));
       const bar=el("div","bar");
