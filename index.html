@@ -3539,7 +3539,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     mine.forEach(e=>{ const r=el("div","merow"); r.append(el("span","tm",e.time||"終日")); const t=el("span","tx",e.title); r.append(t); r.addEventListener("click",()=>openSheet("ev",e)); box.append(r); });
     fam.forEach(e=>{ const r=el("div","merow fam"); r.append(el("span","tm",e.time||"終日")); const t=el("span","tx",e.title); t.append(el("small","","家族の予定")); r.append(t); box.append(r); });
     if(!box.children.length) box.append(el("p","empty","今日の自分の予定はありません。"));
-    renderTimeline();
+    renderMeTimeline();
     // routines
     const rb=$("meRt"); rb.replaceChildren();
     const rts=routines.slice().sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
@@ -3870,7 +3870,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const TL0=6, TL1=24, TLPX=46, tlMin=t=>{ const m=/^(\d{1,2}):(\d{2})/.exec(t||""); return m?(+m[1])*60+(+m[2]):null; }, fromMin=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
   let tlDay=null, tlMode=null, tlQ=null;
   const isWeekend=k=>[0,6].includes(k2d(k).getDay());
-  function renderTimeline(){
+  function renderMeTimeline(){
     const box=$("tlBox"); if(!box) return; if(!tlDay||tlDay<todayKey) tlDay=todayKey;
     const mode=tlMode||(isWeekend(todayKey)?"tl":"list");
     $("tlView").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===mode?"true":"false"));
@@ -3878,7 +3878,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const ds=$("tlDays"); ds.replaceChildren();
     for(let i=0;i<8;i++){ const k=addDays(todayKey,i), d=k2d(k), b=el("button",(d.getDay()===0?"sun":d.getDay()===6?"sat":"")); b.type="button"; b.setAttribute("aria-pressed",k===tlDay?"true":"false");
       b.append(el("small","",i===0?"今日":i===1?"明日":DOW[d.getDay()]), el("b","",String(d.getDate()))); if(eventsOn(k).some(e=>e._private)) b.append(el("i"));
-      b.addEventListener("click",()=>{ tlDay=k; tlQ=null; renderTimeline(); }); ds.append(b); }
+      b.addEventListener("click",()=>{ tlDay=k; tlQ=null; renderMeTimeline(); }); ds.append(b); }
     box.replaceChildren();
     const evs=eventsOn(tlDay), allday=evs.filter(e=>!tlMin(e.time)&&tlMin(e.time)!==0), timed=evs.filter(e=>tlMin(e.time)!=null);
     if(allday.length){ const a=el("div","tlall"); allday.forEach(e=>{ const c=el("button",e._private?"":"fam",(e._private?"":"👨‍👩‍👧 ")+String(e.title).replace(/^🔒/,"")); c.type="button"; c.addEventListener("click",()=>openSheet("ev",e)); a.append(c); }); box.append(a); }
@@ -3896,16 +3896,16 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         let y0=0, moved=0, dur=it.b-it.a;
         g.addEventListener("pointerdown",ev=>{ ev.preventDefault(); ev.stopPropagation(); y0=ev.clientY; moved=0; g.setPointerCapture(ev.pointerId); blk.classList.add("drag"); });
         g.addEventListener("pointermove",ev=>{ if(!blk.classList.contains("drag")) return; moved=Math.round((ev.clientY-y0)/TLPX*4)*15; const na=Math.min(Math.max(TL0*60,it.a+moved),TL1*60-dur); blk.style.top=((na-TL0*60)/60*TLPX)+"px"; blk.querySelector("small").textContent=fromMin(na)+"–"+fromMin(na+dur); moved=na-it.a; });
-        g.addEventListener("pointerup",async ()=>{ blk.classList.remove("drag"); if(!moved) return; const na=it.a+moved; try{ await db.collection("events").doc(e.id).update({time:fromMin(na),end:fromMin(na+dur)}); status("🕒 "+fromMin(na)+"に動かしました"); }catch(err){ status("動かせませんでした。",true); renderTimeline(); } });
-        g.addEventListener("pointercancel",()=>{ blk.classList.remove("drag"); renderTimeline(); }); }
+        g.addEventListener("pointerup",async ()=>{ blk.classList.remove("drag"); if(!moved) return; const na=it.a+moved; try{ await db.collection("events").doc(e.id).update({time:fromMin(na),end:fromMin(na+dur)}); status("🕒 "+fromMin(na)+"に動かしました"); }catch(err){ status("動かせませんでした。",true); renderMeTimeline(); } });
+        g.addEventListener("pointercancel",()=>{ blk.classList.remove("drag"); renderMeTimeline(); }); }
       w.append(blk); });
     if(tlDay===todayKey){ const n=new Date(), m=n.getHours()*60+n.getMinutes(); if(m>=TL0*60&&m<TL1*60){ const ln=el("div","tlnow"); ln.style.top=((m-TL0*60)/60*TLPX)+"px"; w.append(ln); } }
-    w.addEventListener("click",ev=>{ if(ev.target.closest(".tlev,.tlq")) return; const rc=w.getBoundingClientRect(); const m=TL0*60+Math.floor((ev.clientY-rc.top)/TLPX*2)*30; tlQ={start:Math.min(m,TL1*60-30)}; renderTimeline(); });
+    w.addEventListener("click",ev=>{ if(ev.target.closest(".tlev,.tlq")) return; const rc=w.getBoundingClientRect(); const m=TL0*60+Math.floor((ev.clientY-rc.top)/TLPX*2)*30; tlQ={start:Math.min(m,TL1*60-30)}; renderMeTimeline(); });
     if(tlQ){ const q=el("form","tlq"); q.autocomplete="off"; q.style.top=Math.min((tlQ.start-TL0*60)/60*TLPX,(TL1-TL0)*TLPX-150)+"px";
       const tm=el("input"); tm.type="time"; tm.value=fromMin(tlQ.start); tm.step="900"; const ti=el("input"); ti.type="text"; ti.placeholder="なにをする？（例：ゆづと公園）"; ti.maxLength=60;
       const durs=el("div","tlqd"); let dur=60; [[30,"30分"],[60,"1時間"],[120,"2時間"],[180,"3時間"]].forEach(([v,l])=>{ const b=el("button","",l); b.type="button"; b.setAttribute("aria-pressed",v===dur?"true":"false"); b.addEventListener("click",()=>{ dur=v; durs.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); }); durs.append(b); });
       const fam=el("label","tlqf"); const fc=el("input"); fc.type="checkbox"; fam.append(fc," 家族の予定にする");
-      const act=el("div","tlqa"); const cx=el("button","btn ghost sm","やめる"); cx.type="button"; cx.addEventListener("click",()=>{ tlQ=null; renderTimeline(); }); const ok=el("button","btn sm","入れる"); ok.type="submit"; act.append(fam,cx,ok);
+      const act=el("div","tlqa"); const cx=el("button","btn ghost sm","やめる"); cx.type="button"; cx.addEventListener("click",()=>{ tlQ=null; renderMeTimeline(); }); const ok=el("button","btn sm","入れる"); ok.type="submit"; act.append(fam,cx,ok);
       const r1=el("div","tlqr"); r1.append(tm,ti); q.append(r1,durs,act);
       q.addEventListener("click",ev=>ev.stopPropagation());
       q.addEventListener("submit",async ev=>{ ev.preventDefault(); const t=ti.value.trim(); if(!t) { ti.focus(); return; } const a=tlMin(tm.value)||tlQ.start;
@@ -3915,7 +3915,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     box.append(w);
     if(!tlQ&&tlDay===todayKey){ const n=new Date(); const y=Math.max(0,(n.getHours()-TL0-1)*TLPX); if(!box.dataset.scrolled){ box.dataset.scrolled="1"; } }
   }
-  $("tlView").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-v]"); if(!b) return; tlMode=b.dataset.v; tlQ=null; renderTimeline(); });
+  $("tlView").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-v]"); if(!b) return; tlMode=b.dataset.v; tlQ=null; renderMeTimeline(); });
 
   /* ---------- 期間ごとの目標（1か月・1年・3年）を円グラフで ---------- */
   let hzSel="m1", moneyOpen=false;
@@ -3930,7 +3930,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(it.kind==="routine"){ const r=routines.find(x=>x.title.includes(it.routine)); if(!r) return {p:null,txt:"—"}; const L=rtLog(r); const n=Object.keys(L).filter(k=>L[k]&&inP(k)).length; return {p:n/it.target,txt:n+"/"+it.target+"日"}; }
     if(it.kind==="diary"){ const n=diaries.filter(d=>inP(d.date)&&dyCount(d.text)===3).length; return {p:n/it.target,txt:n+"/"+it.target+"日"}; }
     if(it.kind==="assets"||it.kind==="saving"){ if(!moneyOpen) return {p:null,txt:"🔒",lock:true}; const en=(money&&money.entries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))); const v=en.find(e=>e[it.kind]!=null); if(!v) return {p:null,txt:"未入力"}; return {p:v[it.kind]/it.target,txt:yen(v[it.kind])+"/"+yen(it.target)+"万"}; }
-    if(it.kind==="score"){ const sc=(((values&&values.goals&&values.goals.scores)||{})[it.metric]||[]).filter(x=>x.date<=todayKey).sort((a,b)=>String(a.date).localeCompare(String(b.date))); if(!sc.length) return {p:null,txt:"未測定→"+it.target+"点"}; const cur=+sc[sc.length-1].score, base=+sc[0].score; return {p:cur>=it.target?1:(sc.length>1&&it.target>base?(cur-base)/(it.target-base):0),txt:cur+"→"+it.target+"点"+(sc.length===1?"（初回）":"")}; }
+    if(it.kind==="score"){ const sc=(((values&&values.goals&&values.goals.scores)||{})[it.metric]||[]).filter(x=>x.date<=todayKey).sort((a,b)=>String(a.date).localeCompare(String(b.date))); if(!sc.length) return {p:null,txt:"未測定→"+it.target+"点"+(it.by?"・"+md(it.by)+"まで":"")}; const cur=+sc[sc.length-1].score, base=+sc[0].score; return {p:cur>=it.target?1:(sc.length>1&&it.target>base?(cur-base)/(it.target-base):0),txt:cur+"→"+it.target+"点"+(sc.length===1?"（初回）":"")+(it.by?"・"+md(it.by)+"まで":"")}; }
     const pr=+(it.p||0); return {p:pr/100,txt:it.done||pr>=100?"達成":pr+"%",manual:true}; }
   function renderHorizon(){
     const seg=$("hzSeg"); if(!seg) return; const g=goals(), H=(g.horizons||[]); seg.replaceChildren();
