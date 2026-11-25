@@ -3930,6 +3930,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(it.kind==="routine"){ const r=routines.find(x=>x.title.includes(it.routine)); if(!r) return {p:null,txt:"—"}; const L=rtLog(r); const n=Object.keys(L).filter(k=>L[k]&&inP(k)).length; return {p:n/it.target,txt:n+"/"+it.target+"日"}; }
     if(it.kind==="diary"){ const n=diaries.filter(d=>inP(d.date)&&dyCount(d.text)===3).length; return {p:n/it.target,txt:n+"/"+it.target+"日"}; }
     if(it.kind==="assets"||it.kind==="saving"){ if(!moneyOpen) return {p:null,txt:"🔒",lock:true}; const en=(money&&money.entries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))); const v=en.find(e=>e[it.kind]!=null); if(!v) return {p:null,txt:"未入力"}; return {p:v[it.kind]/it.target,txt:yen(v[it.kind])+"/"+yen(it.target)+"万"}; }
+    if(it.kind==="score"){ const sc=(((values&&values.goals&&values.goals.scores)||{})[it.metric]||[]).filter(x=>x.date<=todayKey).sort((a,b)=>String(a.date).localeCompare(String(b.date))); if(!sc.length) return {p:null,txt:"未測定→"+it.target+"点"}; const cur=+sc[sc.length-1].score, base=+sc[0].score; return {p:cur>=it.target?1:(sc.length>1&&it.target>base?(cur-base)/(it.target-base):0),txt:cur+"→"+it.target+"点"+(sc.length===1?"（初回）":"")}; }
     const pr=+(it.p||0); return {p:pr/100,txt:it.done||pr>=100?"達成":pr+"%",manual:true}; }
   function renderHorizon(){
     const seg=$("hzSeg"); if(!seg) return; const g=goals(), H=(g.horizons||[]); seg.replaceChildren();
@@ -3992,7 +3993,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const rep=hlReps&&hlReps[0]; if(rep) B.append(el("div","dbnote","🩺 "+String(rep.title||"").replace(/^週のチェック\s*/,"")));
     // growth
     const Gr=$("dbGrow"); Gr.replaceChildren(); const te=daysTo(g.toeic.next);
-    Gr.append(dbRow("🇬🇧","TOEIC",(values&&values.toeicScore?values.toeicScore+"点":"目標 "+g.toeic.target+"点"),te>=0?"次の試験 "+md(g.toeic.next)+"（あと"+te+"日）":"",null));
+    const ts=((((values&&values.goals&&values.goals.scores)||{}).toeic)||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0]; Gr.append(dbRow("🇬🇧","TOEIC",(ts?ts.score+"点":"未測定")+" / 目標"+g.toeic.target,(ts?md(ts.date)+" "+(ts.type||"")+"・":"")+(te>=0?"次の試験 "+md(g.toeic.next)+"（あと"+te+"日）":""),ts?ts.score/g.toeic.target:null));
     const s0=weekStart(todayKey); routines.forEach(r=>{ const L=rtLog(r); let n=0; for(let i=0;i<7;i++) if(L[addDays(s0,i)]) n++; const sk=streak(L);
       Gr.append(dbRow(/英語/.test(r.title)?"📚":/運動/.test(r.title)?"🏃":"🔁",r.title,n+"/7日",(sk?"🔥 "+sk+"日連続・":"")+"今週",n/7,n>=5?"ok":"")); });
     const dyMap={}; diaries.forEach(d=>{ if(dyCount(d.text)===3) dyMap[d.date]=1; }); let dn=0; for(let i=0;i<7;i++) if(dyMap[addDays(s0,i)]) dn++;
