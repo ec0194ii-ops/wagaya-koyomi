@@ -1350,12 +1350,13 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .tldays .sun b{color:var(--hot)} .tldays .sat b{color:var(--cold)}
 .tldays i{position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
 .tldays button[aria-pressed="true"]{background:var(--fg);border-color:var(--fg)} .tldays button[aria-pressed="true"] *{color:var(--paper)!important}
-.tlcard{padding:10px 8px 10px 4px!important}
+.tlcard{padding:14px 8px 10px 4px!important}
 .tlall{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px 46px}
 .tlall button{border:0;background:var(--c-blue);border-radius:6px;padding:3px 8px;font-size:12.5px;font-weight:600} .tlall .fam{background:var(--c-gray);color:var(--muted)}
 .tl{position:relative;cursor:copy}
 .tlh{position:absolute;left:0;right:0;height:0;border-top:1px solid var(--line)}
-.tlh span{position:absolute;left:0;top:-8px;width:40px;text-align:right;font-family:var(--f-num);font-size:10.5px;color:var(--faint);background:var(--paper);padding-right:4px}
+.tlh span{position:absolute;left:0;top:-9px;width:40px;text-align:right;font-family:var(--f-num);font-size:12px;font-weight:600;color:var(--muted);background:var(--paper);padding-right:5px;z-index:1;line-height:18px}
+.tlh.half{border-top:1px dashed color-mix(in srgb,var(--line) 70%,transparent)}
 .tlev{position:absolute;border-radius:6px;background:var(--c-blue);border-left:3px solid var(--accent);padding:2px 22px 2px 6px;overflow:hidden;cursor:pointer;z-index:2}
 .tlev.fam{background:var(--c-gray);border-left-color:var(--faint);opacity:.85}
 .tlev .tt b{display:block;font-size:12.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -3882,7 +3883,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const evs=eventsOn(tlDay), allday=evs.filter(e=>!tlMin(e.time)&&tlMin(e.time)!==0), timed=evs.filter(e=>tlMin(e.time)!=null);
     if(allday.length){ const a=el("div","tlall"); allday.forEach(e=>{ const c=el("button",e._private?"":"fam",(e._private?"":"👨‍👩‍👧 ")+String(e.title).replace(/^🔒/,"")); c.type="button"; c.addEventListener("click",()=>openSheet("ev",e)); a.append(c); }); box.append(a); }
     const w=el("div","tl"); w.style.height=(TL1-TL0)*TLPX+"px";
-    for(let h=TL0;h<TL1;h++){ const r=el("div","tlh"); r.style.top=(h-TL0)*TLPX+"px"; r.append(el("span","",h+":00")); w.append(r); }
+    for(let h=TL0;h<TL1;h++){ const r=el("div","tlh"); r.style.top=(h-TL0)*TLPX+"px"; r.append(el("span","",h+":00")); w.append(r); const hf=el("div","tlh half"); hf.style.top=((h-TL0)*TLPX+TLPX/2)+"px"; w.append(hf); }
     // place blocks (simple overlap columns)
     const items=timed.map(e=>{ const a=tlMin(e.time), b=Math.max(a+30,tlMin(e.end)||a+60); return {e,a,b}; }).sort((x,y)=>x.a-y.a||y.b-x.b);
     const cols=[]; items.forEach(it=>{ let c=cols.findIndex(end=>end<=it.a); if(c<0){ c=cols.length; cols.push(0); } cols[c]=it.b; it.c=c; });
