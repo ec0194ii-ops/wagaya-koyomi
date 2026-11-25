@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="robots" content="noindex,nofollow">
 <link rel="manifest" href="manifest.webmanifest">
+<script>if(/[?&]space=news\b/.test(location.search)){document.documentElement.classList.add("app-news");document.title="けさのニュース";document.querySelector('link[rel="manifest"]').href="news.webmanifest";document.addEventListener("DOMContentLoaded",function(){var a=document.querySelector('link[rel="apple-touch-icon"]');if(a)a.href="apple-touch-icon-news.png";var m=document.querySelector('meta[name="apple-mobile-web-app-title"]');if(m)m.content="ニュース";});}</script>
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -560,7 +561,7 @@ a.btn{text-decoration:none;display:inline-block}
 .metabs button{border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap}
 .metabs .mti{font-size:19px;line-height:1.1}
 .metabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px color-mix(in srgb,var(--accent) 35%,transparent)}
-#pane-me[data-mt="today"] [data-mtab]:not([data-mtab="today"]),#pane-me[data-mt="body"] [data-mtab]:not([data-mtab="body"]),#pane-me[data-mt="news"] [data-mtab]:not([data-mtab="news"]),#pane-me[data-mt="life"] [data-mtab]:not([data-mtab="life"]),#pane-me[data-mt="goal"] [data-mtab]:not([data-mtab="goal"]){display:none!important}
+#pane-me[data-mt="today"] [data-mtab]:not([data-mtab="today"]),#pane-me[data-mt="body"] [data-mtab]:not([data-mtab="body"]),#pane-me[data-mt="news"] [data-mtab]:not([data-mtab="news"]),#pane-me[data-mt="life"] [data-mtab]:not([data-mtab="life"]),#pane-me[data-mt="dash"] [data-mtab]:not([data-mtab="dash"]),#pane-me[data-mt="goal"] [data-mtab]:not([data-mtab="goal"]){display:none!important}
 #pane-me h2[data-ic]::before{content:attr(data-ic);display:inline-grid;place-items:center;width:30px;height:30px;margin-right:8px;border-radius:10px;background:color-mix(in srgb,var(--accent) 13%,var(--paper));font-size:16px;vertical-align:-5px}
 #pane-me .sec[data-fold] > .sech{cursor:pointer;-webkit-tap-highlight-color:transparent}
 #pane-me .sec[data-fold] > .sech::after{content:"▾";align-self:center;margin-left:6px;font-size:14px;color:var(--faint);transition:transform .15s}
@@ -1302,6 +1303,41 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .dyd.now{background:var(--sunk)} .dyd.fu i{opacity:.35}
 .dmin{width:100%;font:inherit;font-size:16px;border:0;background:transparent;color:var(--fg);resize:vertical;outline:none;line-height:1.7;padding:0}
 .dmprev{margin-top:8px;background:var(--c-gray);border-radius:6px;padding:6px 10px} .dmprev summary{font-size:12px;font-weight:700;color:var(--muted);cursor:pointer} .dmprev p{margin:4px 0 0;font-size:13.5px;white-space:pre-wrap}
+
+/* dashboard */
+.dbhero{background:var(--c-blue);border-radius:10px;padding:14px 16px}
+.dbhero small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
+.dbhero .big{font-family:var(--f-num);font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.dbhero .big i{font-style:normal;font-size:15px;font-weight:600;color:var(--muted)}
+.dbhero p{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--fg)}
+.dbrow{padding:9px 0;border-top:1px solid var(--line)} .dbrow:first-child{border-top:0;padding-top:2px}
+.dbrow .h{display:flex;align-items:center;gap:8px}
+.dbrow .ic{font-size:18px;width:24px;text-align:center} .dbrow .l{flex:1;font-size:14px;font-weight:600}
+.dbrow .v{font-family:var(--f-num);font-size:16px}
+.dbrow small{display:block;font-size:11.5px;color:var(--muted);margin:4px 0 0 32px;line-height:1.5}
+.dbrow small .up{color:#448361} .dbrow small .dn{color:#d44c47}
+.dbbar{height:6px;border-radius:99px;background:var(--sunk);margin:6px 0 0 32px;overflow:hidden}
+.dbbar i{display:block;height:100%;border-radius:99px;background:var(--accent)} .dbbar.ok i{background:#448361} .dbbar.warn i{background:#d9730d}
+.dbnote{font-size:12.5px;background:var(--c-gray);border-radius:6px;padding:6px 10px;margin-top:6px}
+.dbform{margin-top:8px} .dbform summary{font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;padding:4px 0}
+.dbform form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:end;margin-top:4px}
+.dbform label{font-size:10.5px;color:var(--muted);font-weight:700;display:flex;flex-direction:column;gap:2px}
+.dbform input{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--paper);color:var(--fg);min-width:0}
+.dbform .btn{grid-column:1/-1}
+.dbax{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);cursor:pointer} .dbax:first-child{border-top:0}
+.dbax .ic{font-size:18px;width:24px;text-align:center} .dbax .l{font-size:13.5px;width:7.5em;flex:none}
+.dbax .vspark{flex:1;margin:0;height:20px} .dbax b{font-family:var(--f-num);width:1.4em;text-align:right}
+.dbnews{display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-weight:700}
+.dbnews span{font-size:12px;color:var(--muted);font-weight:600}
+.metabs{grid-template-columns:repeat(5,1fr)} .metabs button{font-size:10px}
+/* news app mode */
+.nwhead{display:none}
+.app-news .nav,.app-news .fab,.app-news .metabs,.app-news #pane-me .mhead,.app-news #pane-me .menote{display:none!important}
+.app-news .nwhead{display:flex;align-items:center;gap:8px;padding:16px 0 4px}
+.app-news .nwhead .ic{font-size:26px} .app-news .nwhead h2{flex:1;font-size:24px;font-family:var(--f-display)}
+.app-news .nwback{font-size:12.5px;font-weight:700;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px}
+.app-news .wrap{padding-block:0 60px}
+.app-news #nwSec > .sech h2{display:none}
 </style>
 </head>
 <body>
@@ -1481,15 +1517,34 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 
 <!-- ================= MY NOTE (private to the signed-in person) ================= -->
 <section id="pane-me" role="tabpanel" hidden>
+  <div class="nwhead"><span class="ic">📰</span><h2>けさのニュース</h2><a href="./?space=me" class="nwback">📓 ノートへ</a></div>
   <div class="mhead"><button type="button" class="tbtn" id="meBack">‹ わが家へ</button><h2 id="meTitle">パパのノート</h2></div>
   <p class="menote">🔒 ここはパパだけのページです。ママのスマホには出ません。</p>
   <div class="metabs" id="meTabs" role="group" aria-label="ノートの切り替え">
+    <button type="button" data-t="dash" aria-pressed="false"><span class="mti">📊</span>ダッシュボード</button>
     <button type="button" data-t="today" aria-pressed="true"><span class="mti">☀️</span>今日</button>
     <button type="button" data-t="goal" aria-pressed="false"><span class="mti">🧭</span>わたしの軸</button>
     <button type="button" data-t="body" aria-pressed="false"><span class="mti">💪</span>習慣</button>
-    <button type="button" data-t="news" aria-pressed="false"><span class="mti">📰</span>ニュース</button>
     <button type="button" data-t="life" aria-pressed="false"><span class="mti">📒</span>くらし帳</button>
   </div>
+  <div class="sec" data-mtab="dash"><div id="dbTop"></div></div>
+  <div class="sec" data-mtab="dash">
+    <div class="sech"><div><h2 data-ic="💰">お金</h2></div><span class="sub" id="dbMoneySub"></span></div>
+    <div class="card" id="dbMoney"></div>
+  </div>
+  <div class="sec" data-mtab="dash">
+    <div class="sech"><div><h2 data-ic="💪">からだ</h2></div><span class="sub">この7日の平均（前の7日と比べて）</span></div>
+    <div class="card" id="dbBody"></div>
+  </div>
+  <div class="sec" data-mtab="dash">
+    <div class="sech"><div><h2 data-ic="🌱">成長・習慣</h2></div><span class="sub" id="dbGrowSub"></span></div>
+    <div class="card" id="dbGrow"></div>
+  </div>
+  <div class="sec" data-mtab="dash">
+    <div class="sech"><div><h2 data-ic="🧭">5つの軸</h2></div><span class="sub" id="dbAxSub"></span></div>
+    <div class="card" id="dbAx"></div>
+  </div>
+  <div class="sec" data-mtab="dash"><a class="dbnews" href="./?space=news">📰 けさのニュースを開く<span>日経・Yahoo!のまとめ ›</span></a></div>
   <div class="medash" id="meDash" data-mtab="today"></div>
   <div class="sec" data-mtab="today" data-fold="meday">
     <div class="sech"><div><div class="eyebrow">Today</div><h2 id="meToday" data-ic="📅">今日</h2></div><button type="button" class="lnk" id="meAddEv">＋ 自分の予定</button></div>
@@ -1907,7 +1962,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[], money=null;
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3441,7 +3496,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         for(let i=0;i<26*7;i++){ const k=addDays(start,i); const c=el("i",k>todayKey?"fu":lg[k]?"on":""); c.title=md(k); g.append(c); }
         w.append(g); hb.append(w); }); }
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
-    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary(); renderMeal(); renderGoal(); renderWants(); renderGtd(); renderDayMemo(); renderDash();
+    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary(); renderMeal(); renderGoal(); renderWants(); renderGtd(); renderDayMemo(); renderDash(); renderBoard();
   }
   $("meRtForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("meRtIn").value.trim(); if(!v||!db) return; $("meRtIn").value="";
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
@@ -3449,7 +3504,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   $("meBack").addEventListener("click",()=>selectTab("home"));
   // パパのノート：上のタブで切り替え・見出しを押すとたたむ（選んだ状態はこの端末に覚えておく）
   const lsGet=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, lsSet=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
-  function setMeTab(t){ if(!["today","goal","body","news","life"].includes(t)) t="today"; $("pane-me").dataset.mt=t;
+  function setMeTab(t){ if(!["dash","today","goal","body","news","life"].includes(t)) t="dash"; $("pane-me").dataset.mt=t;
     $("meTabs").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")); lsSet("koyomi-me-tab",t); }
   $("meTabs").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-t]"); if(!b) return; setMeTab(b.dataset.t); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); });
   setMeTab(lsGet("koyomi-me-tab")||"today");
@@ -3747,6 +3802,60 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     try{ if(cur) await db.collection("notes").doc(id).update({text:v}); else await db.collection("notes").doc(id).set({type:"daymemo",date:todayKey,text:v,_private:true}); status("メモを保存しました"); }catch(e){ status("保存できませんでした。",true); } }
   $("dmIn").addEventListener("blur",saveDayMemo);
   let dmT=null; $("dmIn").addEventListener("input",()=>{ clearTimeout(dmT); dmT=setTimeout(saveDayMemo,2500); });
+
+  /* ---------- 📊 ダッシュボード：夢・お金・からだ・成長・5つの軸を1画面で ---------- */
+  const G0={dreamDate:"2029-10-01",dreamLabel:"3年後（2029年秋）の理想",money:{target:5000,label:"40歳で金融資産5,000万円",by:"2032-11-30",yearSave:200,nisaYear:360},weight:{goal:63,next:69.9,nextBy:"2026-12-31"},toeic:{target:650,next:"2026-12-19"},steps:8000,sleep:7};
+  const goals=()=>{ const g=(values&&values.goals)||{}; return Object.assign({},G0,g,{money:Object.assign({},G0.money,g.money||{}),weight:Object.assign({},G0.weight,g.weight||{}),toeic:Object.assign({},G0.toeic,g.toeic||{})}); };
+  const daysTo=k=>Math.round((k2d(k)-k2d(todayKey))/864e5);
+  const yen=n=>Math.round(n).toLocaleString("ja-JP");
+  function hAvg(f,from,to){ const v=health.filter(h=>h.date>=from&&h.date<=to).map(h=>+h[f]).filter(x=>x>0&&!(f==="steps"&&x<300)); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; }
+  function dbBar(ratio,cls){ const b=el("div","dbbar"+(cls?" "+cls:"")); const i=el("i"); i.style.width=Math.max(0,Math.min(100,ratio*100)).toFixed(1)+"%"; b.append(i); return b; }
+  function dbRow(ic,label,val,sub,ratio,cls){ const r=el("div","dbrow"); const h=el("div","h"); h.append(el("span","ic",ic), el("span","l",label)); const v=el("b","v",val); h.append(v); r.append(h); if(ratio!=null) r.append(dbBar(ratio,cls)); if(sub) r.append(el("small","",sub)); return r; }
+  function streak(map){ let n=0, k=map[todayKey]?todayKey:addDays(todayKey,-1); while(map[k]){ n++; k=addDays(k,-1); } return n; }
+  function renderBoard(){
+    const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
+    const c=el("div","dbhero"); const dd=daysTo(g.dreamDate);
+    c.append(el("small","","🎯 "+g.dreamLabel+"まで"), el("div","big",dd>0?yen(dd):"0")); c.querySelector(".big").append(el("i",""," 日"));
+    if(values&&values.purpose) c.append(el("p","",values.purpose)); top.append(c);
+    // money
+    const M=$("dbMoney"); M.replaceChildren(); const en=(money&&Array.isArray(money.entries)?money.entries:[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+    const last=en[0]; $("dbMoneySub").textContent=last?md(last.date)+"時点・年に数回の更新":"年に数回、ざっくりの数字で";
+    if(last&&last.assets!=null){ const r=+last.assets/g.money.target; const left=daysTo(g.money.by); M.append(dbRow("🏦","金融資産",yen(last.assets)+"万円",g.money.label+"まで "+Math.round(r*100)+"%（あと"+yen(Math.max(0,g.money.target-last.assets))+"万円・"+(left>0?Math.round(left/365*10)/10+"年":"期限")+"）",r));
+      const prev=en.find(e=>e!==last&&e.assets!=null); if(prev){ const df=last.assets-prev.assets; M.lastChild.querySelector("small").append(el("span",df>=0?"up":"dn","　"+(df>=0?"▲":"▼")+yen(Math.abs(df))+"万円（"+md(prev.date)+"から）")); } }
+    else M.append(el("p","empty","まだ数字がありません。下の「数字を更新」から入れるか、チャットで「資産◯万円」と伝えてください。"));
+    if(last&&last.saving!=null) M.append(dbRow("🐷","今年の貯金",yen(last.saving)+"万円","目標 年"+g.money.yearSave+"万円",last.saving/g.money.yearSave));
+    if(last&&last.nisa!=null) M.append(dbRow("📈","今年のNISA積立",yen(last.nisa)+"万円","年"+g.money.nisaYear+"万円の枠をフルに",last.nisa/g.money.nisaYear));
+    const fd=el("details","dbform"); fd.append(el("summary","","✏️ 数字を更新")); const fm=el("form"); fm.autocomplete="off";
+    [["assets","金融資産（万円）"],["saving","今年の貯金（万円）"],["nisa","今年のNISA積立（万円）"]].forEach(([k,l])=>{ const lb=el("label","",l); const i=el("input"); i.type="number"; i.inputMode="numeric"; i.name=k; i.step="1"; if(last&&last[k]!=null) i.placeholder=String(last[k]); lb.append(i); fm.append(lb); });
+    const sb=el("button","btn sm","保存"); sb.type="submit"; fm.append(sb);
+    fm.addEventListener("submit",async ev=>{ ev.preventDefault(); const e={date:todayKey}; ["assets","saving","nisa"].forEach(k=>{ const v=fm.elements[k].value.trim(); if(v!=="") e[k]=+v; }); if(Object.keys(e).length<2) return;
+      const prevE=(money&&money.entries)||[]; const list=prevE.filter(x=>x.date!==todayKey).concat([Object.assign({},prevE.find(x=>x.date===todayKey)||{},e)]);
+      try{ if(money) await db.collection("notes").doc(money.id).update({entries:list}); else await db.collection("notes").doc("money-"+meNow()).set({type:"money",entries:list,_private:true}); status("お金の数字を更新しました"); }catch(err){ status("保存できませんでした。",true); } });
+    fd.append(fm); M.append(fd);
+    // body
+    const B=$("dbBody"); B.replaceChildren(); const a0=addDays(todayKey,-6), b1=addDays(todayKey,-7), b0=addDays(todayKey,-13);
+    const trend=(cur,prev,goodUp,unit,dig)=>{ if(cur==null) return "記録なし"; let t=(dig?cur.toFixed(dig):yen(cur))+unit; if(prev!=null){ const d=cur-prev, ok=goodUp?d>=0:d<=0; t+="　"+(Math.abs(d)<(dig?0.05:1)?"→":(d>0?"↑":"↓")); } return t; };
+    const ws=health.filter(h=>+h.weight>0).sort((a,b)=>a.date.localeCompare(b.date)), wl=ws[ws.length-1], w0=ws[0];
+    if(wl){ const wk=ws.filter(h=>h.date<=addDays(wl.date,-6)).pop(); const ch=wk?(+wl.weight- +wk.weight):null; const st=+w0.weight, span=st-g.weight.goal;
+      B.append(dbRow("⚖️","体重",(+wl.weight).toFixed(1)+"kg",(ch!=null?"1週間で"+(ch>0?"+":"")+ch.toFixed(1)+"kg・":"")+"年末に"+Math.floor(g.weight.next)+"kg台まであと"+Math.max(0,+wl.weight-g.weight.next).toFixed(1)+"kg・最終目標 "+g.weight.goal+"kg",span>0?(st- +wl.weight)/span:null)); }
+    const sl=hAvg("sleep_h",a0,todayKey), slp=hAvg("sleep_h",b0,b1); B.append(dbRow("😴","睡眠",trend(sl,slp,true,"時間",1),"目標 "+g.sleep+"時間",sl!=null?sl/g.sleep:null,sl!=null&&sl<6?"warn":""));
+    const st=hAvg("steps",a0,todayKey), stp=hAvg("steps",b0,b1); B.append(dbRow("👟","歩数",trend(st,stp,true,"歩"),"目標 "+yen(g.steps)+"歩",st!=null?st/g.steps:null));
+    const hr=hAvg("rhr",a0,todayKey), hrp=hAvg("rhr",b0,b1); B.append(dbRow("❤️","安静時心拍",trend(hr,hrp,false,"bpm"),"低めに落ち着いているほど良い傾向",null));
+    const rep=hlReps&&hlReps[0]; if(rep) B.append(el("div","dbnote","🩺 "+String(rep.title||"").replace(/^週のチェック\s*/,"")));
+    // growth
+    const Gr=$("dbGrow"); Gr.replaceChildren(); const te=daysTo(g.toeic.next);
+    Gr.append(dbRow("🇬🇧","TOEIC",(values&&values.toeicScore?values.toeicScore+"点":"目標 "+g.toeic.target+"点"),te>=0?"次の試験 "+md(g.toeic.next)+"（あと"+te+"日）":"",null));
+    const s0=weekStart(todayKey); routines.forEach(r=>{ const L=rtLog(r); let n=0; for(let i=0;i<7;i++) if(L[addDays(s0,i)]) n++; const sk=streak(L);
+      Gr.append(dbRow(/英語/.test(r.title)?"📚":/運動/.test(r.title)?"🏃":"🔁",r.title,n+"/7日",(sk?"🔥 "+sk+"日連続・":"")+"今週",n/7,n>=5?"ok":"")); });
+    const dyMap={}; diaries.forEach(d=>{ if(dyCount(d.text)===3) dyMap[d.date]=1; }); let dn=0; for(let i=0;i<7;i++) if(dyMap[addDays(s0,i)]) dn++;
+    Gr.append(dbRow("✏️","日記3行",dn+"/7日",(streak(dyMap)?"🔥 "+streak(dyMap)+"日連続・":"")+"今週",dn/7,dn>=5?"ok":""));
+    const mc=checklists.find(x=>x.key==="morning"); if(mc){ let full=0; for(let i=0;i<7;i++){ const b=mrBits(mc,addDays(s0,i)); if(b.length&&b.every(Boolean)) full++; } Gr.append(dbRow("🌅","朝ルーティン完走",full+"/7日","今週",full/7,full>=5?"ok":"")); }
+    $("dbGrowSub").textContent="今週（月〜日）";
+    // axes
+    const A=$("dbAx"); A.replaceChildren(); const revs=reviews.slice(0,8).reverse(), lastR=reviews.find(r=>r.scores&&Object.keys(r.scores).length);
+    $("dbAxSub").textContent=lastR?md(lastR.date)+"の採点":"日曜のふりかえりで採点";
+    if(values) values.axes.forEach(a=>{ const r=el("div","dbax"); const n=axScore(lastR,a); r.append(el("span","ic",a.ic), el("span","l",a.name)); const sp=el("div","vspark"); revs.forEach(rv=>{ const v=axScore(rv,a); const i=el("i",v?"":"na"); i.style.height=(v?v/5*100:12)+"%"; sp.append(i); }); r.append(sp, el("b","",n?n+"":"–")); r.addEventListener("click",()=>setMeTab("goal")); A.append(r); });
+  }
   /* ---------- 今日のダッシュボード ---------- */
   function renderDash(){
     const box=$("meDash"); if(!box) return; box.replaceChildren();
@@ -4339,7 +4448,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; money=all.find(x=>x.type==="money"&&x._private)||null; daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{const all=rows(s); wants=all.filter(x=>x._private&&x.list==="wants"); shop=all.filter(x=>!(x._private&&x.list==="wants"));renderShop();renderHome();renderWants()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
@@ -4349,6 +4458,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.doc("info/outings").onSnapshot(s=>{ogMeta=s.exists?s.data():null;renderOutings()});
       db.doc("info/weather").onSnapshot(s=>{weather=s.exists?s.data():null;renderHome();renderCal()});
       if(/[?&]space=me\b/.test(location.search)) selectTab("me");
+      if(/[?&]space=news\b/.test(location.search)){ selectTab("me"); setMeTab("news"); }
       setInterval(()=>{ if(token&&document.visibilityState==="visible") refresh().catch(()=>{}); },30000);
       document.addEventListener("visibilitychange",()=>{ if(document.visibilityState!=="visible") return;
         if(ymd(new Date())!==todayKey){ location.reload(); return; }          // a new day: start fresh
