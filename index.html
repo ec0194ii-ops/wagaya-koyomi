@@ -1405,6 +1405,11 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .dyfocus button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font:inherit;font-family:var(--f-num);font-weight:700;color:var(--muted)}
 .dyfocus button.on{background:var(--fg);color:var(--paper);border-color:var(--fg)}
 .dyfocus small{font-size:10.5px;color:var(--muted);margin-left:4px}
+
+.dbexp{margin-top:8px;border:1px solid var(--line);border-left:3px solid #9065b0;border-radius:8px;padding:10px 12px;background:var(--c-purple)}
+.dbexp .h{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--muted)} .dbexp b{display:block;font-size:15px;margin:4px 0 2px}
+.dbexp p{margin:2px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+.dbexpn{font-size:11.5px;color:var(--muted);margin-top:4px}
 </style>
 </head>
 <body>
@@ -2037,7 +2042,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[], money=null;
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[], money=null, exps=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3998,6 +4003,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const c=el("div","dbhero"); const dd=daysTo(g.dreamDate);
     c.append(el("small","","🎯 "+g.dreamLabel+"まで"), el("div","big",dd>0?yen(dd):"0")); c.querySelector(".big").append(el("i",""," 日"));
     if(values&&values.purpose) c.append(el("p","",values.purpose)); top.append(c);
+    const ex=exps.find(e=>e.status==="running")||exps.find(e=>e.status==="planned");
+    if(ex){ const k=el("div","dbexp"); const hd=el("div","h"); hd.append(el("span","",ex.status==="running"?"🧪 いまの実験":"🧪 次の実験（"+md(ex.start)+"から）"), el("small","",md(ex.start)+"〜"+md(ex.end)+(ex.status==="running"?"・あと"+Math.max(0,daysTo(ex.end))+"日":"")));
+      k.append(hd, el("b","",ex.action||""), el("p","","仮説："+(ex.hypothesis||"")), el("p","","測るもの："+(ex.measure||""))); top.append(k); }
+    const exDone=exps.filter(e=>e.status==="done").length; if(exDone) top.append(el("div","dbexpn","これまでの実験 "+exDone+"件（結果は日曜のふりかえりで）"));
     // money
     renderHorizon();
     $("dbMoney").hidden=!moneyOpen; $("dbMoneyBtn").setAttribute("aria-expanded",moneyOpen?"true":"false");
@@ -4632,7 +4641,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; money=all.find(x=>x.type==="money"&&x._private)||null; daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; money=all.find(x=>x.type==="money"&&x._private)||null; exps=all.filter(x=>x.type==="experiment"&&x._private).sort((a,b)=>String(b.start).localeCompare(String(a.start))); daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{const all=rows(s); wants=all.filter(x=>x._private&&x.list==="wants"); shop=all.filter(x=>!(x._private&&x.list==="wants"));renderShop();renderHome();renderWants()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
