@@ -671,6 +671,11 @@ a.btn{text-decoration:none;display:inline-block}
 .nwxb p,.nwxp{margin:0;font-size:13.5px;line-height:1.72}
 .nws{display:block;font-size:12.5px;line-height:1.6;color:var(--fg);opacity:.85;margin-top:3px} .nwit small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
 .mrbar{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-bottom:6px} .mrbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.mrcs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:2px 0 8px} .mrcs>small{grid-column:1/-1;font-size:11.5px;color:var(--muted);font-weight:700}
+.mrc{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font:inherit;text-align:left;color:var(--ink)}
+.mrc b{font-size:13.5px} .mrc span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums} .mrc.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink);background:var(--c-blue)}
+.mrit.sk span{color:var(--muted);text-decoration:line-through} .mrsk{flex:none;font:inherit;font-size:11.5px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
+.mrmama{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--c-purple);font-size:12.5px} .mrmama span{color:var(--muted)}
 .mrit{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:15px;cursor:pointer} .mrit:last-child{border-bottom:0}
 .mrit span{flex:1} .mrt{flex:none;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .mrit input{width:20px;height:20px;accent-color:var(--accent);flex:none} .mrit.on span{color:var(--muted);text-decoration:line-through}
@@ -4039,7 +4044,8 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       {ic:"😴",label:"7時間以上寝た",get:(d,x)=>+x.sleep_h>0?+x.sleep_h>=7:null},
       {ic:"🍺",label:"前の晩にお酒",get:(d,x)=>!!+x.drink},
       {ic:"🏃",label:"運動した",get:d=>ex?!!ex[d]:null},
-      {ic:"🌅",label:"朝のルーティン8割以上",get:d=>{ const v=ml&&ml.done&&ml.done[dk(d)]; if(!v) return ml?false:null; const a=String(v).split(""); return a.filter(c=>c==="1").length>=a.length*0.8; }},
+      {ic:"🌅",label:"朝のルーティン8割以上",get:d=>{ if(!ml) return null; const S=mrStat(ml,d); return S.t?S.n>=S.t*0.8:false; }},
+      {ic:"🍳",label:"朝ごはんを食べた",get:d=>{ if(!ml) return null; const i=ml.steps.findIndex(x=>/朝ごはん/.test(x)); if(i<0) return null; const ch=mrRaw(ml,d)[i]; return ch==="1"?true:ch==="s"?false:null; }},
       {ic:"🍚",label:"前の日の食事が目標内",get:d=>{ const m=meals.find(z=>z.date===addDays(d,-1)); if(!m) return null; const v=kc(m); return v>0?Math.abs(v-mc)<=200:null; }},
       {ic:"🚶",label:"前の日8000歩以上",get:d=>{ const y=health.find(z=>z.date===addDays(d,-1)); return y&&+y.steps>=300?+y.steps>=8000:null; }}
     ]; }
@@ -4138,7 +4144,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       Gr.append(dbRow(/英語/.test(r.title)?"📚":/運動/.test(r.title)?"🏃":"🔁",r.title,n+"/7日",(sk?"🔥 "+sk+"日連続・":"")+"今週",n/7,n>=5?"ok":"")); });
     const dyMap={}; diaries.forEach(d=>{ if(dyCount(d.text)===3) dyMap[d.date]=1; }); let dn=0; for(let i=0;i<7;i++) if(dyMap[addDays(s0,i)]) dn++;
     Gr.append(dbRow("✏️","日記3行",dn+"/7日",(streak(dyMap)?"🔥 "+streak(dyMap)+"日連続・":"")+"今週",dn/7,dn>=5?"ok":""));
-    const mc=checklists.find(x=>x.key==="morning"); if(mc){ let full=0; for(let i=0;i<7;i++){ const b=mrBits(mc,addDays(s0,i)); if(b.length&&b.every(Boolean)) full++; } Gr.append(dbRow("🌅","朝ルーティン完走",full+"/7日","今週",full/7,full>=5?"ok":"")); }
+    const mc=checklists.find(x=>x.key==="morning"); if(mc){ let full=0; for(let i=0;i<7;i++){ const S=mrStat(mc,addDays(s0,i)); if(S.t&&S.n===S.t) full++; } Gr.append(dbRow("🌅","朝ルーティン完走",full+"/7日","今週",full/7,full>=5?"ok":"")); }
     $("dbGrowSub").textContent="今週（月〜日）";
     // axes
     const A=$("dbAx"); A.replaceChildren(); const revs=reviews.slice(0,8).reverse(), lastR=reviews.find(r=>r.scores&&Object.keys(r.scores).length);
@@ -4162,7 +4168,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const tile=(ic,val,of,label,ratio,go,cls)=>{ const b=el("button","mdt"+(cls?" "+cls:"")); b.type="button"; b.append(el("span","ic",ic)); const v=el("b","",String(val)); if(of!=null) v.append(el("i","","/"+of)); b.append(v, el("small","",label)); if(ratio!=null){ const br=el("span","bar"); br.style.width=Math.round(Math.min(1,ratio)*100)+"%"; b.append(br); } b.addEventListener("click",go); tiles.append(b); };
     const jump=(tab,id)=>()=>{ setMeTab(tab); const t=$(id); if(t){ const sec=t.closest(".sec"); if(sec) sec.classList.remove("folded"); setTimeout(()=>t.scrollIntoView({block:"start",behavior:"smooth"}),30); } };
     const c=checklists.find(x=>x.key==="morning");
-    if(c){ const n=mrBits(c,todayKey).filter(Boolean).length; tile("🌅",n,c.steps.length,"朝ルーティン",n/c.steps.length,jump("today","mrSec"),n===c.steps.length?"ok":""); }
+    if(c){ const S=mrStat(c,todayKey); tile("🌅",S.n,S.t,"朝ルーティン",S.t?S.n/S.t:0,jump("today","mrSec"),S.t&&S.n===S.t?"ok":""); }
     const rts=routines, rd=rts.filter(r=>rtLog(r)[todayKey]).length; tile("🔁",rd,rts.length,"習慣",rts.length?rd/rts.length:0,jump("body","meRt"),rts.length&&rd===rts.length?"ok":"");
     const t=diaries.find(d=>d.date===todayKey), dc=t?dyCount(t.text):0; tile("✏️",dc,3,"日記3行",dc/3,jump("today","dySec"),dc===3?"ok":"");
     const due=myTodos().filter(x=>!x.done&&gtOf(x)==="today").length; tile("✅",due,null,due?"今日やる":"やること",null,()=>{ gtBox="today"; lsSet("koyomi-gt","today"); renderGtd(); jump("today","gtSec")(); },due?"warn":"ok");
@@ -4185,26 +4191,46 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- 朝のルーティン: a step checklist (note type:"checklist"); done = {"d20261108":"110100…"} one char per step ---------- */
   const mrKey=k=>"d"+k.replace(/-/g,"");
   function mrBits(c,k){ const v=String((c.done||{})[mrKey(k)]||""); return c.steps.map((_,i)=>v[i]==="1"); }
+  /* courses: c.courses = {full|short|min:{label,mins:[…],names:{i:"…"}}}; minutes 0 = not in that course (housework → ママにお願い).
+     done chars per step: "1" done, "0" not yet, "s" skipped today (朝ごはんなし等). mode per day in c.mode {dYYYYMMDD:"min"} */
+  const MR_ORDER=["full","short","min"];
+  function mrRaw(c,k){ const v=String((c.done||{})[mrKey(k)]||""); return c.steps.map((_,i)=>v[i]||"0"); }
+  function mrMode(c,k){ const m=(c.mode||{})[mrKey(k)]; return c.courses&&c.courses[m]?m:(c.courses?"full":null); }
+  function mrCourse(c,k){ const m=mrMode(c,k), co=m&&c.courses[m]; const mins=co&&Array.isArray(co.mins)?co.mins:(Array.isArray(c.mins)?c.mins:c.steps.map(()=>1)); return {m,co,mins:mins.map(x=>+x||0),names:(co&&co.names)||{}}; }
+  function mrStat(c,k){ const {mins}=mrCourse(c,k), raw=mrRaw(c,k); let n=0,t=0; c.steps.forEach((_,i)=>{ if(!(mins[i]>0)||raw[i]==="s") return; t++; if(raw[i]==="1") n++; }); return {n,t}; }
+  async function mrSave(c,patch){ if(!db) return; try{ await db.collection("notes").doc(c.id).update(patch); }catch(e){ status("保存できませんでした。",true); } }
+  function mrTrim(o){ const ks=Object.keys(o).sort(); ks.slice(0,Math.max(0,ks.length-45)).forEach(k=>delete o[k]); return o; }
   function renderMorning(){
     const sec=$("mrSec"); if(!sec) return; const c=checklists.find(x=>x.key==="morning"); sec.hidden=!c; if(!c) return;
     $("mrTitle").textContent=c.title||"朝のルーティン";
-    const b=mrBits(c,todayKey), n=b.filter(Boolean).length;
-    // planned clock time for each step from the start time and per-step minutes
-    const mins=Array.isArray(c.mins)?c.mins.map(x=>+x||0):[], st0=/^\d{1,2}:\d{2}$/.test(c.start||"")?c.start:null;
     const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m}, fmt=v=>Math.floor(v/60)+":"+String(v%60).padStart(2,"0");
-    const at=[]; if(st0&&mins.length===c.steps.length){ let t=toMin(st0); mins.forEach(m=>{ at.push(t); t+=m; }); at.push(t); }
-    $("mrSub").textContent=`今日 ${n}/${c.steps.length}`+(n===c.steps.length?" 🎉":"")+(at.length?` ・${fmt(at[at.length-1])}終了予定`:"");
-    $("mrFill").style.width=(c.steps.length?n/c.steps.length*100:0)+"%";
+    const hr=health.find(x=>x.date===todayKey), wake=hr&&/^\d{1,2}:\d{2}$/.test(hr.wake||"")?hr.wake:null;
+    const st0=wake||(/^\d{1,2}:\d{2}$/.test(c.start||"")?c.start:"6:00");
+    const {m,mins,names}=mrCourse(c,todayKey), raw=mrRaw(c,todayKey), {n,t}=mrStat(c,todayKey);
+    const total=c.steps.reduce((p,_,i)=>p+(mins[i]>0&&raw[i]!=="s"?mins[i]:0),0), end=toMin(st0)+total;
+    $("mrSub").textContent=`今日 ${n}/${t}`+(t&&n===t?" 🎉":"")+` ・${fmt(end)}ごろ終わる`;
+    $("mrFill").style.width=(t?n/t*100:0)+"%";
     const L=$("mrList"); L.replaceChildren();
-    c.steps.forEach((st,i)=>{ const r=el("label","mrit"+(b[i]?" on":"")); const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=b[i];
-      cb.addEventListener("change",async()=>{ if(!db) return; const cur=mrBits(c,todayKey); cur[i]=cb.checked;
-        const done=Object.assign({},c.done||{}); done[mrKey(todayKey)]=cur.map(x=>x?"1":"0").join("");
-        const ks=Object.keys(done).sort(); ks.slice(0,Math.max(0,ks.length-45)).forEach(k=>delete done[k]);   // keep ~6 weeks (API allows 60 keys)
-        cb.disabled=true; try{ await db.collection("notes").doc(c.id).update({done}); }catch(e){ cb.checked=!cb.checked; status("保存できませんでした。",true); } cb.disabled=false; });
-      r.append(cb, el("span","",st)); if(at.length) r.append(el("small","mrt",fmt(at[i])+(mins[i]?" ・"+mins[i]+"分":""))); L.append(r); });
+    // course chooser
+    if(c.courses){ const cs=el("div","mrcs"); cs.append(el("small","",(wake?"起床 "+wake:"開始 "+st0)+" から"));
+      MR_ORDER.forEach(key=>{ const co=c.courses[key]; if(!co) return; const sum=(co.mins||[]).reduce((p,x)=>p+(+x||0),0);
+        const bt=el("button","mrc"+(key===m?" on":"")); bt.type="button"; bt.append(el("b","",co.label||key), el("span","","約"+sum+"分・"+fmt(toMin(st0)+sum)));
+        bt.addEventListener("click",()=>{ const mode=Object.assign({},c.mode||{}); mode[mrKey(todayKey)]=key; mrSave(c,{mode:mrTrim(mode)}); }); cs.append(bt); });
+      L.append(cs); }
+    const write=(i,ch)=>{ const cur=mrRaw(c,todayKey); cur[i]=ch; const done=Object.assign({},c.done||{}); done[mrKey(todayKey)]=cur.join(""); return mrSave(c,{done:mrTrim(done)}); };
+    const mama=[];
+    c.steps.forEach((st,i)=>{ if(!(mins[i]>0)){ mama.push(st); return; }
+      const sk=raw[i]==="s", on=raw[i]==="1";
+      const r=el("label","mrit"+(on?" on":"")+(sk?" sk":"")); const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=on; cb.disabled=sk;
+      cb.addEventListener("change",()=>{ cb.disabled=true; write(i,cb.checked?"1":"0"); });
+      r.append(cb, el("span","",names[i]||st)); r.append(el("small","mrt",sk?"今日はなし":mins[i]+"分"));
+      if((c.skippable||[]).includes(i)&&!on){ const x=el("button","mrsk",sk?"戻す":"なし"); x.type="button"; x.addEventListener("click",ev=>{ ev.preventDefault(); write(i,sk?"0":"s"); }); r.append(x); }
+      L.append(r); });
+    if(mama.length){ const mm=el("div","mrmama"); mm.append(el("b","","👩 ママにお願い"), el("span","",mama.join("・"))); L.append(mm); }
     const H=$("mrHist"); H.replaceChildren(); H.append(el("div","hlrh","この2週間"));
-    const g=el("div","mrg"); for(let i=13;i>=0;i--){ const k=addDays(todayKey,-i), bb=mrBits(c,k), m=bb.filter(Boolean).length, r=c.steps.length?m/c.steps.length:0;
-      const d=el("div","mrd"); const bar=el("i"); bar.style.height=Math.max(r*100,m?8:0)+"%"; if(r===1) bar.className="full"; d.append(bar, el("small","",String(+k.slice(8)))); d.title=md(k)+" "+m+"/"+c.steps.length; g.append(d); }
+    const g=el("div","mrg"); for(let i=13;i>=0;i--){ const k=addDays(todayKey,-i), S=mrStat(c,k), r=S.t?S.n/S.t:0;
+      const d=el("div","mrd"); const bar=el("i"); bar.style.height=Math.max(r*100,S.n?8:0)+"%"; if(r===1) bar.className="full"; const md0=mrMode(c,k);
+      d.append(bar, el("small","",String(+k.slice(8)))); d.title=md(k)+" "+S.n+"/"+S.t+(md0&&c.courses[md0]?"（"+c.courses[md0].label+"）":""); g.append(d); }
     H.append(g);
   }
 
