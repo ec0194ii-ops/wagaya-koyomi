@@ -4782,6 +4782,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.doc("info/weather").onSnapshot(s=>{weather=s.exists?s.data():null;renderHome();renderCal()});
       if(/[?&]space=me\b/.test(location.search)) selectTab("me");
       if(/[?&]space=news\b/.test(location.search)){ selectTab("me"); setMeTab("news"); }
+      { const mt=(location.search.match(/[?&]tab=(today|dash|goal|body|life)\b/)||[])[1]; if(mt){ selectTab("me"); setMeTab(mt); } }
       setInterval(()=>{ if(token&&document.visibilityState==="visible") refresh().catch(()=>{}); },30000);
       document.addEventListener("visibilitychange",()=>{ if(document.visibilityState!=="visible") return;
         if(ymd(new Date())!==todayKey){ location.reload(); return; }          // a new day: start fresh

@@ -237,7 +237,7 @@ function todoList(col, d, max, fs) {
   items.slice(0, max).forEach(x => { const r = col.addStack(); r.centerAlignContent(); txt(r, "□ ", fs, C.muted); txt(r, x.title, fs, C.fg, true); r.addSpacer(4); if (x.label) txt(r, x.label, fs - 3, x.late ? C.now : C.muted, true); col.addSpacer(2); });
 }
 async function habitWidget(d, h, family, todayEvs) {
-  const w = new ListWidget(); w.backgroundColor = C.bg; w.setPadding(12, 13, 10, 13); w.url = APP_URL;
+  const w = new ListWidget(); w.backgroundColor = C.bg; w.setPadding(12, 13, 10, 13); w.url = APP_URL + "?tab=today";
   w.refreshAfterDate = new Date(Date.now() + 10 * 60 * 1000);
   if (family === "small") { const hs = habitList(h); head(w, d); w.addSpacer(6);
     hs.forEach(x => { const r = w.addStack(); r.centerAlignContent(); txt(r, x.ic + " " + x.label, 12, C.fg, true); r.addSpacer(); txt(r, (x.st === 2 ? "✓" : x.st === 1 ? "◐" : "○") + (x.sk ? " 🔥" + x.sk : ""), 11, x.st ? new Color("#448361") : C.muted, true); w.addSpacer(3); });
@@ -255,9 +255,28 @@ async function habitWidget(d, h, family, todayEvs) {
   return w;
 }
 
+
+// ロック画面（accessory）：長方形＝習慣4つ＋まだのもの／横長1行＝習慣の記号／丸＝できた数
+function accessoryWidget(h, family) {
+  const w = new ListWidget(); w.url = APP_URL + "?tab=today";
+  w.refreshAfterDate = new Date(Date.now() + 10 * 60 * 1000);
+  if (!h) { const t = w.addText("こよみ"); t.font = Font.systemFont(12); return w; }
+  const hs = habitList(h), mark = x => x.st === 2 ? "✓" : x.st === 1 ? "◐" : "○", done = hs.filter(x => x.st > 0).length;
+  if (family === "accessoryInline") { const t = w.addText(hs.map(x => x.label + mark(x)).join(" ")); t.font = Font.systemFont(12); return w; }
+  if (family === "accessoryCircular") { w.addAccessoryWidgetBackground = true; const s = w.addStack(); s.layoutVertically();
+    const a = s.addText(`${done}/${hs.length}`); a.font = Font.boldSystemFont(16); a.centerAlignText(); const b = s.addText("習慣"); b.font = Font.systemFont(10); b.centerAlignText(); return w; }
+  const r = w.addStack(); r.centerAlignContent();
+  hs.forEach((x, i) => { const c = r.addStack(); c.layoutVertically(); const a = c.addText(x.label); a.font = Font.systemFont(11); const b = c.addText(mark(x) + (x.sk ? " " + x.sk : "")); b.font = Font.boldSystemFont(13); if (i < hs.length - 1) r.addSpacer(8); });
+  w.addSpacer(2);
+  const left = hs.filter(x => x.st === 0), fc = forecast(h);
+  const t = w.addText(left.length ? "まだ：" + left.map(x => x.label).join("・") + "　1分でOK" : (fc ? fc.replace(/・.*/, "") : "🎉 全部ゼロじゃない")); t.font = Font.systemFont(11); t.lineLimit = 1;
+  return w;
+}
+
 async function build(family) {
   const d = await loadFeed();
   if (/リスト|list|todo|買い物/i.test(MODE)) return listWidget(d, family);
+  if (String(family).startsWith("accessory")) return accessoryWidget(await loadHabits(), family);
   const calMode = /カレンダー|calendar|月/i.test(MODE);
   const h = calMode ? null : await loadHabits();
   if (h) { const evs0 = await loadEvents(); let te;
