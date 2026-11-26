@@ -1410,6 +1410,14 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .dbexp .h{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--muted)} .dbexp b{display:block;font-size:15px;margin:4px 0 2px}
 .dbexp p{margin:2px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
 .dbexpn{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+.mng{padding:4px 0 6px;border-top:1px solid var(--line)} .mng:first-child{border-top:0}
+.mnh{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin:6px 0 2px}
+.mni summary{list-style:none;display:flex;gap:8px;align-items:flex-start;padding:5px 0;cursor:pointer} .mni summary::-webkit-details-marker{display:none}
+.mni summary b{font-size:13.5px;line-height:1.5;font-weight:600}
+.mni .src{flex:none;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:2px;background:var(--c-gray);color:var(--muted)}
+.mni .src.me{background:var(--c-green);color:#2b593f} .mni .src.rs{background:var(--c-blue);color:#28456c} .mni .src.ex{background:var(--c-purple);color:#5a3d78}
+.mni .bd{padding:0 0 6px 52px;font-size:12.5px;color:var(--muted);line-height:1.6} .mni .bd p{margin:0 0 2px}
 </style>
 </head>
 <body>
@@ -1668,6 +1676,10 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
     <div class="sech"><div><div class="eyebrow">Values</div><h2 data-ic="🧭">5つの軸</h2></div><span class="sub" id="vVer"></span></div>
     <div class="vaxes" id="vAxes"></div>
     <div class="vhist" id="vHist"></div>
+  </div>
+  <div class="sec" data-mtab="goal" data-fold="manual">
+    <div class="sech"><div><div class="eyebrow">My manual</div><h2 data-ic="📘">わたしの取扱説明書</h2></div><span class="sub" id="mnSub"></span></div>
+    <div class="card" id="mnBox"></div>
   </div>
   <div class="sec" data-mtab="goal" data-fold="review">
     <div class="sech"><div><div class="eyebrow">Weekly review</div><h2 data-ic="🌙">週のふりかえり</h2></div><span class="sub" id="vRevSub"></span></div>
@@ -3589,7 +3601,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         for(let i=0;i<26*7;i++){ const k=addDays(start,i); const c=el("i",k>todayKey?"fu":lg[k]?"on":""); c.title=md(k); g.append(c); }
         w.append(g); hb.append(w); }); }
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
-    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary(); renderMeal(); renderGoal(); renderWants(); renderGtd(); renderDayMemo(); renderDash(); renderBoard();
+    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary(); renderMeal(); renderGoal(); renderWants(); renderGtd(); renderDayMemo(); renderDash(); renderBoard(); renderManual();
   }
   $("meRtForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("meRtIn").value.trim(); if(!v||!db) return; $("meRtIn").value="";
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
@@ -4006,7 +4018,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const ex=exps.find(e=>e.status==="running")||exps.find(e=>e.status==="planned");
     if(ex){ const k=el("div","dbexp"); const hd=el("div","h"); hd.append(el("span","",ex.status==="running"?"🧪 いまの実験":"🧪 次の実験（"+md(ex.start)+"から）"), el("small","",md(ex.start)+"〜"+md(ex.end)+(ex.status==="running"?"・あと"+Math.max(0,daysTo(ex.end))+"日":"")));
       k.append(hd, el("b","",ex.action||""), el("p","","仮説："+(ex.hypothesis||"")), el("p","","測るもの："+(ex.measure||""))); top.append(k); }
-    const exDone=exps.filter(e=>e.status==="done").length; if(exDone) top.append(el("div","dbexpn","これまでの実験 "+exDone+"件（結果は日曜のふりかえりで）"));
+    const exDone=exps.filter(e=>e.status==="done").length; if(exDone){ const n=el("div","dbexpn","📘 わたしの取扱説明書 "+exDone+"件（わたしの軸タブ）"); n.style.cursor="pointer"; n.addEventListener("click",()=>setMeTab("goal")); top.append(n); }
     // money
     renderHorizon();
     $("dbMoney").hidden=!moneyOpen; $("dbMoneyBtn").setAttribute("aria-expanded",moneyOpen?"true":"false");
@@ -4048,6 +4060,13 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     $("dbAxSub").textContent=lastR?md(lastR.date)+"の採点":"日曜のふりかえりで採点";
     if(values) values.axes.forEach(a=>{ const r=el("div","dbax"); const n=axScore(lastR,a); r.append(el("span","ic",a.ic), el("span","l",a.name)); const sp=el("div","vspark"); revs.forEach(rv=>{ const v=axScore(rv,a); const i=el("i",v?"":"na"); i.style.height=(v?v/5*100:12)+"%"; sp.append(i); }); r.append(sp, el("b","",n?n+"":"–")); r.addEventListener("click",()=>setMeTab("goal")); A.append(r); });
   }
+  /* ---------- 📘 わたしの取扱説明書：実験・自分の経験・研究で「わかったこと」を分野ごとに ---------- */
+  function renderManual(){ const box=$("mnBox"); if(!box) return; box.replaceChildren();
+    const done=exps.filter(e=>e.status==="done"&&(e.rule||e.result)); $("mnSub").textContent=done.length?done.length+"件":"";
+    if(!done.length){ box.append(el("p","empty","実験や自分の経験でわかったことが、ここに分野ごとにたまっていきます。")); return; }
+    const areas={}; done.forEach(e=>{ const a=String(e.area||"その他").split("・")[0]; (areas[a]=areas[a]||[]).push(e); });
+    Object.keys(areas).forEach(a=>{ const g=el("div","mng"); g.append(el("div","mnh",a)); areas[a].forEach(e=>{ const r=el("details","mni"); const sm=el("summary"); sm.append(el("span","src "+(/研究/.test(e.source||"")?"rs":/経験/.test(e.source||"")?"me":"ex"),/研究/.test(e.source||"")?"研究":/経験/.test(e.source||"")?"自分の経験":"実験"), el("b","",e.rule||e.result)); r.append(sm);
+      const bd=el("div","bd"); if(e.rule&&e.result) bd.append(el("p","",e.result)); if(e.hypothesis&&!/研究/.test(e.source||"")) bd.append(el("p","","仮説："+e.hypothesis)); if(e.ref) bd.append(el("p","","出典："+e.ref)); bd.append(el("small","",(e.source||"実験")+"・"+md(e.end||e.start))); r.append(bd); g.append(r); }); box.append(g); }); }
   /* ---------- 今日のダッシュボード ---------- */
   function renderDash(){
     const box=$("meDash"); if(!box) return; box.replaceChildren();
