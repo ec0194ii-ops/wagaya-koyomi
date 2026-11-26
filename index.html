@@ -1406,6 +1406,10 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .dyfocus button.on{background:var(--fg);color:var(--paper);border-color:var(--fg)}
 .dyfocus small{font-size:10.5px;color:var(--muted);margin-left:4px}
 
+.dbsleep{margin-top:8px;border:1px solid var(--line);border-left:3px solid #448361;border-radius:8px;padding:10px 12px;background:var(--c-green)}
+.dbsleep.warn{border-left-color:#cb912f;background:var(--c-yellow)} .dbsleep.bad{border-left-color:#d44c47;background:var(--c-red)} .dbsleep.none{border-left-color:#9b9a97;background:var(--c-gray)}
+.dbsleep .h{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--muted)} .dbsleep b{display:block;font-size:15px;margin:4px 0 2px}
+.dbsleep p{margin:2px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
 .dbexp{margin-top:8px;border:1px solid var(--line);border-left:3px solid #9065b0;border-radius:8px;padding:10px 12px;background:var(--c-purple)}
 .dbexp .h{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--muted)} .dbexp b{display:block;font-size:15px;margin:4px 0 2px}
 .dbexp p{margin:2px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
@@ -4010,11 +4014,25 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function dbBar(ratio,cls){ const b=el("div","dbbar"+(cls?" "+cls:"")); const i=el("i"); i.style.width=Math.max(0,Math.min(100,ratio*100)).toFixed(1)+"%"; b.append(i); return b; }
   function dbRow(ic,label,val,sub,ratio,cls){ const r=el("div","dbrow"); const h=el("div","h"); h.append(el("span","ic",ic), el("span","l",label)); const v=el("b","v",val); h.append(v); r.append(h); if(ratio!=null) r.append(dbBar(ratio,cls)); if(sub) r.append(el("small","",sub)); return r; }
   function streak(map){ let n=0, k=map[todayKey]?todayKey:addDays(todayKey,-1); while(map[k]){ n++; k=addDays(k,-1); } return n; }
+  /* 😴 sleep: last night vs 7h (わたしの取扱説明書: 7h+ → good next day, ≤5h → sleepy & negative); adjust tonight's bedtime */
+  function sleepPlan(h){ if(h==null) return null; if(h<5.5) return {bed:"22:00",lv:"bad",msg:"かなり不足"}; if(h<7) return {bed:"22:30",lv:"warn",msg:"少し不足"}; return {bed:"23:00",lv:"ok",msg:"しっかり"}; }
+  function sleepCard(){ const k=el("div","dbsleep"); const r=health.find(x=>x.date===todayKey), h=r&&+r.sleep_h>0?+r.sleep_h:null;
+    let debt=0,n=0; for(let i=0;i<7;i++){ const x=health.find(y=>y.date===addDays(todayKey,-i)); if(x&&+x.sleep_h>0){ n++; debt+=Math.max(0,7-(+x.sleep_h)); } }
+    const hd=el("div","h"); hd.append(el("span","","😴 昨夜の睡眠"), el("small","",n?"7日の不足 計"+debt.toFixed(1)+"時間":"")); k.append(hd);
+    if(h==null){ k.classList.add("none"); k.append(el("b","","⌚ まだ届いていません"), el("p","","Apple Watchの睡眠は、iPhoneのショートカットから届きます。届かないときは、からだタブで入れてもOKです。")); return k; }
+    const pl=sleepPlan(h), hh=Math.floor(h), mm=Math.round((h-hh)*60); k.classList.add(pl.lv);
+    k.append(el("b","",hh+"時間"+(mm?mm+"分":"")+"・"+pl.msg));
+    const tmr=addDays(todayKey,1), off=typeof rtOff==="function"&&rtOff(tmr);
+    if(pl.lv==="ok") k.append(el("p","",off?"明日は休み。このままのリズムでOK":"今夜もいつも通り23:00に寝ればOK"));
+    else { k.append(el("p","","🛏 今夜は"+pl.bed+"に寝る"+(off?"（明日は休みなので朝もゆっくりでOK）":"（いつもより"+(pl.bed==="22:00"?"1時間":"30分")+"早く）")));
+      k.append(el("p","","今日は：大事な作業は午前に／カフェインは14時まで／運動は軽め"+(pl.lv==="bad"?"／昼に15〜20分の仮眠ができれば":""))); }
+    return k; }
   function renderBoard(){
     const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
     const c=el("div","dbhero"); const dd=daysTo(g.dreamDate);
     c.append(el("small","","🎯 "+g.dreamLabel+"まで"), el("div","big",dd>0?yen(dd):"0")); c.querySelector(".big").append(el("i",""," 日"));
     if(values&&values.purpose) c.append(el("p","",values.purpose)); top.append(c);
+    top.append(sleepCard());
     const ex=exps.find(e=>e.status==="running")||exps.find(e=>e.status==="planned");
     if(ex){ const k=el("div","dbexp"); const hd=el("div","h"); hd.append(el("span","",ex.status==="running"?"🧪 いまの実験":"🧪 次の実験（"+md(ex.start)+"から）"), el("small","",md(ex.start)+"〜"+md(ex.end)+(ex.status==="running"?"・あと"+Math.max(0,daysTo(ex.end))+"日":"")));
       k.append(hd, el("b","",ex.action||""), el("p","","仮説："+(ex.hypothesis||"")), el("p","","測るもの："+(ex.measure||""))); top.append(k); }
