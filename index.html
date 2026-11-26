@@ -1408,6 +1408,17 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 
 .dbsleep{margin-top:8px;border:1px solid var(--line);border-left:3px solid #448361;border-radius:8px;padding:10px 12px;background:var(--c-green)}
 .dbsleep.warn{border-left-color:#cb912f;background:var(--c-yellow)} .dbsleep.bad{border-left-color:#d44c47;background:var(--c-red)} .dbsleep.none{border-left-color:#9b9a97;background:var(--c-gray)}
+.slcond{display:flex;align-items:center;gap:4px;margin:8px 0 4px;flex-wrap:wrap} .slcond .l{font-size:12.5px;font-weight:700;margin-right:4px}
+.slcond button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-size:18px;padding:0;opacity:.55} .slcond button.on{opacity:1;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.slchart{position:relative;display:flex;align-items:flex-end;gap:3px;height:118px;margin:10px 0 2px}
+.slchart .sl7{position:absolute;left:0;right:0;border-top:1px dashed #9b9a97;z-index:1;pointer-events:none}
+.slchart .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.slchart .f{font-size:12px;height:16px;line-height:16px} .slchart .bar{width:100%;max-width:18px;border-radius:3px 3px 0 0;background:#448361;min-height:2px}
+.slchart .bar.warn{background:#cb912f} .slchart .bar.bad{background:#d44c47} .slchart .bar.none{background:#e3e2e0}
+.slchart .d{font-size:10px;color:var(--muted);font-family:var(--f-num);height:14px}
+.slsum{margin-top:8px;border-top:1px solid var(--line);padding-top:6px} .slsum>small{font-size:11.5px;color:var(--muted);font-weight:700}
+.slsum .r{display:grid;grid-template-columns:6.5em 1fr auto;gap:6px;font-size:12.5px;padding:2px 0} .slsum .r small{color:var(--muted)}
+.slsum .r.ok span:first-child{color:#448361;font-weight:700} .slsum .r.warn span:first-child{color:#cb912f;font-weight:700} .slsum .r.bad span:first-child{color:#d44c47;font-weight:700}
 .dbsleep .h{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--muted)} .dbsleep b{display:block;font-size:15px;margin:4px 0 2px}
 .dbsleep p{margin:2px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
 .dbexp{margin-top:8px;border:1px solid var(--line);border-left:3px solid #9065b0;border-radius:8px;padding:10px 12px;background:var(--c-purple)}
@@ -4014,18 +4025,38 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function dbBar(ratio,cls){ const b=el("div","dbbar"+(cls?" "+cls:"")); const i=el("i"); i.style.width=Math.max(0,Math.min(100,ratio*100)).toFixed(1)+"%"; b.append(i); return b; }
   function dbRow(ic,label,val,sub,ratio,cls){ const r=el("div","dbrow"); const h=el("div","h"); h.append(el("span","ic",ic), el("span","l",label)); const v=el("b","v",val); h.append(v); r.append(h); if(ratio!=null) r.append(dbBar(ratio,cls)); if(sub) r.append(el("small","",sub)); return r; }
   function streak(map){ let n=0, k=map[todayKey]?todayKey:addDays(todayKey,-1); while(map[k]){ n++; k=addDays(k,-1); } return n; }
-  /* 😴 sleep: last night vs 7h (わたしの取扱説明書: 7h+ → good next day, ≤5h → sleepy & negative); adjust tonight's bedtime */
-  function sleepPlan(h){ if(h==null) return null; if(h<5.5) return {bed:"22:00",lv:"bad",msg:"かなり不足"}; if(h<7) return {bed:"22:30",lv:"warn",msg:"少し不足"}; return {bed:"23:00",lv:"ok",msg:"しっかり"}; }
+  /* 😴 sleep × 調子: last night's sleep (Apple Watch via Shortcut) + today's condition 1–5 (health.cond) + diary 🎯focus; 14-day chart and per-band averages */
+  const CONDF=["😫","😕","😐","🙂","😄"];
+  const slBand=h=>h>=7?"ok":h>=5.5?"warn":"bad";
   function sleepCard(){ const k=el("div","dbsleep"); const r=health.find(x=>x.date===todayKey), h=r&&+r.sleep_h>0?+r.sleep_h:null;
-    let debt=0,n=0; for(let i=0;i<7;i++){ const x=health.find(y=>y.date===addDays(todayKey,-i)); if(x&&+x.sleep_h>0){ n++; debt+=Math.max(0,7-(+x.sleep_h)); } }
-    const hd=el("div","h"); hd.append(el("span","","😴 昨夜の睡眠"), el("small","",n?"7日の不足 計"+debt.toFixed(1)+"時間":"")); k.append(hd);
-    if(h==null){ k.classList.add("none"); k.append(el("b","","⌚ まだ届いていません"), el("p","","Apple Watchの睡眠は、iPhoneのショートカットから届きます。届かないときは、からだタブで入れてもOKです。")); return k; }
-    const pl=sleepPlan(h), hh=Math.floor(h), mm=Math.round((h-hh)*60); k.classList.add(pl.lv);
-    k.append(el("b","",hh+"時間"+(mm?mm+"分":"")+"・"+pl.msg));
-    const tmr=addDays(todayKey,1), off=typeof rtOff==="function"&&rtOff(tmr);
-    if(pl.lv==="ok") k.append(el("p","",off?"明日は休み。このままのリズムでOK":"今夜もいつも通り23:00に寝ればOK"));
-    else { k.append(el("p","","🛏 今夜は"+pl.bed+"に寝る"+(off?"（明日は休みなので朝もゆっくりでOK）":"（いつもより"+(pl.bed==="22:00"?"1時間":"30分")+"早く）")));
-      k.append(el("p","","今日は：大事な作業は午前に／カフェインは14時まで／運動は軽め"+(pl.lv==="bad"?"／昼に15〜20分の仮眠ができれば":""))); }
+    const hd=el("div","h"); hd.append(el("span","","😴 睡眠と調子"), el("small","","直近14日")); k.append(hd);
+    if(h==null) k.append(el("b","","昨夜：⌚ まだ届いていません"));
+    else { const hh=Math.floor(h), mm=Math.round((h-hh)*60); k.classList.add(slBand(h)); k.append(el("b","","昨夜 "+hh+"時間"+(mm?mm+"分":""))); }
+    // today's condition
+    const cp=el("div","slcond"); cp.append(el("span","l","今日の調子"));
+    const cur=r&&+r.cond||0;
+    CONDF.forEach((f,i)=>{ const bt=el("button",cur===i+1?"on":"",f); bt.type="button"; bt.title=String(i+1);
+      bt.addEventListener("click",async()=>{ const v=cur===i+1?null:i+1, id=hlId();
+        try{ if(r) await db.collection("notes").doc(id).update({cond:v}); else await db.collection("notes").doc(id).set({type:"health",date:todayKey,_private:true,cond:v}); status(v?"今日の調子を記録しました":"調子の記録を消しました"); }catch(e){ status("保存できませんでした"); } });
+      cp.append(bt); });
+    k.append(cp);
+    // 14-day chart: bar = sleep, face = 調子
+    const ch=el("div","slchart"); const ln=el("i","sl7"); ln.style.bottom=(14+7/9*80)+"px"; ln.title="7時間"; ch.append(ln);
+    for(let i=13;i>=0;i--){ const d=addDays(todayKey,-i), x=health.find(y=>y.date===d), sh=x&&+x.sleep_h>0?+x.sleep_h:null, c=x&&+x.cond||0;
+      const col=el("div","c"); col.append(el("span","f",c?CONDF[c-1]:""));
+      const bar=el("div","bar"+(sh!=null?" "+slBand(sh):" none")); bar.style.height=(sh!=null?Math.min(1,sh/9)*80:3)+"px"; if(sh!=null) bar.title=sh.toFixed(1)+"時間"; col.append(bar);
+      col.append(el("span","d",String(+d.slice(8)))); ch.append(col); }
+    k.append(ch);
+    // what my data says so far (last 90 days): avg 調子 / 集中 by sleep band
+    const G={ok:[],warn:[],bad:[]};
+    for(let i=0;i<90;i++){ const d=addDays(todayKey,-i), x=health.find(y=>y.date===d); if(!x||!(+x.sleep_h>0)) continue;
+      const dy=diaries.find(y=>y.date===d), c=+x.cond||0, f=dy&&+dy.focus||0; if(c||f) G[slBand(+x.sleep_h)].push({c,f}); }
+    const tot=G.ok.length+G.warn.length+G.bad.length;
+    if(tot>=3){ const av=(a,key)=>{ const v=a.map(o=>o[key]).filter(Boolean); return v.length?(v.reduce((s,n)=>s+n,0)/v.length).toFixed(1):"–"; };
+      const t=el("div","slsum"); t.append(el("small","","わたしのデータ（睡眠別の平均）"));
+      [["ok","7時間以上"],["warn","5.5〜7時間"],["bad","5.5時間未満"]].forEach(([b,lb])=>{ if(!G[b].length) return; const row=el("div","r "+b); row.append(el("span","",lb), el("span","","調子 "+av(G[b],"c")+"・集中 "+av(G[b],"f")), el("small","",G[b].length+"日")); t.append(row); });
+      k.append(t); }
+    else k.append(el("p","","睡眠と「今日の調子」（＋日記の🎯集中度）が3日分たまると、睡眠ごとの調子の違いがここに出ます。"));
     return k; }
   function renderBoard(){
     const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
