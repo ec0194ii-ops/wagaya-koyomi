@@ -3856,7 +3856,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const pb=$("vPurpose"); if(!pb) return; pb.replaceChildren();
     if(!values){ pb.append(el("small","","MY PURPOSE"), el("p","","人生の目的と大切にしたいことは、Claudeとの相談で決めるとここに出ます。")); $("vAxes").replaceChildren(); $("vRev").replaceChildren(); return; }
     pb.append(el("small","","MY PURPOSE ・ 人生の目的"), el("p","",values.purpose||""));
-    if(values.rules){ const rr=el("div","vrules"); [["✏️",values.rules.daily],["🌙",values.rules.weekly],["🤔",values.rules.decide]].forEach(([l,t])=>{ if(t) rr.append(el("div","",l+" "+t)); }); pb.append(rr); }
+    if(values.rules){ const rr=el("div","vrules"); [["🔁",values.rules.habit],["✏️",values.rules.daily],["🌙",values.rules.weekly],["🤔",values.rules.decide]].forEach(([l,t])=>{ if(t) rr.append(el("div","",l+" "+t)); }); pb.append(rr); }
     $("vVer").textContent="v"+(values.version||1)+(values.updatedAt?"・"+md(values.updatedAt)+"更新":"");
     const last=reviews.find(r=>r.scores&&Object.keys(r.scores).length), revs=reviews.slice(0,8).reverse();
     const box=$("vAxes"); box.replaceChildren();
