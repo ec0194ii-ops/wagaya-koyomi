@@ -1408,6 +1408,9 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 
 .dbsleep{margin-top:8px;border:1px solid var(--line);border-left:3px solid #448361;border-radius:8px;padding:10px 12px;background:var(--c-green)}
 .dbsleep.warn{border-left-color:#cb912f;background:var(--c-yellow)} .dbsleep.bad{border-left-color:#d44c47;background:var(--c-red)} .dbsleep.none{border-left-color:#9b9a97;background:var(--c-gray)}
+.slfc{margin:8px 0 2px;padding:8px 10px;border-radius:8px;background:var(--paper);border:1px solid var(--line)} .slfc b{font-size:14.5px;margin:0}
+.slfc.ok b{color:#448361} .slfc.warn b{color:#a87420} .slfc.bad b{color:#d44c47}
+.slfc .why{margin:3px 0 0;font-size:12px} .slfc ul{margin:4px 0 0;padding-left:1.2em;font-size:12.5px;line-height:1.55}
 .slcond{display:flex;align-items:center;gap:4px;margin:8px 0 4px;flex-wrap:wrap} .slcond .l{font-size:12.5px;font-weight:700;margin-right:4px}
 .slcond button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-size:18px;padding:0;opacity:.55} .slcond button.on{opacity:1;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .slchart{position:relative;display:flex;align-items:flex-end;gap:3px;height:118px;margin:10px 0 2px}
@@ -4040,12 +4043,30 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       {ic:"🍚",label:"前の日の食事が目標内",get:d=>{ const m=meals.find(z=>z.date===addDays(d,-1)); if(!m) return null; const v=kc(m); return v>0?Math.abs(v-mc)<=200:null; }},
       {ic:"🚶",label:"前の日8000歩以上",get:d=>{ const y=health.find(z=>z.date===addDays(d,-1)); return y&&+y.steps>=300?+y.steps>=8000:null; }}
     ]; }
+  function slForecast(){ const r=health.find(x=>x.date===todayKey); if(!r) return null;
+    const base=f=>{ const v=[]; for(let i=1;i<=14;i++){ const x=health.find(y=>y.date===addDays(todayKey,-i)); if(x&&+x[f]>0) v.push(+x[f]); } return v.length>=4?v.reduce((a,b)=>a+b,0)/v.length:null; };
+    let sc=0; const why=[]; const h=+r.sleep_h>0?+r.sleep_h:null;
+    if(h!=null){ if(h>=7){ sc+=2; why.push("睡眠"+h.toFixed(1)+"h ◎"); } else if(h>=6){ why.push("睡眠"+h.toFixed(1)+"h"); } else if(h>=5.5){ sc-=1; why.push("睡眠"+h.toFixed(1)+"hで少なめ"); } else { sc-=2; why.push("睡眠"+h.toFixed(1)+"hで不足"); } }
+    if(+r.drink){ sc-=1; why.push("昨夜お酒"); }
+    const hb=base("hrv"); if(hb&&+r.hrv>0){ const d=(+r.hrv-hb)/hb; if(d>=0.1){ sc+=1; why.push("HRVがいつもより高い"); } else if(d<=-0.15){ sc-=1; why.push("HRVがいつもより低い（疲れ気味）"); } }
+    const rb=base("rhr"); if(rb&&+r.rhr>0){ const d=+r.rhr-rb; if(d>=5){ sc-=1; why.push("安静時心拍が+"+Math.round(d)+"（疲れ・体調に注意）"); } else if(d<=-3){ sc+=0.5; } }
+    let debt=0,n=0; for(let i=0;i<7;i++){ const x=health.find(y=>y.date===addDays(todayKey,-i)); if(x&&+x.sleep_h>0){ n++; debt+=Math.max(0,7-(+x.sleep_h)); } } if(n>=4&&debt>=5){ sc-=1; why.push("1週間の寝不足が"+debt.toFixed(0)+"時間たまっている"); }
+    const y=health.find(x=>x.date===addDays(todayKey,-1)); if(y&&+y.steps>=8000){ sc+=0.5; }
+    if(h==null&&why.length===0) return null;
+    if(sc>=2) return {lv:"ok",title:"☀️ 今日は調子よさそう",why,tips:["頭を使う大事な仕事や、英語の重めのメニューは今日に","いいリズムなので、今夜もいつも通り23:00に寝る"]};
+    if(sc>=0) return {lv:"warn",title:"⛅ 今日はふつうくらい",why,tips:["大事な作業は午前中に","カフェインは14時まで、昼に少し歩くと午後がラク"]};
+    const tips=["大事な作業・判断は午前中に寄せる","カフェインは14時まで","昼休みに10分歩く／できれば15〜20分の仮眠","今夜は22:30に寝る"+(+r.drink?"・お酒はやめておく":""),"運動は軽め（ストレッチ・散歩）でOK"];
+    return {lv:"bad",title:"🌧 今日は調子が落ちやすい日",why,tips}; }
   function sleepCard(){ const k=el("div","dbsleep"); const r=health.find(x=>x.date===todayKey), h=r&&+r.sleep_h>0?+r.sleep_h:null;
     const hd=el("div","h"); hd.append(el("span","","😴 睡眠と調子"), el("small","","直近14日")); k.append(hd);
     if(h==null) k.append(el("b","","昨夜：⌚ まだ届いていません"));
     else { const hh=Math.floor(h), mm=Math.round((h-hh)*60); k.classList.add(slBand(h)); k.append(el("b","","昨夜 "+hh+"時間"+(mm?mm+"分":""))); }
+    // 今日の予報: sleep + alcohol + HRV/RHR vs my 14-day normal + sleep debt + yesterday's steps → forecast & advice
+    const fc=slForecast(); if(fc){ const f=el("div","slfc "+fc.lv); f.append(el("b","",fc.title));
+      if(fc.why.length) f.append(el("p","why",fc.why.join("・")));
+      const ul=el("ul"); fc.tips.forEach(t=>ul.append(el("li","",t))); f.append(ul); k.append(f); }
     // today's condition
-    const cp=el("div","slcond"); cp.append(el("span","l","今日の調子"));
+    const cp=el("div","slcond"); cp.append(el("span","l","実際の調子"));
     const cur=r&&+r.cond||0;
     CONDF.forEach((f,i)=>{ const bt=el("button",cur===i+1?"on":"",f); bt.type="button"; bt.title=String(i+1);
       bt.addEventListener("click",async()=>{ const v=cur===i+1?null:i+1, id=hlId();
