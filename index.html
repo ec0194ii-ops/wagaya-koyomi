@@ -1417,8 +1417,9 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .slchart .bar.warn{background:#cb912f} .slchart .bar.bad{background:#d44c47} .slchart .bar.none{background:#e3e2e0}
 .slchart .d{font-size:10px;color:var(--muted);font-family:var(--f-num);height:14px}
 .slsum{margin-top:8px;border-top:1px solid var(--line);padding-top:6px} .slsum>small{font-size:11.5px;color:var(--muted);font-weight:700}
-.slsum .r{display:grid;grid-template-columns:6.5em 1fr auto;gap:6px;font-size:12.5px;padding:2px 0} .slsum .r small{color:var(--muted)}
-.slsum .r.ok span:first-child{color:#448361;font-weight:700} .slsum .r.warn span:first-child{color:#cb912f;font-weight:700} .slsum .r.bad span:first-child{color:#d44c47;font-weight:700}
+.slsum .r{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:baseline;font-size:12.5px;padding:3px 0} .slsum .r small{color:var(--muted);font-size:11px} .slsum .r b{font-family:var(--f-num)} .slsum p{margin:4px 0 0;font-size:11.5px;color:var(--muted)}
+.slsum .r.ok b{color:#448361} .slsum .r.bad b{color:#d44c47} .slsum .r.warn b{color:var(--muted)}
+.slcond .drk{width:auto;padding:0 10px;font-size:12.5px;font-weight:700;margin-left:6px} .slcond .drk.on{opacity:1;background:var(--c-yellow);border-color:#cb912f}
 .dbsleep .h{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--muted)} .dbsleep b{display:block;font-size:15px;margin:4px 0 2px}
 .dbsleep p{margin:2px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
 .dbexp{margin-top:8px;border:1px solid var(--line);border-left:3px solid #9065b0;border-radius:8px;padding:10px 12px;background:var(--c-purple)}
@@ -4028,6 +4029,17 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* 😴 sleep × 調子: last night's sleep (Apple Watch via Shortcut) + today's condition 1–5 (health.cond) + diary 🎯focus; 14-day chart and per-band averages */
   const CONDF=["😫","😕","😐","🙂","😄"];
   const slBand=h=>h>=7?"ok":h>=5.5?"warn":"bad";
+  function slFactors(){ const mc=mealCfg&&+mealCfg.kcal||1800, kc=m=>{ if(m.total&&+m.total.kcal) return +m.total.kcal; return ((m.items)||[]).reduce((p,c)=>p+(+c.kcal||0),0); };
+    const rt=t=>{ const r=routines.find(x=>String(x.title||"").includes(t)); return r?rtLog(r):null; }, ex=rt("運動");
+    const ml=checklists.find(c=>c.key==="morning"), dk=d=>"d"+d.replace(/-/g,"");
+    return [
+      {ic:"😴",label:"7時間以上寝た",get:(d,x)=>+x.sleep_h>0?+x.sleep_h>=7:null},
+      {ic:"🍺",label:"前の晩にお酒",get:(d,x)=>!!+x.drink},
+      {ic:"🏃",label:"運動した",get:d=>ex?!!ex[d]:null},
+      {ic:"🌅",label:"朝のルーティン8割以上",get:d=>{ const v=ml&&ml.done&&ml.done[dk(d)]; if(!v) return ml?false:null; const a=String(v).split(""); return a.filter(c=>c==="1").length>=a.length*0.8; }},
+      {ic:"🍚",label:"前の日の食事が目標内",get:d=>{ const m=meals.find(z=>z.date===addDays(d,-1)); if(!m) return null; const v=kc(m); return v>0?Math.abs(v-mc)<=200:null; }},
+      {ic:"🚶",label:"前の日8000歩以上",get:d=>{ const y=health.find(z=>z.date===addDays(d,-1)); return y&&+y.steps>=300?+y.steps>=8000:null; }}
+    ]; }
   function sleepCard(){ const k=el("div","dbsleep"); const r=health.find(x=>x.date===todayKey), h=r&&+r.sleep_h>0?+r.sleep_h:null;
     const hd=el("div","h"); hd.append(el("span","","😴 睡眠と調子"), el("small","","直近14日")); k.append(hd);
     if(h==null) k.append(el("b","","昨夜：⌚ まだ届いていません"));
@@ -4039,6 +4051,9 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       bt.addEventListener("click",async()=>{ const v=cur===i+1?null:i+1, id=hlId();
         try{ if(r) await db.collection("notes").doc(id).update({cond:v}); else await db.collection("notes").doc(id).set({type:"health",date:todayKey,_private:true,cond:v}); status(v?"今日の調子を記録しました":"調子の記録を消しました"); }catch(e){ status("保存できませんでした"); } });
       cp.append(bt); });
+    const dr=el("button","drk"+(r&&+r.drink?" on":""),"🍺 昨夜お酒"+(r&&+r.drink?"あり":"")); dr.type="button";
+    dr.addEventListener("click",async()=>{ const v=r&&+r.drink?0:1, id=hlId(); try{ if(r) await db.collection("notes").doc(id).update({drink:v}); else await db.collection("notes").doc(id).set({type:"health",date:todayKey,_private:true,drink:v}); }catch(e){ status("保存できませんでした"); } });
+    cp.append(dr);
     k.append(cp);
     // 14-day chart: bar = sleep, face = 調子
     const ch=el("div","slchart"); const ln=el("i","sl7"); ln.style.bottom=(14+7/9*80)+"px"; ln.title="7時間"; ch.append(ln);
@@ -4047,16 +4062,16 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const bar=el("div","bar"+(sh!=null?" "+slBand(sh):" none")); bar.style.height=(sh!=null?Math.min(1,sh/9)*80:3)+"px"; if(sh!=null) bar.title=sh.toFixed(1)+"時間"; col.append(bar);
       col.append(el("span","d",String(+d.slice(8)))); ch.append(col); }
     k.append(ch);
-    // what my data says so far (last 90 days): avg 調子 / 集中 by sleep band
-    const G={ok:[],warn:[],bad:[]};
-    for(let i=0;i<90;i++){ const d=addDays(todayKey,-i), x=health.find(y=>y.date===d); if(!x||!(+x.sleep_h>0)) continue;
-      const dy=diaries.find(y=>y.date===d), c=+x.cond||0, f=dy&&+dy.focus||0; if(c||f) G[slBand(+x.sleep_h)].push({c,f}); }
-    const tot=G.ok.length+G.warn.length+G.bad.length;
-    if(tot>=3){ const av=(a,key)=>{ const v=a.map(o=>o[key]).filter(Boolean); return v.length?(v.reduce((s,n)=>s+n,0)/v.length).toFixed(1):"–"; };
-      const t=el("div","slsum"); t.append(el("small","","わたしのデータ（睡眠別の平均）"));
-      [["ok","7時間以上"],["warn","5.5〜7時間"],["bad","5.5時間未満"]].forEach(([b,lb])=>{ if(!G[b].length) return; const row=el("div","r "+b); row.append(el("span","",lb), el("span","","調子 "+av(G[b],"c")+"・集中 "+av(G[b],"f")), el("small","",G[b].length+"日")); t.append(row); });
-      k.append(t); }
-    else k.append(el("p","","睡眠と「今日の調子」（＋日記の🎯集中度）が3日分たまると、睡眠ごとの調子の違いがここに出ます。"));
+    // what moves my 調子? compare days with / without each factor (last 90 days, only days with 調子 recorded)
+    const fx=slFactors(), rows=[];
+    fx.forEach(F=>{ const y=[],n=[]; for(let i=0;i<90;i++){ const d=addDays(todayKey,-i), x=health.find(z=>z.date===d), c=x&&+x.cond; if(!c) continue; const v=F.get(d,x); if(v===true) y.push(c); else if(v===false) n.push(c); }
+      if(y.length>=2&&n.length>=2){ const av=a=>a.reduce((p,q)=>p+q,0)/a.length, A=av(y), B=av(n); rows.push({F,diff:A-B,A,B,ny:y.length,nn:n.length}); } });
+    rows.sort((p,q)=>Math.abs(q.diff)-Math.abs(p.diff));
+    const t=el("div","slsum"); t.append(el("small","","調子に効いていそうなこと（その日あり／なしの調子の平均）"));
+    if(rows.length){ rows.forEach(R=>{ const row=el("div","r "+(R.diff>=0.3?"ok":R.diff<=-0.3?"bad":"warn")); row.append(el("span","",R.F.ic+" "+R.F.label), el("b","",(R.diff>=0?"+":"")+R.diff.toFixed(1)), el("small","",R.A.toFixed(1)+"／"+R.B.toFixed(1)+"（"+R.ny+"・"+R.nn+"日）")); t.append(row); });
+      t.append(el("p","","日数が少ないうちは参考程度。日曜のふりかえりで、傾向を取扱説明書にまとめます。")); }
+    else t.append(el("p","","「今日の調子」を毎日つけると、睡眠・お酒・運動・食事・朝のルーティン・歩数のうち、どれが調子に効いているかがここに出ます（それぞれ、あった日・なかった日が2日ずつたまると表示）。"));
+    k.append(t);
     return k; }
   function renderBoard(){
     const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
