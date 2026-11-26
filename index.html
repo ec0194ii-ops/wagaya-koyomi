@@ -1376,7 +1376,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .ring .bg{stroke:var(--sunk)} .ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dasharray .4s}
 .ring.ok .fg{stroke:#448361} .ring.warn .fg{stroke:#d9730d} .ring.time .fg{stroke:var(--faint)} .ring.total .fg{stroke:#9065b0}
 .ring .in{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-size:12px;font-weight:700}
-.hzseg{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--sunk);border-radius:8px;padding:2px}
+.hzseg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;background:var(--sunk);border-radius:8px;padding:2px}
 .hzseg button{border:0;background:transparent;border-radius:6px;padding:6px 0;font-weight:700;font-size:13px;color:var(--muted)}
 .hzseg button[aria-pressed="true"]{background:var(--paper);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .hzhd{display:flex;align-items:center;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:10px}
@@ -3937,15 +3937,16 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   $("tlView").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-v]"); if(!b) return; tlMode=b.dataset.v; tlQ=null; renderMeTimeline(); });
 
   /* ---------- 期間ごとの目標（1か月・1年・3年）を円グラフで ---------- */
-  let hzSel="m1", moneyOpen=false;
+  let hzSel=null, moneyOpen=false;
   function ring(p,inner,cls){ const ns="http://www.w3.org/2000/svg", w=el("div","ring"+(cls?" "+cls:"")); const sv=document.createElementNS(ns,"svg"); sv.setAttribute("viewBox","0 0 44 44");
     const c=(r,k)=>{ const x=document.createElementNS(ns,"circle"); x.setAttribute("cx","22"); x.setAttribute("cy","22"); x.setAttribute("r","18"); x.setAttribute("class",k); return x; };
     const L=2*Math.PI*18, fg=c(18,"fg"); const v=p==null?0:Math.max(0,Math.min(1,p)); fg.setAttribute("stroke-dasharray",(v*L).toFixed(1)+" "+L.toFixed(1)); fg.setAttribute("transform","rotate(-90 22 22)");
     sv.append(c(18,"bg"),fg); w.append(sv, el("span","in",inner)); return w; }
-  function hzPeriod(h){ if(h.key==="m1"){ const d=k2d(todayKey); const s0=todayKey.slice(0,8)+"01"; const e0=addDays(ymd(new Date(d.getFullYear(),d.getMonth()+1,1)),-1); return [s0,e0]; } return [h.from||"2026-11-25",h.to]; }
+  function hzPeriod(h){ if(h.key==="w1"){ const s0=weekStart(todayKey); return [s0,addDays(s0,6)]; } if(h.key==="m1"){ const d=k2d(todayKey); const s0=todayKey.slice(0,8)+"01"; const e0=addDays(ymd(new Date(d.getFullYear(),d.getMonth()+1,1)),-1); return [s0,e0]; } return [h.from||"2026-11-25",h.to]; }
   function hzProgress(it,from,to){ const g=goals();
     const inP=k=>k>=from&&k<=todayKey&&k<=to;
     if(it.kind==="weight"){ const ws=health.filter(x=>+x.weight>0).sort((a,b)=>a.date.localeCompare(b.date)); if(!ws.length) return {p:null,txt:"記録なし"}; const cur=+ws[ws.length-1].weight; const st=+((ws.filter(x=>x.date<=from).pop()||ws[0]).weight); const p=st>it.target?(st-cur)/(st-it.target):(cur<=it.target?1:0); return {p,txt:cur.toFixed(1)+"→"+it.target+"kg"}; }
+    if(it.kind==="avg"){ const v=health.filter(x=>x.date>=from&&x.date<=todayKey&&x.date<=to).map(x=>+x[it.field]).filter(x=>x>0&&!(it.field==="steps"&&x<300)); if(!v.length) return {p:null,txt:"記録なし"}; const a=v.reduce((p,c)=>p+c,0)/v.length; return {p:a/it.target,txt:(it.field==="steps"?yen(a):a.toFixed(1))+"/"+(it.field==="steps"?yen(it.target):it.target)+(it.unit||"")}; }
     if(it.kind==="routine"){ const r=routines.find(x=>x.title.includes(it.routine)); if(!r) return {p:null,txt:"—"}; const L=rtLog(r); const n=Object.keys(L).filter(k=>L[k]&&inP(k)).length; return {p:n/it.target,txt:n+"/"+it.target+"日"}; }
     if(it.kind==="diary"){ const n=diaries.filter(d=>inP(d.date)&&dyCount(d.text)===3).length; return {p:n/it.target,txt:n+"/"+it.target+"日"}; }
     if(it.kind==="assets"||it.kind==="saving"){ if(!moneyOpen) return {p:null,txt:"🔒",lock:true}; const en=(money&&money.entries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))); const v=en.find(e=>e[it.kind]!=null); if(!v) return {p:null,txt:"未入力"}; return {p:v[it.kind]/it.target,txt:yen(v[it.kind])+"/"+yen(it.target)+"万"}; }
