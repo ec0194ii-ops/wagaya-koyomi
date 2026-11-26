@@ -1392,6 +1392,13 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .dbmoneybtn{display:flex;justify-content:space-between;align-items:center;width:100%;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:12px 14px;font:inherit;font-weight:700;color:var(--fg)}
 .dbmoneybtn small{font-size:12px;color:var(--muted);font-weight:600}
 .dbmring{display:flex;align-items:center;gap:12px;padding-bottom:8px} .dbmring b{display:block;font-family:var(--f-num);font-size:20px} .dbmring small{font-size:11.5px;color:var(--muted)}
+
+.rtmenu{margin:-2px 0 8px 34px;border-left:2px solid var(--line);padding:2px 0 2px 10px;display:grid;gap:4px}
+.rtmh{display:flex;justify-content:space-between;gap:8px;align-items:baseline} .rtmh b{font-size:12px;color:var(--muted)} .rtmh small{font-size:11px;color:var(--muted)}
+.rtmi{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 8px;font:inherit;color:var(--fg);text-align:left}
+.rtmi .ck{flex:none;width:18px;height:18px;border-radius:4px;border:1.5px solid var(--faint);display:grid;place-items:center;font-size:12px;font-weight:700}
+.rtmi.on{background:var(--c-green)} .rtmi.on .ck{background:#448361;border-color:#448361;color:#fff} .rtmi.on .t{color:var(--muted)}
+.rtmi .t{flex:1;font-size:13.5px} .rtmi small{font-size:11px;color:var(--muted);font-family:var(--f-num)}
 </style>
 </head>
 <body>
@@ -3513,6 +3520,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   let kuMode="thing", kuEditing=null;
   /* routine history: months {"m202611":"0010110…"} — one character per day ("1" = done). (The API only allows [A-Za-z0-9_] keys,
      so the old {"2026-11-07":1} log could never be saved.) Old log entries are still read if any exist. */
+  // 習慣のメニュー（決めたハウ）：r.menu={weekday:[{t,min}],weekend:[...],min:"最低ライン"}、r.menuDone={"dYYYYMMDD":"0101"}。全部できた日をその習慣の「できた日」にする
+  const rtOff=k=>[0,6].includes(k2d(k).getDay())||!!HOL[k]||events.some(e=>e._private&&occursOn(e,k)&&/休み|休暇/.test(String(e.title)));
+  const rtMenu=(r,k)=>{ const m=r&&r.menu; if(!m) return []; const a=rtOff(k)?(m.weekend||m.weekday):(m.weekday||m.weekend); return Array.isArray(a)?a:[]; };
+  const rtMenuBits=(r,k,n)=>{ const v=String(((r&&r.menuDone)||{})["d"+k.replace(/-/g,"")]||""); return Array.from({length:n},(_,i)=>v[i]==="1"); };
   function rtLog(r){ const o={}; if(!r) return o; const L=r.log;
     if(L&&typeof L==="object"&&!Array.isArray(L)) Object.keys(L).forEach(k=>{ if(L[k]) o[k]=1; });
     const M=r.months&&typeof r.months==="object"?r.months:{};
@@ -3548,7 +3559,15 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       c.addEventListener("click",async()=>{ const L=Object.assign({},lg); if(done) delete L[todayKey]; else L[todayKey]=1;
         c.disabled=true; try{ await db.collection("routines").doc(r.id).update({months:rtMonths(L),log:{}}); }catch(e){ status("更新できませんでした。",true); } c.disabled=false; });
       const n=streak(r); const t=el("span","tx",r.title); row.append(c,t); if(n>=2) row.append(el("span","rtk",n+"日連続"));
-      row.append(armBtn("消す",()=>db.collection("routines").doc(r.id).delete())); rb.append(row); });
+      row.append(armBtn("消す",()=>db.collection("routines").doc(r.id).delete())); rb.append(row);
+      const mn=rtMenu(r,todayKey); if(mn.length){ const bits=rtMenuBits(r,todayKey,mn.length), box=el("div","rtmenu");
+        const hd=el("div","rtmh"); hd.append(el("b","",(rtOff(todayKey)?"休日":"平日")+"のメニュー "+bits.filter(Boolean).length+"/"+mn.length), el("small","",r.menu.min?"最低ライン："+r.menu.min:"")); box.append(hd);
+        mn.forEach((m,i)=>{ const b=el("button","rtmi"+(bits[i]?" on":"")); b.type="button"; b.append(el("span","ck",bits[i]?"✓":""), el("span","t",m.t), el("small","",m.min?m.min+"分":""));
+          b.addEventListener("click",async()=>{ const nb=bits.slice(); nb[i]=!nb[i]; const md=Object.assign({},r.menuDone||{}); md["d"+todayKey.replace(/-/g,"")]=nb.map(x=>x?"1":"0").join("");
+            const L=Object.assign({},lg); if(nb.every(Boolean)) L[todayKey]=1; else delete L[todayKey];
+            b.disabled=true; try{ await db.collection("routines").doc(r.id).update({menuDone:md,months:rtMonths(L),log:{}}); if(nb.every(Boolean)) status("🎉 "+r.title+"：今日のメニュー完了"); }catch(e){ status("更新できませんでした。",true); } b.disabled=false; });
+          box.append(b); });
+        rb.append(box); } });
     if(!rts.length) rb.append(el("p","empty","毎日やりたいことを入れておくと、チェックして続いた日数が見えます。"));
     const hb=$("meRtHist"); hb.replaceChildren();
     if(rts.length){ hb.append(el("div","hlrh","つみかさね（最近半年）"));
