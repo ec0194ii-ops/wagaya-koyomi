@@ -1399,6 +1399,12 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .rtmi .ck{flex:none;width:18px;height:18px;border-radius:4px;border:1.5px solid var(--faint);display:grid;place-items:center;font-size:12px;font-weight:700}
 .rtmi.on{background:var(--c-green)} .rtmi.on .ck{background:#448361;border-color:#448361;color:#fff} .rtmi.on .t{color:var(--muted)}
 .rtmi .t{flex:1;font-size:13.5px} .rtmi small{font-size:11px;color:var(--muted);font-family:var(--f-num)}
+
+.dyfocus{display:flex;align-items:center;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.dyfocus .l{font-size:12.5px;font-weight:700;margin-right:4px}
+.dyfocus button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font:inherit;font-family:var(--f-num);font-weight:700;color:var(--muted)}
+.dyfocus button.on{background:var(--fg);color:var(--paper);border-color:var(--fg)}
+.dyfocus small{font-size:10.5px;color:var(--muted);margin-left:4px}
 </style>
 </head>
 <body>
@@ -1633,6 +1639,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
     <div class="sech"><div><div class="eyebrow">Diary</div><h2 data-ic="✏️">ひとこと日記</h2></div><span class="sub" id="dySub"></span></div>
     <div class="card">
       <div class="dyweek" id="dyWeek"></div>
+      <div class="dyfocus" id="dyFocus" role="group" aria-label="今日の集中度"></div>
       <form id="dyForm" autocomplete="off">
         <div class="dy3">
           <label><span class="ic">🙏</span><span>感謝</span><input type="text" id="dyG" maxlength="120" placeholder="ありがとうと思えたこと"></label>
@@ -3787,6 +3794,11 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const n=DY3.filter(([k])=>o[k]).length; $("dyCnt").textContent=n===3?"🎉 今日の3行そろいました":`今日 ${n}/3 行`;
     const wk=diaries.filter(d=>d.date>addDays(todayKey,-7)&&dyCount(d.text)===3).length;
     $("dySub").textContent=diaries.length?`3行そろった日 ${wk}/7（この1週間）`:"";
+    const F=$("dyFocus"); F.replaceChildren(); F.append(el("span","l","🎯 今日の集中度")); const fv=t&&+t.focus||0;
+    [1,2,3,4,5].forEach(n=>{ const b=el("button",n===fv?"on":"",String(n)); b.type="button"; b.setAttribute("aria-pressed",n===fv?"true":"false"); b.title=["","ぜんぜん","いまいち","ふつう","よく集中できた","すごく集中できた"][n];
+      b.addEventListener("click",async()=>{ if(!db) return; const id=dyId(todayKey), cur=diaries.find(d=>d.id===id), v=n===fv?0:n;
+        try{ if(cur) await db.collection("notes").doc(id).update({focus:v}); else await db.collection("notes").doc(id).set({type:"diary",date:todayKey,text:"",focus:v,_private:true}); status(v?"🎯 集中度 "+v+" を記録しました":"集中度を消しました"); }catch(e){ status("保存できませんでした。",true); } }); F.append(b); });
+    F.append(el("small","","1 ぜんぜん … 5 すごく"));
     const W=$("dyWeek"); W.replaceChildren(); const s0=weekStart(todayKey);
     for(let i=0;i<7;i++){ const k=addDays(s0,i), d=diaries.find(x=>x.date===k), n=d?dyCount(d.text):0; const c=el("div","dyd"+(k===todayKey?" now":"")+(k>todayKey?" fu":""));
       c.append(el("small","",DOW[k2d(k).getDay()]), el("i",n===3?"full":n>0||(d&&d.text)?"part":"",n===3?"●":n>0||(d&&d.text)?"◐":"○")); W.append(c); }
