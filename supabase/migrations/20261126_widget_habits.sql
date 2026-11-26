@@ -1,0 +1,3 @@
+-- Home-screen widget habits: rpc widget_habits(w) with the same secret as the widget feed link (?w=...).
+-- Returns the member's routines (months/menuDone), morning checklist (done/mode/courses), diary line counts, last 15 days of health.
+-- Full body applied as Supabase migration "widget_habits".

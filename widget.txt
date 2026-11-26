@@ -1,4 +1,5 @@
-// わが家のこよみ ウィジェット（Scriptable用） v2
+// わが家のこよみ ウィジェット（Scriptable用） v3
+// v3：習慣（朝・英語・運動・日記）と今日の予報を一番上に。Parameter「カレンダー」で前の月＋週の表示
 // 月・週・今日のタイムラインを出します。
 // 予定はiPhoneのカレンダーに追加した「わが家のこよみ」から読みます（設定 → カレンダーアプリに表示）。
 // 小：今日のタイムライン／中：1週間＋今日／大：月＋今日のタイムライン＋1週間
@@ -69,6 +70,58 @@ function head(w, d) {
   h.addSpacer();
   txt(h, `${today.getMonth() + 1}/${today.getDate()}（${DOW[today.getDay()]}）`, 11, C.muted);
 }
+
+// ---------- 習慣（パパ用）：こよみの rpc widget_habits を、ウィジェットの秘密リンクと同じ鍵で読む ----------
+const SUPA = "https://psxhtyfllmhfkadzltxi.supabase.co";
+const ANON = "sb_publishable_KdmPLd9uk1SSLGqDpWZW2Q_oYbB_nNx";
+const habPath = fm.joinPath(fm.documentsDirectory(), "wagaya-koyomi-habits.json");
+async function loadHabits() {
+  const m = String(FEED).match(/[?&]w=([0-9a-f]{64})/); if (!m) return null;
+  try {
+    const r = new Request(SUPA + "/rest/v1/rpc/widget_habits"); r.method = "POST"; r.timeoutInterval = 12;
+    r.headers = { apikey: ANON, "Content-Type": "application/json" }; r.body = JSON.stringify({ w: m[1] });
+    const j = await r.loadJSON(); if (j && j.today) { fm.writeString(habPath, JSON.stringify(j)); return j; }
+  } catch (e) {}
+  if (fm.fileExists(habPath)) return JSON.parse(fm.readString(habPath));
+  return null;
+}
+const dk = k => "d" + k.replace(/-/g, "");
+const addK = (k, n) => { const d = new Date(k + "T12:00:00"); d.setDate(d.getDate() + n); return key(d); };
+// 0=まだ 1=少しでも（1分でも）2=全部
+function rtState(r, k) { const mo = (r.months || {})["m" + k.slice(0, 4) + k.slice(5, 7)] || ""; if (mo[+k.slice(8) - 1] === "1") return 2; return /1/.test(String((r.menuDone || {})[dk(k)] || "")) ? 1 : 0; }
+function mrState(c, k) { const mode = (c.mode || {})[dk(k)], co = c.courses && (c.courses[mode] || c.courses.full); const mins = (co && co.mins) || c.mins || [];
+  const raw = String((c.done || {})[dk(k)] || ""); let n = 0, t = 0; for (let i = 0; i < c.steps; i++) { if (!(+mins[i] > 0) || raw[i] === "s") continue; t++; if (raw[i] === "1") n++; } return t && n === t ? 2 : n ? 1 : 0; }
+function streak(fn, k) { let n = 0, d = fn(k) ? k : addK(k, -1); for (let i = 0; i < 400 && fn(d); i++) { n++; d = addK(d, -1); } return n; }
+function habitList(h) {
+  const k = h.today, out = [];
+  if (h.morning) out.push({ ic: "🌅", label: "朝", st: mrState(h.morning, k), sk: streak(x => mrState(h.morning, x) > 0, k) });
+  const find = re => (h.routines || []).find(r => re.test(r.title || ""));
+  const en = find(/英語/), ex = find(/運動/);
+  if (en) out.push({ ic: "📖", label: "英語", st: rtState(en, k), sk: streak(x => rtState(en, x) > 0, k), min: en.menuMin });
+  if (ex) out.push({ ic: "🏃", label: "運動", st: rtState(ex, k), sk: streak(x => rtState(ex, x) > 0, k) });
+  const dy = x => { const n = +((h.diary || {})[x] || 0); return n >= 3 ? 2 : n ? 1 : 0; };
+  out.push({ ic: "✏️", label: "日記", st: dy(k), sk: streak(x => dy(x) > 0, k) });
+  return out;
+}
+function forecast(h) {
+  const t = (h.health || {})[h.today] || {}; const s = +t.sleep_h || 0; if (!s) return null;
+  let lv = s >= 7 ? 2 : s >= 6 ? 1 : 0; if (+t.drink) lv = Math.max(0, lv - 1);
+  return `😴 ${s.toFixed(1)}h　` + ["🌧 調子が落ちやすい日・大事なことは午前に", "⛅ ふつう・大事な作業は午前に", "☀️ 調子よさそう"][lv];
+}
+function habitRow(w, h, compact) {
+  const hs = habitList(h); const row = w.addStack(); row.centerAlignContent();
+  hs.forEach((x, i) => {
+    const c = row.addStack(); c.layoutVertically(); c.centerAlignContent(); c.setPadding(6, 6, 6, 6); c.cornerRadius = 10;
+    c.backgroundColor = x.st === 2 ? new Color("#448361", 0.18) : x.st === 1 ? new Color("#cb912f", 0.18) : C.card;
+    const a = c.addStack(); a.centerAlignContent(); txt(a, x.ic, compact ? 13 : 15); a.addSpacer(3); txt(a, x.st === 2 ? "✓" : x.st === 1 ? "◐" : "○", compact ? 12 : 14, x.st === 2 ? new Color("#448361") : x.st === 1 ? new Color("#cb912f") : C.faint, true);
+    c.addSpacer(1); txt(c, x.label, compact ? 9 : 10.5, C.fg, true);
+    txt(c, x.sk ? `🔥${x.sk}日` : "今日から", compact ? 8.5 : 9.5, x.sk ? C.now : C.muted, true);
+    if (i < hs.length - 1) row.addSpacer(compact ? 4 : 6);
+  });
+  return hs;
+}
+function minLine(w, hs) { const left = hs.filter(x => x.st === 0); if (!left.length) { txt(w, "🎉 今日の習慣、全部ゼロじゃない！", 10.5, new Color("#448361"), true); return; }
+  const en = left.find(x => x.label === "英語"); txt(w, "まだ：" + left.map(x => x.label).join("・") + (en && en.min ? "　最低ライン→" + en.min : "　1分だけでもOK"), 10, C.muted, true); }
 
 // 今日のタイムライン（済んだ予定はうすく、いまの位置に赤い線）
 function timeline(col, todayEvs, max, size) {
@@ -178,9 +231,40 @@ function listWidget(d, family) {
   return w;
 }
 
+function todoList(col, d, max, fs) {
+  const items = d.todos || []; txt(col, "✓ やること " + items.length, 10, C.muted, true); col.addSpacer(3);
+  if (!items.length) { txt(col, "期限のものはなし", fs - 1, C.muted); return; }
+  items.slice(0, max).forEach(x => { const r = col.addStack(); r.centerAlignContent(); txt(r, "□ ", fs, C.muted); txt(r, x.title, fs, C.fg, true); r.addSpacer(4); if (x.label) txt(r, x.label, fs - 3, x.late ? C.now : C.muted, true); col.addSpacer(2); });
+}
+async function habitWidget(d, h, family, todayEvs) {
+  const w = new ListWidget(); w.backgroundColor = C.bg; w.setPadding(12, 13, 10, 13); w.url = APP_URL;
+  w.refreshAfterDate = new Date(Date.now() + 10 * 60 * 1000);
+  if (family === "small") { const hs = habitList(h); head(w, d); w.addSpacer(6);
+    hs.forEach(x => { const r = w.addStack(); r.centerAlignContent(); txt(r, x.ic + " " + x.label, 12, C.fg, true); r.addSpacer(); txt(r, (x.st === 2 ? "✓" : x.st === 1 ? "◐" : "○") + (x.sk ? " 🔥" + x.sk : ""), 11, x.st ? new Color("#448361") : C.muted, true); w.addSpacer(3); });
+    return w; }
+  head(w, d); w.addSpacer(6);
+  const hs = habitRow(w, h, family === "medium"); w.addSpacer(4);
+  const fc = forecast(h); if (fc) { txt(w, fc, 10.5, C.fg, true); w.addSpacer(2); }
+  minLine(w, hs);
+  if (family === "large" || family === "extraLarge") {
+    w.addSpacer(10); const row = w.addStack(); row.topAlignContent();
+    const a = row.addStack(); a.layoutVertically(); a.size = new Size(150, 0); timeline(a, todayEvs, 7, 12);
+    row.addSpacer(10); const b = row.addStack(); b.layoutVertically(); todoList(b, d, 6, 12);
+    footer(w, d);
+  } else { w.addSpacer(); }
+  return w;
+}
+
 async function build(family) {
   const d = await loadFeed();
   if (/リスト|list|todo|買い物/i.test(MODE)) return listWidget(d, family);
+  const calMode = /カレンダー|calendar|月/i.test(MODE);
+  const h = calMode ? null : await loadHabits();
+  if (h) { const evs0 = await loadEvents(); let te;
+    if (evs0) te = onDay(evs0, today);
+    else te = (d.events || []).map(e => { const [hh, mm] = (e.time || "").split(":").map(Number); const s = e.time ? new Date(today.getFullYear(), today.getMonth(), today.getDate(), hh, mm) : today;
+      const x = split(e.title); return { title: x.t, who: x.who, start: s, end: e.time ? new Date(s.getTime() + 3600000) : new Date(today.getTime() + 86400000), allDay: !e.time }; });
+    return habitWidget(d, h, family, te); }
   let evs = await loadEvents();
   let todayEvs;
   if (evs) todayEvs = onDay(evs, today);
