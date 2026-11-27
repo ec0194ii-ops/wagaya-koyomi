@@ -1157,6 +1157,18 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 /* ===== 2026-11 redesign: dashboard, わたしの軸, 3-line diary, 欲しいもの ===== */
 .metabs button{font-size:10.5px}
 .medash{margin:12px 0 4px}
+.slmini{border:1px solid var(--line);border-left:3px solid #9b9a97;border-radius:8px;padding:8px 10px;background:var(--paper);margin-bottom:8px}
+.slmini.ok{border-left-color:#448361} .slmini.warn{border-left-color:#cb912f} .slmini.bad{border-left-color:#d44c47}
+.slmini .top{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:0;font:inherit;color:var(--fg);text-align:left}
+.slmini .top .s{font-size:13.5px;font-weight:700;white-space:nowrap} .slmini .top .f{flex:1;min-width:0;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slmini .sp{display:flex;align-items:flex-end;gap:2px;height:22px;flex:none} .slmini .sp i{width:5px;border-radius:2px 2px 0 0;background:#448361;min-height:2px}
+.slmini .sp i.warn{background:#cb912f} .slmini .sp i.bad{background:#d44c47} .slmini .sp i.none{background:#e3e2e0}
+.slmini .cd{display:flex;align-items:center;gap:3px;margin-top:6px;flex-wrap:wrap} .slmini .cd .l{font-size:11.5px;font-weight:700;color:var(--muted);margin-right:2px}
+.slmini .cd button{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--paper);font-size:15px;padding:0;opacity:.5} .slmini .cd button.on{opacity:1;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.slmini .cd .drk{width:auto;padding:0 8px;font-size:11.5px;font-weight:700;opacity:1;margin-left:4px} .slmini .cd .drk.on{background:var(--c-yellow);border-color:#cb912f}
+.slmini .ins{margin:6px 0 0;padding:0;list-style:none;font-size:12px;line-height:1.55} .slmini .ins li{padding-left:1.3em;text-indent:-1.3em}
+.slmini .more{text-align:left;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:12px} .slmini .more ul{margin:2px 0 4px;padding-left:1.2em;line-height:1.6}
+.slmini .more button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--accent)}
 .mdaxis{display:flex;gap:10px;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 16%,var(--paper)),color-mix(in srgb,var(--family) 22%,var(--paper)));border-radius:18px;padding:11px 14px;margin-bottom:10px;cursor:pointer}
 .mdaxis .ic{font-size:26px;line-height:1}
 .mdaxis small{display:block;font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--accent)}
@@ -4166,16 +4178,47 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       col.append(el("span","d",String(+d.slice(8)))); ch.append(col); }
     k.append(ch);
     // what moves my 調子? compare days with / without each factor (last 90 days, only days with 調子 recorded)
-    const fx=slFactors(), rows=[];
-    fx.forEach(F=>{ const y=[],n=[]; for(let i=0;i<90;i++){ const d=addDays(todayKey,-i), x=health.find(z=>z.date===d), c=x&&+x.cond; if(!c) continue; const v=F.get(d,x); if(v===true) y.push(c); else if(v===false) n.push(c); }
-      if(y.length>=2&&n.length>=2){ const av=a=>a.reduce((p,q)=>p+q,0)/a.length, A=av(y), B=av(n); rows.push({F,diff:A-B,A,B,ny:y.length,nn:n.length}); } });
-    rows.sort((p,q)=>Math.abs(q.diff)-Math.abs(p.diff));
+    const rows=slFactorRows();
     const t=el("div","slsum"); t.append(el("small","","調子に効いていそうなこと（その日あり／なしの調子の平均）"));
     if(rows.length){ rows.forEach(R=>{ const row=el("div","r "+(R.diff>=0.3?"ok":R.diff<=-0.3?"bad":"warn")); row.append(el("span","",R.F.ic+" "+R.F.label), el("b","",(R.diff>=0?"+":"")+R.diff.toFixed(1)), el("small","",R.A.toFixed(1)+"／"+R.B.toFixed(1)+"（"+R.ny+"・"+R.nn+"日）")); t.append(row); });
       t.append(el("p","","日数が少ないうちは参考程度。日曜のふりかえりで、傾向を取扱説明書にまとめます。")); }
     else t.append(el("p","","「今日の調子」を毎日つけると、睡眠・お酒・運動・食事・朝のルーティン・歩数のうち、どれが調子に効いているかがここに出ます（それぞれ、あった日・なかった日が2日ずつたまると表示）。"));
     k.append(t);
     return k; }
+  function slFactorRows(){ const rows=[]; slFactors().forEach(F=>{ const y=[],n=[]; for(let i=0;i<90;i++){ const d=addDays(todayKey,-i), x=health.find(z=>z.date===d), c=x&&+x.cond; if(!c) continue; const v=F.get(d,x); if(v===true) y.push(c); else if(v===false) n.push(c); }
+      if(y.length>=2&&n.length>=2){ const av=a=>a.reduce((p,q)=>p+q,0)/a.length, A=av(y), B=av(n); rows.push({F,diff:A-B,A,B,ny:y.length,nn:n.length}); } });
+    return rows.sort((p,q)=>Math.abs(q.diff)-Math.abs(p.diff)); }
+  // 💡 気づき：記録をまとめて、いま言えることを短く（多くて3つ）
+  function slInsights(){ const out=[], last=n=>{ const a=[]; for(let i=0;i<n;i++){ const x=health.find(y=>y.date===addDays(todayKey,-i)); if(x) a.push(x); } return a; };
+    const L14=last(14), sl14=L14.filter(x=>+x.sleep_h>0), L7=sl14.filter(x=>x.date>addDays(todayKey,-7));
+    if(sl14.length<4){ out.push("⌚ 睡眠データが14日中"+sl14.length+"日分だけ。毎朝の自動送信で傾向が見えてきます"); }
+    else { const av=L7.length?L7.reduce((p,x)=>p+(+x.sleep_h),0)/L7.length:null;
+      if(av!=null){ const df=Math.round((av-7)*60); out.push("😴 7日平均 "+av.toFixed(1)+"時間（目標7時間"+(df>=0?"を+"+df+"分 ◎":"まで"+df+"分")+"）"); }
+      let debt=0; L7.forEach(x=>debt+=Math.max(0,7-(+x.sleep_h))); if(debt>=4) out.push("🛌 1週間の寝不足が約"+Math.round(debt)+"時間。30分早く寝る日を1日つくると回復しやすい"); }
+    const wk=L14.map(x=>x.wake).filter(w=>/^\d{1,2}:\d{2}$/.test(w||"")).map(w=>{ const [h,m]=w.split(":").map(Number); return h*60+m; });
+    if(wk.length>=4){ const m=wk.reduce((a,b)=>a+b,0)/wk.length, sd=Math.sqrt(wk.reduce((a,b)=>a+(b-m)**2,0)/wk.length); if(sd>=40) out.push("⏰ 起床のばらつき±"+Math.round(sd)+"分。そろえると睡眠と朝の集中が安定しやすい"); else out.push("⏰ 起床は±"+Math.round(sd)+"分にそろっていて良いリズム"); }
+    const cn=L14.filter(x=>+x.cond).length;
+    const R=slFactorRows().filter(r=>Math.abs(r.diff)>=0.5); if(R.length){ const r=R[0]; out.push("💡 "+r.F.label+"の日は、調子が平均"+(r.diff>=0?"+":"")+r.diff.toFixed(1)+"（"+r.A.toFixed(1)+"と"+r.B.toFixed(1)+"・"+(r.ny+r.nn)+"日分）"); }
+    else if(cn<5) out.push("🙂 調子の記録はまだ"+cn+"日。毎朝顔をひと押しで、何が効くかが見えてきます");
+    return out.slice(0,3); }
+  function sleepMini(){ const r=health.find(x=>x.date===todayKey), h=r&&+r.sleep_h>0?+r.sleep_h:null, fc=slForecast();
+    const k=el("div","slmini"+(h!=null?" "+slBand(h):"")); const top=el("button","top"); top.type="button";
+    const hh=h!=null?Math.floor(h):0, mm=h!=null?Math.round((h-hh)*60):0;
+    top.append(el("span","s",h!=null?"😴 "+hh+"時間"+(mm?mm+"分":""):"😴 ⌚まだ"), el("span","f",fc?fc.title:"昨夜の睡眠がまだ届いていません"));
+    const sp=el("span","sp"); for(let i=6;i>=0;i--){ const x=health.find(y=>y.date===addDays(todayKey,-i)), v=x&&+x.sleep_h>0?+x.sleep_h:null; const b=el("i",v!=null?slBand(v):"none"); b.style.height=(v!=null?Math.max(3,Math.min(1,v/9)*22):3)+"px"; b.title=v!=null?md(addDays(todayKey,-i))+" "+v.toFixed(1)+"時間":""; sp.append(b); } top.append(sp);
+    k.append(top);
+    const cd=el("div","cd"); cd.append(el("span","l","調子")); const cur=r&&+r.cond||0;
+    CONDF.forEach((f,i)=>{ const bt=el("button",cur===i+1?"on":"",f); bt.type="button"; bt.setAttribute("aria-label","調子"+(i+1));
+      bt.addEventListener("click",async()=>{ const v=cur===i+1?null:i+1, id=hlId(); try{ if(r) await db.collection("notes").doc(id).update({cond:v}); else await db.collection("notes").doc(id).set({type:"health",date:todayKey,_private:true,cond:v}); status(v?"今日の調子を記録しました":"調子の記録を消しました"); }catch(e){ status("保存できませんでした"); } }); cd.append(bt); });
+    const dr=el("button","drk"+(r&&+r.drink?" on":""),"🍺"+(r&&+r.drink?" お酒あり":" お酒")); dr.type="button";
+    dr.addEventListener("click",async()=>{ const v=r&&+r.drink?0:1, id=hlId(); try{ if(r) await db.collection("notes").doc(id).update({drink:v}); else await db.collection("notes").doc(id).set({type:"health",date:todayKey,_private:true,drink:v}); }catch(e){ status("保存できませんでした"); } }); cd.append(dr); k.append(cd);
+    const ins=slInsights(); if(ins.length){ const ul=el("ul","ins"); ins.forEach(t=>ul.append(el("li","",t))); k.append(ul); }
+    const more=el("div","more"); more.hidden=!slMiniOpen;
+    if(fc){ if(fc.why.length) more.append(el("div","",fc.why.join("・"))); const ul=el("ul"); fc.tips.forEach(t=>ul.append(el("li","",t))); more.append(ul); }
+    const go=el("button","","📊 14日のグラフと「調子に効くこと」 ›"); go.type="button"; go.addEventListener("click",()=>setMeTab("dash")); more.append(go); k.append(more);
+    top.addEventListener("click",()=>{ slMiniOpen=!slMiniOpen; more.hidden=!slMiniOpen; });
+    return k; }
+  let slMiniOpen=false;
   function renderBoard(){
     const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
     const c=el("div","dbhero"); const dd=daysTo(g.dreamDate);
@@ -4237,6 +4280,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- 今日のダッシュボード ---------- */
   function renderDash(){
     const box=$("meDash"); if(!box) return; box.replaceChildren();
+    box.append(sleepMini());
     if(values&&values.axes.length){ const dn=Math.floor(k2d(todayKey).getTime()/864e5), a=values.axes[((dn%values.axes.length)+values.axes.length)%values.axes.length];
       const ax=el("div","mdaxis"); const tx=el("div"); tx.append(el("small","","今日の軸"), el("b","",a.name+" — "+(a.short||""))); ax.append(el("span","ic",a.ic||"🧭"), tx);
       ax.addEventListener("click",()=>setMeTab("goal")); box.append(ax); }
