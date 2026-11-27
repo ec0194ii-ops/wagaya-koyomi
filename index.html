@@ -1375,6 +1375,32 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .tlqd{display:flex;gap:4px} .tlqd button{flex:1;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 0;font-size:12px;font-weight:700;color:var(--muted)}
 .tlqd button[aria-pressed="true"]{background:var(--fg);color:var(--paper);border-color:var(--fg)}
 .tlqa{display:flex;gap:6px;align-items:center} .tlqf{flex:1;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+/* tap-to-open details (todo memo, plans, indicator notes) */
+.memob{display:inline-block;margin-left:4px;font-size:11px;padding:0 6px;border-radius:999px;background:var(--sunk);color:var(--muted);font-weight:700;vertical-align:1px}
+.memobox{margin:2px 0 8px 34px;padding:8px 10px;border-left:3px solid var(--line);background:var(--sunk);border-radius:6px;font-size:12.5px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg)}
+.memobox .mbtn{display:block;margin-top:6px;font-size:12px;font-weight:700;color:var(--accent);background:none;border:0;padding:0}
+.item .tx.tap,.gtr .tx.tap{cursor:pointer}
+.ag .blk .memo{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.plans{display:grid;gap:8px}
+.plchart{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 10px 6px}
+.plchart svg{width:100%;height:auto;display:block}
+.plchart .lg{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:4px}
+.plchart .lg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:4px;vertical-align:3px}
+.plchart .nt{font-size:10.5px;color:var(--muted);line-height:1.5;margin:4px 0 0}
+.plock{width:100%;border:1px dashed var(--line);background:var(--paper);border-radius:12px;padding:14px;font:inherit;font-weight:700;color:var(--muted)}
+.plan{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--pc,#999);border-radius:10px;padding:10px 12px}
+.plan summary{list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer}
+.plan summary::-webkit-details-marker{display:none}
+.plan summary::after{content:"▾";color:var(--faint);font-size:13px;margin-left:auto;transition:transform .15s}
+.plan[open] summary::after{transform:rotate(180deg)}
+.plan .ic{font-size:22px} .plan .t{min-width:0} .plan .t b{display:block;font-size:14px} .plan .t small{display:block;font-size:11.5px;color:var(--muted)}
+.plan.now{box-shadow:0 0 0 2px var(--pc,#999)} .plan .nowb{font-size:10.5px;font-weight:700;color:#fff;background:var(--pc,#999);border-radius:4px;padding:0 6px;margin-left:6px}
+.plan .bd{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:12.5px;line-height:1.7}
+.plan .bd p{margin:0 0 4px} .plan .bd .lb{font-size:11px;font-weight:700;color:var(--muted);display:block}
+.plsig{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12.5px}
+.plsig summary{cursor:pointer;font-weight:700} .plsig ul{margin:6px 0 2px;padding-left:1.2em;line-height:1.7}
+.hzwhy{margin-top:8px;font-size:12.5px} .hzwhy summary{cursor:pointer;font-weight:700;color:var(--muted)}
+.hzwhy dl{margin:6px 0 0} .hzwhy dt{font-weight:700;margin-top:6px} .hzwhy dd{margin:0;color:var(--muted);line-height:1.6}
 /* rings + horizons */
 .ring{position:relative;width:56px;height:56px;flex:none}
 .ring svg{width:100%;height:100%} .ring circle{fill:none;stroke-width:5}
@@ -1695,6 +1721,10 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
   </div>
   <div class="sec" data-mtab="goal">
     <div class="vpur" id="vPurpose"></div>
+  </div>
+  <div class="sec" data-mtab="goal" id="vPlanSec" hidden>
+    <div class="sech"><div><div class="eyebrow">Plans</div><h2 data-ic="🎬">3つのプラン</h2></div><span class="sub" id="vPlanSub"></span></div>
+    <div class="plans" id="vPlans"></div>
   </div>
   <div class="sec" data-mtab="goal">
     <div class="sech"><div><div class="eyebrow">Values</div><h2 data-ic="🧭">5つの軸</h2></div><span class="sub" id="vVer"></span></div>
@@ -3342,10 +3372,15 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- todo tab ---------- */
   function todoRow(t){
     const li=el("li","item"+(t.done?" done":"")); const tx=labelWith("tx",t,t.title);
-    const d=dueText(t); const sb=el("span","sb"); const ax=axisOf(t); if(ax) sb.append(ax.ic+" "); sb.append(el("span",d.cls,d.txt)); if((t.who||[]).length) sb.append("・"+whoText(t.who)); if(t.memo) sb.append("・"+t.memo); tx.append(sb);
+    const d=dueText(t); const sb=el("span","sb"); const ax=axisOf(t); if(ax) sb.append(ax.ic+" "); sb.append(el("span",d.cls,d.txt)); if((t.who||[]).length) sb.append("・"+whoText(t.who)); if(t.memo) sb.append(el("span","memob",memoOpen.has(t.id)?"📝 とじる":"📝 メモ")); tx.append(sb);
     const ed=el("button","lnk","直す"); ed.type="button"; ed.addEventListener("click",()=>openSheet("todo",t));
-    li.append(chk(t),tx,ed,armBtn("消す",()=>db.collection("todos").doc(t.id).delete())); return li;
+    li.append(chk(t),tx,ed,armBtn("消す",()=>db.collection("todos").doc(t.id).delete()));
+    if(!t.memo) return li;
+    tx.classList.add("tap"); tx.addEventListener("click",()=>{ memoOpen.has(t.id)?memoOpen.delete(t.id):memoOpen.add(t.id); renderTodos(); });
+    if(!memoOpen.has(t.id)) return li;
+    const fr=document.createDocumentFragment(); fr.append(li, el("li","memobox",String(t.memo))); return fr;
   }
+  const memoOpen=new Set();   // which todo memos are unfolded (tap the title to open/close)
   const meNow=()=>(window.__koyomiMe?window.__koyomiMe():"papa");
   const inWeek=(t,s0)=>{const e0=addDays(s0,6);return (t.due&&t.due>=s0&&t.due<=e0)||(!t.due&&t.week===s0)};
   const weekly=(t,s0)=>(t.span==="week"&&t.due===addDays(s0,6))||(!t.due&&t.week===s0);
@@ -3863,6 +3898,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     pb.append(el("small","","MY PURPOSE ・ 人生の目的"), el("p","",values.purpose||""));
     if(values.rules){ const rr=el("div","vrules"); [["🔁",values.rules.habit],["✏️",values.rules.daily],["🌙",values.rules.weekly],["🤔",values.rules.decide]].forEach(([l,t])=>{ if(t) rr.append(el("div","",l+" "+t)); }); pb.append(rr); }
     $("vVer").textContent="v"+(values.version||1)+(values.updatedAt?"・"+md(values.updatedAt)+"更新":"");
+    renderPlans();
     const last=reviews.find(r=>r.scores&&Object.keys(r.scores).length), revs=reviews.slice(0,8).reverse();
     const box=$("vAxes"); box.replaceChildren();
     values.axes.forEach(a=>{ const d=el("details","vax"), sm=el("summary");
@@ -3884,6 +3920,42 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     (Array.isArray(r0.lines)?r0.lines:[]).forEach(t=>rv.append(el("div","rl",String(t))));
     const sc=r0.scores&&Object.keys(r0.scores).length?values.axes.map(a=>{ const n=axScore(r0,a); return n?a.ic+n:""; }).filter(Boolean).join("　"):"";
     rv.append(el("div","cm",sc?"あなたの採点：　"+sc+(r0.comment?"\n💬 "+r0.comment:""):"🙋 まだ採点していません。通知に「家族4 健康3 感謝5 成長3 尊厳4」のように返信してください。"));
+  }
+
+  /* ---------- 🎬 3つのプラン（values.plans）：グラフ＋たたんだカード。お金なのでグラフは🔒タップで表示 ---------- */
+  const PLC={A:"#2f80ed",B:"#448361",C:"#d9730d"};
+  function planNow(P){ // which plan line the latest asset record is closest to (額面)
+    const en=(money&&money.entries||[]).filter(e=>e.assets!=null).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0]; if(!en||!P.chart) return null;
+    const by=+(P.chart.birthYear||1992), age=+String(en.date).slice(0,4)-by; let best=null;
+    (P.items||[]).forEach(it=>{ const s=P.chart[it.key]; if(!s) return; const ks=Object.keys(s).map(Number).sort((a,b)=>a-b); const a0=ks.reduce((p,c)=>Math.abs(c-age)<Math.abs(p-age)?c:p,ks[0]); const d=Math.abs(+s[a0]-en.assets); if(!best||d<best.d) best={key:it.key,d,age:a0,v:en.assets}; });
+    if(best){ const vs=(P.items||[]).map(it=>P.chart[it.key]&&P.chart[it.key][best.age]).filter(v=>v!=null).map(Number); if(Math.max(...vs)-Math.min(...vs)<best.v*0.05) best.key=null; }   // lines still overlap → no plan yet
+    return best; }
+  function planChart(P,now){
+    const C=P.chart, keys=(P.items||[]).map(i=>i.key).filter(k=>C[k]); if(!keys.length) return null;
+    const ages=[...new Set(keys.flatMap(k=>Object.keys(C[k]).map(Number)))].sort((a,b)=>a-b), a0=ages[0], a1=ages[ages.length-1];
+    const vals=keys.flatMap(k=>Object.values(C[k]).map(Number)).concat(now?[now.v]:[]), vmax=Math.ceil(Math.max(...vals)/2000)*2000;
+    const W=320,H=170,l=34,r=8,t=8,b=22, X=a=>l+(a-a0)/(a1-a0)*(W-l-r), Y=v=>t+(1-v/vmax)*(H-t-b), ns="http://www.w3.org/2000/svg";
+    const sv=document.createElementNS(ns,"svg"); sv.setAttribute("viewBox","0 0 "+W+" "+H); sv.setAttribute("role","img"); sv.setAttribute("aria-label","3つのプランの金融資産の見込み");
+    const mk=(n,a)=>{ const e=document.createElementNS(ns,n); Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v)); sv.append(e); return e; };
+    for(let v=0;v<=vmax;v+=2000){ mk("line",{x1:l,x2:W-r,y1:Y(v),y2:Y(v),stroke:"var(--line)","stroke-width":1}); const tx=mk("text",{x:l-4,y:Y(v)+3,"text-anchor":"end","font-size":9,fill:"var(--muted)"}); tx.textContent=v?(v/10000>=1?(v/10000)+"億":v/1000+"千万"):"0"; }
+    ages.filter(a=>a%5===0).forEach(a=>{ const tx=mk("text",{x:X(a),y:H-6,"text-anchor":"middle","font-size":9,fill:"var(--muted)"}); tx.textContent=a+"歳"; });
+    const g=(P.items||[]).find(i=>/40歳/.test(i.line||"")); mk("line",{x1:X(40),x2:X(40),y1:t,y2:H-b,stroke:"var(--faint)","stroke-dasharray":"3 3"});
+    if(vmax>=5000){ mk("circle",{cx:X(40),cy:Y(5000),r:3.5,fill:"none",stroke:PLC.A,"stroke-width":1.5}); const tx=mk("text",{x:X(40)-5,y:Y(5000)-6,"text-anchor":"end","font-size":9,"font-weight":700,fill:PLC.A}); tx.textContent="40歳 5,000万"; }
+    keys.forEach(k=>{ const s=C[k], pts=Object.keys(s).map(Number).sort((a,b)=>a-b).map(a=>X(a).toFixed(1)+","+Y(+s[a]).toFixed(1)).join(" ");
+      mk("polyline",{points:pts,fill:"none",stroke:PLC[k]||"#999","stroke-width":now&&now.key===k?3:2,"stroke-linejoin":"round",opacity:now&&now.key!==k?.55:1}); });
+    if(now&&now.age>=a0&&now.age<=a1){ mk("circle",{cx:X(now.age),cy:Y(now.v),r:4.5,fill:"var(--fg)"}); const tx=mk("text",{x:X(now.age)+6,y:Y(now.v)+3,"font-size":9.5,"font-weight":700,fill:"var(--fg)"}); tx.textContent="いま"; }
+    const w=el("div","plchart"); w.append(sv); const lg=el("div","lg"); (P.items||[]).forEach(i=>{ if(!C[i.key]) return; const s=el("span",""); const c=el("i"); c.style.background=PLC[i.key]; s.append(c,(i.name||i.key).replace(/：.*/,"")); lg.append(s); }); w.append(lg);
+    if(C.note) w.append(el("p","nt",C.note)); return w; }
+  function renderPlans(){
+    const box=$("vPlans"), sec=$("vPlanSec"); if(!box) return; const P=values&&values.plans; sec.hidden=!P; box.replaceChildren(); if(!P) return;
+    $("vPlanSub").textContent="年2回のチェックで切り替え";
+    const now=moneyOpen?planNow(P):null;
+    if(P.chart){ if(moneyOpen){ const c=planChart(P,now); if(c) box.append(c); }
+      else { const b=el("button","plock","🔒 タップで資産の見込みグラフを表示"); b.type="button"; b.addEventListener("click",()=>{ moneyOpen=true; renderGoal(); renderBoard(); }); box.append(b); } }
+    (P.items||[]).forEach(it=>{ const d=el("details","plan"+(now&&now.key===it.key?" now":"")); d.style.setProperty("--pc",PLC[it.key]||"#999");
+      const sm=el("summary"); const tt=el("div","t"); const nm=el("b","",it.name||""); if(now&&now.key===it.key) nm.append(el("span","nowb","いまここ")); tt.append(nm, el("small","",it.line||"")); sm.append(el("span","ic",it.ic||"•"),tt); d.append(sm);
+      const bd=el("div","bd"); [["どんな未来？",it.summary],["その先",it.goal]].forEach(([l,v])=>{ if(!v) return; const p=el("p"); p.append(el("span","lb",l),document.createTextNode(v)); bd.append(p); }); d.append(bd); box.append(d); });
+    if((P.signals||[]).length||P.note){ const d=el("details","plsig"); d.append(el("summary","","🔄 切り替えの合図")); if(P.note) d.append(el("p","",P.note)); const ul=el("ul"); (P.signals||[]).forEach(x=>ul.append(el("li","",x))); d.append(ul); if(P.assumptions) d.append(el("p","nt","前提："+P.assumptions)); box.append(d); }
   }
 
   /* ---------- やること（GTD：⭐今日・📅今週・📥受信箱・💭いつか）。due/span/box で表すので家族のTodo画面とも矛盾しない ---------- */
@@ -3911,11 +3983,13 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     list.forEach(t=>{ const r=el("div","gtr"); const ax=axisOf(t);
       const tx=el("div","tx"); const tt=el("span","tt",String(t.title).replace(/^🔒/,"")); tx.append(tt);
       const meta=[]; if(t.due&&t.due<todayKey) meta.push("↪︎ 繰り越し（"+md(t.due)+"まで）"); else if(t.due&&gtBox!=="today") meta.push(md(t.due)+"まで"); if(!t._private) meta.push("家族");
+      if(t.memo) tt.append(el("span","memob",memoOpen.has(t.id)?"📝 とじる":"📝"));
       if(meta.length) tx.append(el("small",t.due&&t.due<todayKey?"late":"",meta.join("・")));
-      tx.addEventListener("click",()=>openSheet("todo",t));
+      tx.classList.add("tap"); tx.addEventListener("click",()=>{ if(!t.memo){ openSheet("todo",t); return; } memoOpen.has(t.id)?memoOpen.delete(t.id):memoOpen.add(t.id); renderGtd(); });
       const axb=el("button","gax"+(ax?" on":""),ax?ax.ic:"🏷"); axb.type="button"; axb.title="軸のタグ（押すたびに切り替え）"; axb.setAttribute("aria-label","軸のタグ："+(ax?ax.name:"なし")); axb.addEventListener("click",()=>gtAxis(t));
       const mv=el("button","gmv","⋯"); mv.type="button"; mv.setAttribute("aria-label","フォルダを移す"); mv.addEventListener("click",()=>{ gtOpen=gtOpen===t.id?null:t.id; renderGtd(); });
       r.append(chk(t),tx,axb,mv); L.append(r);
+      if(t.memo&&memoOpen.has(t.id)){ const mb=el("div","memobox",String(t.memo)); const eb=el("button","mbtn","✏️ 直す"); eb.type="button"; eb.addEventListener("click",()=>openSheet("todo",t)); mb.append(eb); L.append(mb); }
       if(gtOpen===t.id){ const m=el("div","gmenu"); GT.filter(([k])=>k!==gtBox).forEach(([k,ic,l])=>{ const b=el("button","",ic+" "+l); b.type="button"; b.addEventListener("click",()=>gtMove(t,k)); m.append(b); }); L.append(m); } });
     if(!list.length) L.append(el("p","empty",{today:"今日やることはありません。📥受信箱や📅今週から ⋯ で移せます。",week:"今週やることはありません。",inbox:"受信箱は空です 👍 思いついたら気軽にここへ（チャットで「やること、◯◯」でもOK）。",someday:"いつかやりたいことをしまっておく場所です。"}[gtBox]));
     const later=mine.filter(t=>gtOf(t)==="later").length;
@@ -4023,7 +4097,9 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         try{ await db.collection("notes").doc(values.id).update({goals:gl}); }catch(e){ status("変えられませんでした。",true); } }); }
       gr.append(c); });
     const avg=ps.length?ps.reduce((a,b)=>a+b,0)/ps.length:null; hd.append(ring(avg,avg==null?"–":Math.round(avg*100)+"%","total"));
-    box.append(gr, el("p","hznote","手動の目標はタップで 0→25→50→75→100% に。数字の目標（体重・習慣・日記・お金）は記録から自動で計算します。"));
+    box.append(gr);
+    const wy=(h.items||[]).filter(it=>it.why); if(wy.length){ const d=el("details","hzwhy"); d.append(el("summary","","ⓘ 指標の説明（"+wy.length+"）")); const dl=el("dl"); wy.forEach(it=>dl.append(el("dt","",(it.ic||"")+" "+it.label), el("dd","",it.why))); d.append(dl); box.append(d); }
+    box.append(el("p","hznote","手動の目標はタップで 0→25→50→75→100% に。数字の目標（体重・習慣・日記・お金）は記録から自動で計算します。"));
   }
   /* ---------- 📊 ダッシュボード：夢・お金・からだ・成長・5つの軸を1画面で ---------- */
   const G0={dreamDate:"2029-10-01",dreamLabel:"3年後（2029年秋）の理想",money:{target:5000,label:"40歳で金融資産5,000万円",by:"2032-11-30",yearSave:200,nisaYear:360},weight:{goal:63,next:69.9,nextBy:"2026-12-31"},toeic:{target:650,next:"2026-12-19"},steps:8000,sleep:7};
@@ -4184,7 +4260,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(!it.length) L.append(el("p","empty","自分用に欲しいもの・買い替えたいものをここに。家族の買い物リストには出ません。"));
     const n=wants.filter(w=>!w.done).length; $("wnSub").textContent=n?n+"件":"";
   }
-  $("dbMoneyBtn").addEventListener("click",()=>{ moneyOpen=!moneyOpen; renderBoard(); });
+  $("dbMoneyBtn").addEventListener("click",()=>{ moneyOpen=!moneyOpen; renderBoard(); renderPlans(); });
   $("wnForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("wnIn").value.trim(); if(!v||!db) return; $("wnIn").value="";
     try{ await db.collection("shopping").add({name:v,qty:"",aisle:"other",store:"other",done:false,list:"wants",createdAt:new Date().toISOString(),_private:true}); status("欲しいものに入れました"); }catch(e){ status("追加できませんでした。",true); } });
 
