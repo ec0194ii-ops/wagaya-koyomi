@@ -1529,7 +1529,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .cyd.gone{background:#5b5b5f;color:#fff}.cyd.gone.sun,.cyd.gone.sat{color:#fff}.cyd.gone::after{content:"";position:absolute;left:5px;bottom:9px;height:3px;border-radius:2px;width:calc((100% - 10px)*var(--v,0));background:#7fd6a5}.cyd.gone .dots i.fam{background:#ccc}.cyd.gone .dots i{background:#9cc0ff}
 .mnflow{display:flex;align-items:center;gap:4px;margin:2px 0 8px}.mnflow .st{flex:1;background:var(--sunk,#f3f1ec);border-radius:10px;padding:6px 4px;display:flex;flex-direction:column;align-items:center}.mnflow .st b{font-size:18px;font-family:var(--f-num)}.mnflow .st small{font-size:10.5px;color:var(--muted)}.mnflow .ar{color:var(--muted)}
 .mni .lv{flex:none}.mni .efs{flex:none;margin-left:auto;font-size:12px}
-.mnmap{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:2px;align-items:center}.mnmap .ch{font-size:11px;text-align:center;color:var(--muted)}
+.mnmap{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:2px;align-items:center}.mnmap .ch{font-size:11px;text-align:center;color:var(--muted)}
 .mnmap .rl{text-align:left;border:0;background:none;font:inherit;font-size:13px;padding:7px 0;color:inherit;border-top:1px solid var(--line)}.mnmap .rl.on{font-weight:700}
 .mnmap .cv{text-align:center;font-size:15px;border-top:1px solid var(--line);padding:5px 0;align-self:stretch;display:flex;align-items:center;justify-content:center}.mnmap .cv.me{color:#3a9a6a}.mnmap .cv.rs{color:#3d6fb6}.mnmap .cv.tr{color:var(--muted);font-size:12px}
 .mnmap .det{grid-column:1/-1;background:var(--sunk,#f3f1ec);border-radius:8px;padding:6px 8px;margin:2px 0 6px}.mnmap .dr{display:flex;gap:6px;font-size:12.5px;line-height:1.5;padding:3px 0}
@@ -4592,7 +4592,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(values) values.axes.forEach(a=>{ const r=el("div","dbax"); const n=axScore(lastR,a); r.append(el("span","ic",a.ic), el("span","l",a.name)); const sp=el("div","vspark"); revs.forEach(rv=>{ const v=axScore(rv,a); const i=el("i",v?"":"na"); i.style.height=(v?v/5*100:12)+"%"; sp.append(i); }); r.append(sp, el("b","",n?n+"":"–")); r.addEventListener("click",()=>setMeTab("goal")); A.append(r); });
   }
   /* ---------- 📘 わたしの取扱説明書：実験・自分の経験・研究で「わかったこと」を分野ごとに ---------- */
-  const MN_LV=[["睡眠","😴"],["お酒","🍺"],["食事・水分","🍽️"],["運動","🏃"],["スマホ・環境","📱"],["書く・こころ","✍️"]], MN_EF=[["集中","🎯"],["気分","🙂"],["からだ","💪"]];
+  const MN_LV=[["睡眠","😴"],["お酒","🍺"],["食事・水分","🍽️"],["運動","🏃"],["スマホ・環境","📱"],["書く・こころ","✍️"],["写真・思い出","📸"]], MN_EF=[["集中","🎯"],["気分","🙂"],["からだ","💪"],["家族","👨‍👩‍👧"]];
   let mnOpen=null;
   function renderManual(){ const box=$("mnBox"); if(!box) return; box.replaceChildren();
     const isMe=e=>!/研究/.test(e.source||""), lv=e=>e.lever||String(e.area||"その他").split("・")[0], sh=e=>e.short||e.rule||e.result||e.action||"";
@@ -4601,17 +4601,17 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     // ① 流れ：研究 → 試す → 自分のルール
     const fl=el("div","mnflow"); [["📚","研究でわかった",rs.length],["🧪","試し中・次",tryi.length],["✅","自分のルール",mine.length]].forEach(([i,l,n],ix)=>{ if(ix) fl.append(el("span","ar","→")); const c=el("div","st"); c.append(el("span","",i), el("b","",String(n)), el("small","",l)); fl.append(c); }); box.append(fl);
     // ② マインドマップ：わたし → 何を整える（レバー） → わかったこと
-    const mm=el("div","mmap"); const core=el("div","mmc"); core.append(el("b","","🧑 パパのベストな状態"), el("small","","🎯集中 ・ 🙂気分 ・ 💪からだ")); mm.append(core);
+    const mm=el("div","mmap"); const core=el("div","mmc"); core.append(el("b","","🧑 パパと家族のいい状態"), el("small","","🎯集中 ・ 🙂気分 ・ 💪からだ ・ 👨‍👩‍👧家族")); mm.append(core);
     const brs=el("div","mmbs");
     MN_LV.forEach(([L,ic],bi)=>{ const its=done.concat(tryi).filter(e=>lv(e)===L).sort((x,y)=>(isMe(y)&&y.status==="done")-(isMe(x)&&x.status==="done")); if(!its.length) return;
-      const br=el("div","mmb"); br.style.setProperty("--h",String([200,25,140,95,265,330][bi%6]));
+      const br=el("div","mmb"); br.style.setProperty("--h",String([200,25,140,95,265,330,45][bi%7]));
       const hasMe=its.some(e=>e.status==="done"&&isMe(e)); const hb=el("button","mmh"+(hasMe?" me":"")); hb.type="button"; hb.append(el("span","",ic+" "+L), el("small","",its.length+""));
       const open=mnOpen===L||mnOpen==="*"; hb.setAttribute("aria-expanded",open?"true":"false"); hb.addEventListener("click",()=>{ mnOpen=mnOpen===L?null:L; renderManual(); }); br.append(hb);
       const lv2=el("div","mml"+(open?"":" few")); its.forEach((e,ii)=>{ if(!open&&ii>0) return; const tag=e.status!=="done"?["ex","試す"]:isMe(e)?["me","自分"]:["rs","研究"]; const lf=el("div","mmf "+tag[0]); lf.append(el("span","src "+tag[0],tag[1]), el("span","t",sh(e)), el("span","efs",(e.effects||[]).map(x=>(MN_EF.find(y=>y[0]===x)||["","•"])[1]).join(""))); lv2.append(lf); });
       if(!open&&its.length>1) lv2.append(el("button","mmmore","＋ほか"+(its.length-1)+"つ")); if(!open) lv2.querySelector(".mmmore")?.addEventListener("click",()=>{ mnOpen=L; renderManual(); });
       br.append(lv2); brs.append(br); });
     mm.append(brs); box.append(mm);
-    { const all=el("button","lnk",mnOpen==="*"?"たたむ":"ぜんぶ開く"); all.type="button"; all.addEventListener("click",()=>{ mnOpen=mnOpen==="*"?null:"*"; renderManual(); }); const lg=el("p","cylg","自分＝自分で確かめたルール　研究＝研究ではそう　試す＝これから試す　🎯集中 🙂気分 💪からだ ＝効くところ　"); lg.append(all); box.append(lg); }
+    { const all=el("button","lnk",mnOpen==="*"?"たたむ":"ぜんぶ開く"); all.type="button"; all.addEventListener("click",()=>{ mnOpen=mnOpen==="*"?null:"*"; renderManual(); }); const lg=el("p","cylg","自分＝自分で確かめたルール　研究＝研究ではそう　試す＝これから試す　🎯集中 🙂気分 💪からだ 👨‍👩‍👧家族 ＝効くところ　"); lg.append(all); box.append(lg); }
     // ④ 次に試すこと
     if(tryi.length){ box.append(el("div","mnh","🧪 次に試すこと")); tryi.forEach(e=>{ const r=el("div","mntry"); r.append(el("b","",(e.status==="running"?"いま：":md(e.start)+"〜：")+(e.action||sh(e))), el("small","","仮説："+(e.hypothesis||"")+(e.measure?"／測る："+e.measure:""))); box.append(r); }); }
   }
