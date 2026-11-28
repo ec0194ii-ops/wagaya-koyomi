@@ -1167,6 +1167,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 .ovw .gi .bar i.lag{background:#cb912f} .ovw .gi .bar em{position:absolute;top:-3px;width:2px;height:12px;background:var(--fg);opacity:.35;border-radius:1px}
 .ovw .gi .sub{grid-column:2 / 4;font-size:11px;color:var(--muted);line-height:1.45} .ovw .gi .sub.hide{display:none}
 .ovw .today{margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--c-green);font-size:13px;line-height:1.5} .ovw .today b{display:block;font-size:11px;color:var(--muted)}
+.ovw .ovmore{display:block;margin-top:8px;border:0;background:none;padding:0;font:inherit;font-size:12px;font-weight:700;color:var(--accent)}
 .ovw .ovwk{font-size:12px;color:var(--muted);margin:2px 0 0;line-height:1.6}
 .mdfood{display:flex;gap:8px;align-items:baseline;border:1px solid var(--line);border-left:3px solid #448361;border-radius:8px;padding:7px 10px;margin-bottom:8px;background:var(--paper);font-size:12.5px;line-height:1.5;cursor:pointer}
 .mdfood b{white-space:nowrap;font-size:12.5px} .mdfood p{margin:0} .mdfood p.y{color:var(--muted);font-size:11.5px}
@@ -1682,80 +1683,14 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
   <div class="mhead"><button type="button" class="tbtn" id="meBack">‹ わが家へ</button><h2 id="meTitle">パパのノート</h2></div>
   <p class="menote">🔒 ここはパパだけのページです。ママのスマホには出ません。</p>
   <div class="metabs" id="meTabs" role="group" aria-label="ノートの切り替え">
-    <button type="button" data-t="dash" aria-pressed="false"><span class="mti">📊</span>ダッシュボード</button>
+    <button type="button" data-t="goal" aria-pressed="false"><span class="mti">🧭</span>軸</button>
+    <button type="button" data-t="dash" aria-pressed="false"><span class="mti">📅</span>計画</button>
     <button type="button" data-t="today" aria-pressed="true"><span class="mti">☀️</span>今日</button>
-    <button type="button" data-t="goal" aria-pressed="false"><span class="mti">🧭</span>わたしの軸</button>
-    <button type="button" data-t="body" aria-pressed="false"><span class="mti">💪</span>習慣</button>
-    <button type="button" data-t="life" aria-pressed="false"><span class="mti">📒</span>くらし帳</button>
-  </div>
-  <div class="sec" data-mtab="dash"><div id="dbTop"></div></div>
-  <div class="sec" data-mtab="dash">
-    <div class="hzseg" id="hzSeg" role="group" aria-label="期間"></div>
-    <div class="card" id="hzBox"></div>
-  </div>
-  <div class="sec" data-mtab="dash">
-    <button type="button" class="dbmoneybtn" id="dbMoneyBtn"><span>💰 お金</span><small id="dbMoneySub">🔒 タップで表示</small></button>
-    <div class="card" id="dbMoney" hidden></div>
-  </div>
-  <div class="sec" data-mtab="dash">
-    <div class="sech"><div><h2 data-ic="💪">からだ</h2></div><span class="sub">この7日の平均（前の7日と比べて）</span></div>
-    <div class="card" id="dbBody"></div>
-  </div>
-  <div class="sec" data-mtab="dash">
-    <div class="sech"><div><h2 data-ic="🌱">成長・習慣</h2></div><span class="sub" id="dbGrowSub"></span></div>
-    <div class="card" id="dbGrow"></div>
-  </div>
-  <div class="sec" data-mtab="dash">
-    <div class="sech"><div><h2 data-ic="🧭">5つの軸</h2></div><span class="sub" id="dbAxSub"></span></div>
-    <div class="card" id="dbAx"></div>
-  </div>
-  <div class="sec" data-mtab="dash"><a class="dbnews" href="./?space=news">📰 けさのニュースを開く<span>日経・Yahoo!のまとめ ›</span></a></div>
-  <div class="medash" id="meDash" data-mtab="today"></div>
-  <div class="sec" data-mtab="today" data-fold="meday">
-    <div class="sech"><div><div class="eyebrow">Today</div><h2 id="meToday" data-ic="📅">今日</h2></div><button type="button" class="lnk" id="meAddEv">＋ 自分の予定</button></div>
-    <div class="tlbar"><div class="tlv" id="tlView" role="group" aria-label="表示"><button type="button" data-v="list">📋 リスト</button><button type="button" data-v="tl">🕒 タイムライン</button></div></div>
-    <div class="tldays" id="tlDays" hidden></div>
-    <div class="card" id="meDay"></div>
-    <div class="card tlcard" id="tlBox" hidden></div>
-  </div>
-  <div class="sec" id="gtSec" data-mtab="today" data-fold="gtd">
-    <div class="sech"><div><div class="eyebrow">Tasks</div><h2 data-ic="✅">やること</h2></div><span class="sub" id="gtSub"></span></div>
-    <div class="gtseg" id="gtSeg" role="group" aria-label="やることのフォルダ"></div>
-    <div class="card"><div id="gtList"></div>
-      <form class="wbadd" id="gtForm" autocomplete="off"><input type="text" id="gtIn" maxlength="120" placeholder="＋ やることを追加" aria-label="やること"><button type="submit">追加</button></form>
-    </div>
-  </div>
-  <div class="sec" id="mrSec" data-mtab="today" data-fold="morning" hidden>
-    <div class="sech"><div><div class="eyebrow">Morning</div><h2 id="mrTitle" data-ic="🌅">朝のルーティン</h2></div><span class="sub" id="mrSub"></span></div>
-    <div class="card"><div class="mrbar"><i id="mrFill"></i></div><div id="mrList"></div><div id="mrHist"></div></div>
-  </div>
-  <div class="sec" id="dySec" data-mtab="today" data-fold="diary">
-    <div class="sech"><div><div class="eyebrow">Diary</div><h2 data-ic="✏️">ひとこと日記</h2></div><span class="sub" id="dySub"></span></div>
-    <div class="card">
-      <div class="dyweek" id="dyWeek"></div>
-      <div class="dyfocus" id="dyFocus" role="group" aria-label="今日の集中度"></div>
-      <form id="dyForm" autocomplete="off">
-        <div class="dy3">
-          <label><span class="ic">🙏</span><span>感謝</span><input type="text" id="dyG" maxlength="120" placeholder="ありがとうと思えたこと"></label>
-          <label><span class="ic">🌱</span><span>前進</span><input type="text" id="dyP" maxlength="120" placeholder="ちょっと進んだこと（仕事でも）"></label>
-          <label><span class="ic">👨‍👩‍👧</span><span>家族</span><input type="text" id="dyF" maxlength="120" placeholder="家族とのいい時間"></label>
-          <label><span class="ic">✏️</span><span>ほか</span><textarea id="dyIn" rows="1" maxlength="400" placeholder="ほかに書きたいこと（なくてOK）"></textarea></label>
-        </div>
-        <div class="dy3act"><small id="dyCnt"></small><button type="submit" class="btn sm">保存</button></div>
-      </form>
-      <div id="dyList"></div>
-    </div>
-  </div>
-  <div class="sec" id="dmSec" data-mtab="today" data-fold="daymemo">
-    <div class="sech"><div><div class="eyebrow">Notes</div><h2 data-ic="📝">今日のメモ</h2></div><span class="sub" id="dmSub"></span></div>
-    <div class="card"><textarea class="dmin" id="dmIn" rows="3" maxlength="3000" placeholder="考えたこと・気づき・聞いたこと…（自動で保存）"></textarea><div id="dmPrev"></div></div>
+    <button type="button" data-t="body" aria-pressed="false"><span class="mti">✏️</span>記録</button>
+    <button type="button" data-t="life" aria-pressed="false"><span class="mti">📒</span>ストック</button>
   </div>
   <div class="sec" data-mtab="goal">
     <div class="vpur" id="vPurpose"></div>
-  </div>
-  <div class="sec" data-mtab="goal" id="vPlanSec" hidden>
-    <div class="sech"><div><div class="eyebrow">Plans</div><h2 data-ic="🎬">3つのプラン</h2></div><span class="sub" id="vPlanSub"></span></div>
-    <div class="plans" id="vPlans"></div>
   </div>
   <div class="sec" data-mtab="goal">
     <div class="sech"><div><div class="eyebrow">Values</div><h2 data-ic="🧭">5つの軸</h2></div><span class="sub" id="vVer"></span></div>
@@ -1765,10 +1700,6 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
   <div class="sec" data-mtab="goal" data-fold="manual">
     <div class="sech"><div><div class="eyebrow">My manual</div><h2 data-ic="📘">わたしの取扱説明書</h2></div><span class="sub" id="mnSub"></span></div>
     <div class="card" id="mnBox"></div>
-  </div>
-  <div class="sec" data-mtab="goal" data-fold="review">
-    <div class="sech"><div><div class="eyebrow">Weekly review</div><h2 data-ic="🌙">週のふりかえり</h2></div><span class="sub" id="vRevSub"></span></div>
-    <div class="card vrev" id="vRev"></div>
   </div>
   <div class="sec" data-mtab="goal" data-fold="flow">
     <div class="sech"><div><div class="eyebrow">How I use koyomi</div><h2 data-ic="🗺️">こよみの使い方</h2></div><span class="sub">毎日・毎週・毎月</span></div>
@@ -1794,11 +1725,64 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
       </div>
     </div>
   </div>
-  <div class="sec" id="nwSec" data-mtab="news" hidden>
-    <div class="sech"><div><div class="eyebrow">News</div><h2 data-ic="📰">けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
-    <div class="nwdays" id="nwDays"></div>
-    <div class="nwbox" id="nwBox"></div>
+  <div class="sec" data-mtab="dash">
+    <div class="sech"><div><div class="eyebrow">This year</div><h2 data-ic="📅">今年度・今月</h2></div><span class="sub" id="ovSub"></span></div>
+    <div id="ovFull"></div>
   </div>
+  <div class="sec" data-mtab="dash">
+    <div class="hzseg" id="hzSeg" role="group" aria-label="期間"></div>
+    <div class="card" id="hzBox"></div>
+  </div>
+  <div class="sec" data-mtab="dash" id="vPlanSec" hidden>
+    <div class="sech"><div><div class="eyebrow">Plans</div><h2 data-ic="🎬">3つのプラン</h2></div><span class="sub" id="vPlanSub"></span></div>
+    <div class="plans" id="vPlans"></div>
+  </div>
+  <div class="sec" data-mtab="dash">
+    <button type="button" class="dbmoneybtn" id="dbMoneyBtn"><span>💰 お金</span><small id="dbMoneySub">🔒 タップで表示</small></button>
+    <div class="card" id="dbMoney" hidden></div>
+  </div>
+  <div class="medash" id="meDash" data-mtab="today"></div>
+  <div class="sec" data-mtab="today" data-fold="meday">
+    <div class="sech"><div><div class="eyebrow">Today</div><h2 id="meToday" data-ic="📅">今日</h2></div><button type="button" class="lnk" id="meAddEv">＋ 自分の予定</button></div>
+    <div class="tlbar"><div class="tlv" id="tlView" role="group" aria-label="表示"><button type="button" data-v="list">📋 リスト</button><button type="button" data-v="tl">🕒 タイムライン</button></div></div>
+    <div class="tldays" id="tlDays" hidden></div>
+    <div class="card" id="meDay"></div>
+    <div class="card tlcard" id="tlBox" hidden></div>
+  </div>
+  <div class="sec" id="gtSec" data-mtab="today" data-fold="gtd">
+    <div class="sech"><div><div class="eyebrow">Tasks</div><h2 data-ic="✅">やること</h2></div><span class="sub" id="gtSub"></span></div>
+    <div class="gtseg" id="gtSeg" role="group" aria-label="やることのフォルダ"></div>
+    <div class="card"><div id="gtList"></div>
+      <form class="wbadd" id="gtForm" autocomplete="off"><input type="text" id="gtIn" maxlength="120" placeholder="＋ やることを追加" aria-label="やること"><button type="submit">追加</button></form>
+    </div>
+  </div>
+  <div class="sec" id="mrSec" data-mtab="today" data-fold="morning" hidden>
+    <div class="sech"><div><div class="eyebrow">Morning</div><h2 id="mrTitle" data-ic="🌅">朝のルーティン</h2></div><span class="sub" id="mrSub"></span></div>
+    <div class="card"><div class="mrbar"><i id="mrFill"></i></div><div id="mrList"></div><div id="mrHist"></div></div>
+  </div>
+  <div class="sec" data-mtab="today"><a class="dbnews" href="./?space=news">📰 けさのニュースを開く<span>日経・Yahoo!のまとめ ›</span></a></div>
+  <div class="sec" id="dySec" data-mtab="body" data-fold="diary">
+    <div class="sech"><div><div class="eyebrow">Diary</div><h2 data-ic="✏️">ひとこと日記</h2></div><span class="sub" id="dySub"></span></div>
+    <div class="card">
+      <div class="dyweek" id="dyWeek"></div>
+      <div class="dyfocus" id="dyFocus" role="group" aria-label="今日の集中度"></div>
+      <form id="dyForm" autocomplete="off">
+        <div class="dy3">
+          <label><span class="ic">🙏</span><span>感謝</span><input type="text" id="dyG" maxlength="120" placeholder="ありがとうと思えたこと"></label>
+          <label><span class="ic">🌱</span><span>前進</span><input type="text" id="dyP" maxlength="120" placeholder="ちょっと進んだこと（仕事でも）"></label>
+          <label><span class="ic">👨‍👩‍👧</span><span>家族</span><input type="text" id="dyF" maxlength="120" placeholder="家族とのいい時間"></label>
+          <label><span class="ic">✏️</span><span>ほか</span><textarea id="dyIn" rows="1" maxlength="400" placeholder="ほかに書きたいこと（なくてOK）"></textarea></label>
+        </div>
+        <div class="dy3act"><small id="dyCnt"></small><button type="submit" class="btn sm">保存</button></div>
+      </form>
+      <div id="dyList"></div>
+    </div>
+  </div>
+  <div class="sec" id="dmSec" data-mtab="body" data-fold="daymemo">
+    <div class="sech"><div><div class="eyebrow">Notes</div><h2 data-ic="📝">今日のメモ</h2></div><span class="sub" id="dmSub"></span></div>
+    <div class="card"><textarea class="dmin" id="dmIn" rows="3" maxlength="3000" placeholder="考えたこと・気づき・聞いたこと…（自動で保存）"></textarea><div id="dmPrev"></div></div>
+  </div>
+  <div class="sec" data-mtab="body"><div id="dbTop"></div></div>
   <div class="sec" data-mtab="body" data-fold="routine">
     <div class="sech"><div><div class="eyebrow">Routine</div><h2 data-ic="🔁">毎日のルーティン</h2></div><span class="sub" id="meRtSub"></span></div>
     <div class="card"><div id="meRt"></div>
@@ -1822,6 +1806,15 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
       </form>
     </div>
   </div>
+  <div class="sec" data-mtab="body" data-fold="review">
+    <div class="sech"><div><div class="eyebrow">Weekly review</div><h2 data-ic="🌙">週のふりかえり</h2></div><span class="sub" id="vRevSub"></span></div>
+    <div class="card vrev" id="vRev"></div>
+  </div>
+  <div class="sec" id="nwSec" data-mtab="news" hidden>
+    <div class="sech"><div><div class="eyebrow">News</div><h2 data-ic="📰">けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
+    <div class="nwdays" id="nwDays"></div>
+    <div class="nwbox" id="nwBox"></div>
+  </div>
   <div class="sec" data-mtab="life" data-fold="wants">
     <div class="sech"><div><div class="eyebrow">Wants</div><h2 data-ic="🛍️">欲しいもの</h2></div><span class="sub" id="wnSub"></span></div>
     <div class="card"><div id="wnList"></div>
@@ -1835,6 +1828,18 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
     <div class="card" id="kuList"></div>
   </div>
   <p class="note" data-mtab="life">「シャンプー」と買い物リストに入れると、ここに登録した「いつもの」が品名の下に出ます（その一言は家族にも見えます）。</p>
+  <div class="sec" data-mtab="off">
+    <div class="sech"><div><h2 data-ic="💪">からだ</h2></div><span class="sub">この7日の平均（前の7日と比べて）</span></div>
+    <div class="card" id="dbBody"></div>
+  </div>
+  <div class="sec" data-mtab="off">
+    <div class="sech"><div><h2 data-ic="🌱">成長・習慣</h2></div><span class="sub" id="dbGrowSub"></span></div>
+    <div class="card" id="dbGrow"></div>
+  </div>
+  <div class="sec" data-mtab="off">
+    <div class="sech"><div><h2 data-ic="🧭">5つの軸</h2></div><span class="sub" id="dbAxSub"></span></div>
+    <div class="card" id="dbAx"></div>
+  </div>
 </section>
 
 <div class="scrim" id="kuScrim" hidden>
@@ -4147,7 +4152,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(it.kind==="score"){ const sc=(((values&&values.goals&&values.goals.scores)||{})[it.metric]||[]).filter(x=>x.date<=todayKey).sort((a,b)=>String(a.date).localeCompare(String(b.date))); if(!sc.length) return {p:null,txt:"未測定→"+it.target+"点"+(it.by?"・"+md(it.by)+"まで":"")}; const cur=+sc[sc.length-1].score, base=+sc[0].score; return {p:cur>=it.target?1:(sc.length>1&&it.target>base?(cur-base)/(it.target-base):0),txt:cur+"→"+it.target+"点"+(sc.length===1?"（初回）":"")+(it.by?"・"+md(it.by)+"まで":"")}; }
     const pr=+(it.p||0); return {p:pr/100,txt:it.done||pr>=100?"達成":pr+"%",manual:true}; }
   function renderHorizon(){
-    const seg=$("hzSeg"); if(!seg) return; const g=goals(), H=(g.horizons||[]); seg.replaceChildren();
+    const seg=$("hzSeg"); if(!seg) return; const g=goals(), H=(g.horizons||[]).filter(h=>h.key!=="m1"); seg.replaceChildren();
     if(!H.length){ $("hzBox").replaceChildren(el("p","empty","期間ごとの目標はまだありません。")); return; }
     if(!H.some(h=>h.key===hzSel)) hzSel=H[0].key;
     H.forEach(h=>{ const b=el("button","",h.label); b.type="button"; b.setAttribute("aria-pressed",h.key===hzSel?"true":"false"); b.addEventListener("click",()=>{ hzSel=h.key; renderHorizon(); }); seg.append(b); });
@@ -4280,17 +4285,19 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(it.kind==="score"){ const sc=((values.goals&&values.goals.scores&&values.goals.scores[it.metric])||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))), last=sc[sc.length-1], v=last?+last.score:it.start;
       const nx=values.goals&&values.goals[it.metric]&&values.goals[it.metric].next; return {p:Math.max(0,Math.min(1,(v-it.start)/(it.target-it.start))),txt:"最新"+v+"点"+(nx?"・次の本番 "+md(nx):"")}; }
     return {p:Math.max(0,Math.min(1,(+it.p||0)/100)),txt:"タップで進み具合を変える",manual:true}; }
-  function overviewCard(){
-    const O=values&&values.overview; if(!O) return null; const w=el("div","ovw");
-    if(values.purpose){ const pu=el("div","pur","🎯 "+values.purpose); pu.addEventListener("click",()=>pu.classList.toggle("open")); w.append(pu); }
+  function overviewCard(mode){
+    const O=values&&values.overview; if(!O) return null; const w=el("div","ovw"), full=mode==="full";
+    if(!full&&values.purpose){ const pu=el("div","pur","🎯 "+values.purpose); pu.addEventListener("click",()=>pu.classList.toggle("open")); w.append(pu); }
     if((O.focus||[]).length){ const f=el("div","fc"); f.append("いま力を入れる"); O.focus.forEach(x=>f.append(el("span","",(x.ic||"")+" "+x.label))); if(O.focusNote) f.title=O.focusNote; w.append(f); }
-    (O.periods||[]).forEach((P,pi)=>{ const from=P.from||todayKey, to=P.to||todayKey, started=todayKey>=from, left=daysTo(to), tot=Math.max(1,(k2d(to)-k2d(from))/864e5), el2=started?Math.max(0,Math.min(1,(k2d(todayKey)-k2d(from))/864e5/tot)):0;
+    (O.periods||[]).filter(P=>full||P.key!=="fy").forEach((P,pi0)=>{ const pi=(O.periods||[]).indexOf(P); const from=P.from||todayKey, to=P.to||todayKey, started=todayKey>=from, left=daysTo(to), tot=Math.max(1,(k2d(to)-k2d(from))/864e5), el2=started?Math.max(0,Math.min(1,(k2d(todayKey)-k2d(from))/864e5/tot)):0;
       const ph=el("div","ph"); ph.append(el("span","",(P.key==="fy"?"📅 ":"🗓 ")+P.label), el("small","",started?(left>0?"あと"+left+"日":"きょうまで"):md(from)+"から")); w.append(ph);
       (P.items||[]).forEach((it,ii)=>{ const r=ovEval(it), id=P.key+ii; const g=el("div","gi"); g.append(el("span","ic",it.ic||"•"), el("b","",it.label), el("span","pc",r.p==null?"–":Math.round(r.p*100)+"%"));
         const bar=el("div","bar"); const fi=el("i",r.p!=null&&started&&r.p<el2*0.7?"lag":""); fi.style.width=((r.p||0)*100)+"%"; bar.append(fi); if(started){ const t=el("em"); t.style.left="calc("+(el2*100).toFixed(1)+"% - 1px)"; t.title="いまの時点の目安"; bar.append(t); } g.append(bar);
         const sub=el("div","sub"+(ovOpen.has(id)?"":" hide")); [it.qual?"めざす姿："+it.qual:"",r.txt,it.detail||""].filter(Boolean).forEach(x=>sub.append(el("div","",x))); g.append(sub);
         g.addEventListener("click",async()=>{ if(r.manual&&ovOpen.has(id)){ const ov=JSON.parse(JSON.stringify(O)); const t=ov.periods[pi].items[ii]; t.p=((+t.p||0)+25)%125; try{ await db.collection("notes").doc(values.id).update({overview:ov}); }catch(e){ status("変えられませんでした。",true); } return; }
           ovOpen.has(id)?ovOpen.delete(id):ovOpen.add(id); renderDash(); }); w.append(g); }); });
+    if(full) return w;
+    const more=el("button","ovmore","📅 今年度の目標と3つのプラン ›"); more.type="button"; more.addEventListener("click",()=>setMeTab("dash")); w.append(more);
     // 今週
     const wk=O.week&&O.week.to>=todayKey?O.week:null; w.append(el("div","ph","✅ 今週")); w.append(el("p","ovwk",wk&&(wk.items||[]).length?wk.items.map(x=>"・"+x).join("\n"):"日曜のふりかえりで、今週やることを3つまで決めます"));
     if(wk) w.lastChild.style.whiteSpace="pre-line";
@@ -4300,9 +4307,6 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     return w; }
   function renderBoard(){
     const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
-    const c=el("div","dbhero"); const dd=daysTo(g.dreamDate);
-    c.append(el("small","","🎯 "+g.dreamLabel+"まで"), el("div","big",dd>0?yen(dd):"0")); c.querySelector(".big").append(el("i",""," 日"));
-    if(values&&values.purpose) c.append(el("p","",values.purpose)); top.append(c);
     top.append(sleepCard());
     const ex=exps.find(e=>e.status==="running")||exps.find(e=>e.status==="planned");
     if(ex){ const k=el("div","dbexp"); const hd=el("div","h"); hd.append(el("span","",ex.status==="running"?"🧪 いまの実験":"🧪 次の実験（"+md(ex.start)+"から）"), el("small","",md(ex.start)+"〜"+md(ex.end)+(ex.status==="running"?"・あと"+Math.max(0,daysTo(ex.end))+"日":"")));
@@ -4360,6 +4364,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function renderDash(){
     const box=$("meDash"); if(!box) return; box.replaceChildren();
     const ovw=overviewCard(); if(ovw) box.append(ovw);
+    const of=$("ovFull"); if(of){ of.replaceChildren(); const c=overviewCard("full"); if(c) of.append(c); else of.append(el("p","empty","今年度の目標はまだありません。")); }
     box.append(sleepMini());
     if(mealCfg||meals.length){ const T=mealTgt(), N=mealNeeds(T,mealSum), ym=meals.find(x=>x.date===addDays(todayKey,-1));
       const yv=ym?(()=>{ const s=mealSum(ym), k=Math.round(+s.kcal||0), d=k-T.kcal, out=["昨日 "+k+"kcal"+(d>T.kcal*0.08?"（+"+d+"）":"")];
@@ -4378,7 +4383,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const c=checklists.find(x=>x.key==="morning");
     if(c){ const S=mrStat(c,todayKey); tile("🌅",S.n,S.t,"朝ルーティン",S.t?S.n/S.t:0,jump("today","mrSec"),S.t&&S.n===S.t?"ok":""); }
     const rts=routines, rd=rts.filter(r=>rtLog(r)[todayKey]).length; tile("🔁",rd,rts.length,"習慣",rts.length?rd/rts.length:0,jump("body","meRt"),rts.length&&rd===rts.length?"ok":"");
-    const t=diaries.find(d=>d.date===todayKey), dc=t?dyCount(t.text):0; tile("✏️",dc,3,"日記3行",dc/3,jump("today","dySec"),dc===3?"ok":"");
+    const t=diaries.find(d=>d.date===todayKey), dc=t?dyCount(t.text):0; tile("✏️",dc,3,"日記3行",dc/3,jump("body","dySec"),dc===3?"ok":"");
     const due=myTodos().filter(x=>!x.done&&gtOf(x)==="today").length; tile("✅",due,null,due?"今日やる":"やること",null,()=>{ gtBox="today"; lsSet("koyomi-gt","today"); renderGtd(); jump("today","gtSec")(); },due?"warn":"ok");
     box.append(tiles);
   }
