@@ -1519,6 +1519,22 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .cydt .mkr{font-size:13px;padding:3px 0}.cydt .rec{font-size:12px;opacity:.8;margin-top:6px;line-height:1.7}
 .ovwk b{font-weight:700}
 .tlqt{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;align-items:center}.tlqt small{opacity:.6;font-size:11px}.tlqt button{border:1px solid var(--line,#e5e2da);background:var(--paper,#fff);border-radius:999px;padding:3px 9px;font:inherit;font-size:12px;color:inherit;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.cyseg{display:flex;gap:4px;margin-bottom:8px}.cyseg button{flex:1;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 0;font:inherit;font-size:13px;color:var(--muted)}.cyseg button[aria-pressed=true]{background:var(--fg);color:var(--paper);border-color:var(--fg)}
+.cypg{margin-bottom:10px}.cypg .dy{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:baseline;margin-bottom:6px}.cypg .dy small{font-size:11px;color:var(--muted);text-align:right}.cypg .dy .bar{grid-column:1/-1}
+.cypg .bar{position:relative;height:7px;border-radius:4px;background:var(--sunk,#eee);margin-top:3px}.cypg .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#3a9a6a}.cypg .bar.t i{background:var(--muted)}.cypg .bar i.lag{background:var(--hot,#d9822b)}
+.cypg .bar em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg)}
+.cypg .gi{display:grid;grid-template-columns:20px 1fr auto auto;gap:0 6px;align-items:center;padding:5px 0;border-top:1px dashed var(--line)}.cypg .gi b{font-size:13px;font-weight:600}.cypg .gi .pc{font-size:12px;font-family:var(--f-num);min-width:32px;text-align:right}.cypg .gi .bar,.cypg .gi .sub{grid-column:2/-1}.cypg .gi .sub{font-size:11px;color:var(--muted);margin-top:2px}
+.cypg .st{font-size:10.5px;border-radius:4px;padding:0 5px;background:var(--sunk,#eee);color:var(--muted)}.cypg .st.ok{background:color-mix(in srgb,#3a9a6a 18%,transparent);color:#2b593f}.cypg .st.lag{background:color-mix(in srgb,var(--hot,#d9822b) 18%,transparent);color:var(--hot,#b3541e)}
+.cyd.gone::after{content:"";position:absolute;inset:4px;background:linear-gradient(to top right,transparent calc(50% - .7px),color-mix(in srgb,var(--fg) 22%,transparent) calc(50% - .7px),color-mix(in srgb,var(--fg) 22%,transparent) calc(50% + .7px),transparent calc(50% + .7px));pointer-events:none}
+.mnflow{display:flex;align-items:center;gap:4px;margin:2px 0 8px}.mnflow .st{flex:1;background:var(--sunk,#f3f1ec);border-radius:10px;padding:6px 4px;display:flex;flex-direction:column;align-items:center}.mnflow .st b{font-size:18px;font-family:var(--f-num)}.mnflow .st small{font-size:10.5px;color:var(--muted)}.mnflow .ar{color:var(--muted)}
+.mni .lv{flex:none}.mni .efs{flex:none;margin-left:auto;font-size:12px}
+.mnmap{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:2px;align-items:center}.mnmap .ch{font-size:11px;text-align:center;color:var(--muted)}
+.mnmap .rl{text-align:left;border:0;background:none;font:inherit;font-size:13px;padding:7px 0;color:inherit;border-top:1px solid var(--line)}.mnmap .rl.on{font-weight:700}
+.mnmap .cv{text-align:center;font-size:15px;border-top:1px solid var(--line);padding:5px 0;align-self:stretch;display:flex;align-items:center;justify-content:center}.mnmap .cv.me{color:#3a9a6a}.mnmap .cv.rs{color:#3d6fb6}.mnmap .cv.tr{color:var(--muted);font-size:12px}
+.mnmap .det{grid-column:1/-1;background:var(--sunk,#f3f1ec);border-radius:8px;padding:6px 8px;margin:2px 0 6px}.mnmap .dr{display:flex;gap:6px;font-size:12.5px;line-height:1.5;padding:3px 0}
+.mnmap .src,.mni .src{flex:none;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:2px;background:var(--c-gray);color:var(--muted)}.mnmap .src.me{background:var(--c-green);color:#2b593f}.mnmap .src.rs{background:var(--c-blue);color:#28456c}.mnmap .src.ex{background:var(--c-purple);color:#5a3d78}
+.mntry{padding:5px 0;border-top:1px dashed var(--line)}.mntry b{display:block;font-size:13px}.mntry small{font-size:11.5px;color:var(--muted);line-height:1.5}
 </style>
 </head>
 <body>
@@ -4337,7 +4353,18 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const tb=el("div","today"); tb.append(el("b","","👉 今日の1つ"), document.createTextNode(td||(gt?gt.title:"「おはよう」のときに一緒に決めます"))); w.append(tb);
     return w; }
   /* ---------- 📆 計画・進捗のカレンダー：年度の12か月＋月のマス（予定・節目・その日の行動） ---------- */
-  let cyMon=null, cySel=null;
+  let cyMon=null, cySel=null, cyView="m";
+  // 日数の進み vs 目標の進み（期間ごと）
+  function cyProg(P){ const w=el("div","cypg"); if(!P){ w.append(el("p","empty","この期間の目標はまだありません。")); return w; }
+    const from=P.from, to=P.to, tot=Math.max(1,Math.round((k2d(to)-k2d(from))/864e5)+1), gone=Math.max(0,Math.min(tot,Math.round((k2d(todayKey)-k2d(from))/864e5)+1)), tr=todayKey<from?0:gone/tot;
+    const hd=el("div","dy"); hd.append(el("b","","🗓 日数 "+Math.round(tr*100)+"%"), el("small","",md(from)+"〜"+md(to)+"・"+(todayKey<from?md(from)+"から":gone+"日目／"+tot+"日")));
+    const bar=el("div","bar t"); const fi=el("i"); fi.style.width=(tr*100)+"%"; bar.append(fi); hd.append(bar); w.append(hd);
+    (P.items||[]).forEach(it=>{ const r=ovEval(it), end=it.by||to, itot=Math.max(1,(k2d(end)-k2d(from))/864e5), itr=todayKey<from?0:Math.max(0,Math.min(1,(k2d(todayKey)-k2d(from))/864e5/itot));
+      const g=el("div","gi"); const st=r.p==null?["","–"]:r.p>=1?["ok","達成"]:r.p>=itr+0.05?["ok","先行"]:r.p>=itr-0.1?["","順調"]:["lag","遅れ"];
+      g.append(el("span","ic",it.ic||"•"), el("b","",it.label), el("span","st "+st[0],st[1]), el("span","pc",r.p==null?"–":Math.round(r.p*100)+"%"));
+      const b=el("div","bar"); const f=el("i",st[0]); f.style.width=((r.p||0)*100)+"%"; b.append(f); const m=el("em"); m.style.left="calc("+(itr*100).toFixed(1)+"% - 1px)"; m.title="日数の目安"; b.append(m); g.append(b);
+      g.append(el("small","sub",r.txt+(it.by?"・期限 "+md(it.by):""))); w.append(g); });
+    w.append(el("p","cylg","バー＝目標の進み　｜＝日数から見た目安（ここより右なら順調）")); return w; }
   function ovMarks(){ const O=(values&&values.overview)||{}, out=[];
     (O.marks||[]).forEach(m=>{ if(m&&m.date) out.push({date:m.date.length===7?m.date+"-01":m.date,month:m.date.length===7,ic:m.ic||"📍",label:m.label||""}); });
     (O.periods||[]).filter(P=>P.key==="fy").forEach(P=>(P.items||[]).forEach(it=>{ if(it.by) out.push({date:it.by,ic:it.ic||"🎯",label:"目標："+it.label,goal:true}); }));
@@ -4351,7 +4378,11 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function renderCy(){ const box=$("cyBox"); if(!box) return; box.replaceChildren();
     const ty=+todayKey.slice(0,4), tm=+todayKey.slice(5,7), fy=tm>=4?ty:ty-1; if(!cyMon) cyMon=todayKey.slice(0,7); if(!cySel) cySel=todayKey;
     const marks=ovMarks(), mon=(y,m)=>y+"-"+String(m).padStart(2,"0");
-    $("cySub").textContent=fy+"年度（4月〜3月）";
+    $("cySub").textContent=cyView==="y"?fy+"年度（4月〜3月）":"";
+    const sg=el("div","cyseg"); [["y","今年度"],["m","月"]].forEach(([v,l])=>{ const b=el("button","",l); b.type="button"; b.setAttribute("aria-pressed",cyView===v?"true":"false"); b.addEventListener("click",()=>{ cyView=v; renderCy(); }); sg.append(b); }); box.append(sg);
+    const PS=((values&&values.overview&&values.overview.periods)||[]);
+    if(cyView==="y") box.append(cyProg(PS.find(P=>P.key==="fy")));
+    else box.append(cyProg(PS.find(P=>P.key!=="fy"&&String(P.from).slice(0,7)===cyMon)));
     // 年度の12か月
     const yr=el("div","cyyr");
     for(let i=0;i<12;i++){ const m=(i+3)%12+1, y=m>=4?fy:fy+1, key=mon(y,m), cur=key===todayKey.slice(0,7), past=key<todayKey.slice(0,7);
@@ -4359,10 +4390,11 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const mk=marks.filter(x=>x.date.slice(0,7)===key); const ic=el("span","ic",mk.slice(0,2).map(x=>x.ic).join("")); b.append(ic);
       if(past||cur){ let n=0,sum=0; const dim=new Date(y,m,0).getDate(); for(let d=1;d<=dim;d++){ const k=key+"-"+String(d).padStart(2,"0"); if(k>todayKey) break; const v=dayScore(k); if(v!=null){ n++; sum+=v; } }
         const br=el("i","bar"); br.style.setProperty("--v",n?(sum/n):0); br.title=n?"行動できた度 "+Math.round(sum/n*100)+"%":""; b.append(br); }
-      b.addEventListener("click",()=>{ cyMon=key; cySel=key===todayKey.slice(0,7)?todayKey:key+"-01"; renderCy(); }); yr.append(b); }
-    box.append(yr);
+      b.addEventListener("click",()=>{ cyMon=key; cySel=key===todayKey.slice(0,7)?todayKey:key+"-01"; cyView="m"; renderCy(); }); yr.append(b); }
+    if(cyView==="y") box.append(yr);
     // これからの節目
-    const up=marks.filter(x=>x.date>=todayKey).slice(0,4); if(up.length){ const ul=el("div","cyup"); up.forEach(x=>{ const r=el("span",x.goal?"g":"",x.ic+" "+(x.month?(+x.date.slice(5,7))+"月":md(x.date))+" "+x.label); ul.append(r); }); box.append(ul); }
+    const up=marks.filter(x=>x.date>=todayKey).slice(0,4); if(cyView==="y"&&up.length){ const ul=el("div","cyup"); up.forEach(x=>{ const r=el("span",x.goal?"g":"",x.ic+" "+(x.month?(+x.date.slice(5,7))+"月":md(x.date))+" "+x.label); ul.append(r); }); box.append(ul); }
+    if(cyView==="y"){ box.append(el("p","cylg","月をタップすると、その月のマスが開きます。バー＝その月に動けた度合い")); return; }
     // 月のマス
     const Y=+cyMon.slice(0,4), M=+cyMon.slice(5,7), first=new Date(Y,M-1,1), dim=new Date(Y,M,0).getDate();
     const hd=el("div","cyhd"); const pv=el("button","","‹"), nx=el("button","","›"); pv.type=nx.type="button";
@@ -4371,13 +4403,13 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const g=el("div","cyg"); DOW.forEach((d,i)=>g.append(el("span","dw"+(i===0?" sun":i===6?" sat":""),d)));
     for(let i=0;i<first.getDay();i++) g.append(el("span","emp"));
     for(let d=1;d<=dim;d++){ const k=cyMon+"-"+String(d).padStart(2,"0"), dw=new Date(Y,M-1,d).getDay(), evs=eventsOn(k), sc=dayScore(k), mk=marks.filter(x=>!x.month&&x.date===k);
-      const c=el("button","cyd"+(k===todayKey?" td":"")+(k===cySel?" sel":"")+(dw===0?" sun":dw===6?" sat":"")); c.type="button";
+      const c=el("button","cyd"+(k<todayKey?" gone":"")+(k===todayKey?" td":"")+(k===cySel?" sel":"")+(dw===0?" sun":dw===6?" sat":"")); c.type="button";
       if(sc!=null) c.style.setProperty("--v",sc.toFixed(2));
       c.append(el("b","",String(d))); if(mk.length) c.append(el("span","mk",mk[0].ic));
       const dots=el("span","dots"); evs.slice(0,3).forEach(e=>dots.append(el("i",e._private?"me":"fam"))); c.append(dots);
       c.addEventListener("click",()=>{ cySel=k; renderCy(); }); g.append(c); }
     box.append(g);
-    { const lg=el("p","cylg","マスの色が濃い日＝朝ルーティン・習慣・日記ができた日　"); lg.append(el("i","me"),"自分の予定　",el("i","fam"),"家族の予定"); box.append(lg); }
+    { const lg=el("p","cylg","斜線＝終わった日　色が濃い日＝朝ルーティン・習慣・日記ができた日　"); lg.append(el("i","me"),"自分の予定　",el("i","fam"),"家族の予定"); box.append(lg); }
     // 選んだ日
     const k=cySel, dt=el("div","cydt"); const dh=el("div","h"); dh.append(el("b","",md(k)+"（"+DOW[k2d(k).getDay()]+"）"+(k===todayKey?" 今日":"")));
     if(k>=todayKey&&daysTo(k)<8){ const go=el("button","lnk","🕒 タイムラインで組む ›"); go.type="button"; go.addEventListener("click",()=>{ tlDay=k; tlMode="tl"; setMeTab("today"); renderMeTimeline(); }); dh.append(go); }
@@ -4440,12 +4472,29 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(values) values.axes.forEach(a=>{ const r=el("div","dbax"); const n=axScore(lastR,a); r.append(el("span","ic",a.ic), el("span","l",a.name)); const sp=el("div","vspark"); revs.forEach(rv=>{ const v=axScore(rv,a); const i=el("i",v?"":"na"); i.style.height=(v?v/5*100:12)+"%"; sp.append(i); }); r.append(sp, el("b","",n?n+"":"–")); r.addEventListener("click",()=>setMeTab("goal")); A.append(r); });
   }
   /* ---------- 📘 わたしの取扱説明書：実験・自分の経験・研究で「わかったこと」を分野ごとに ---------- */
+  const MN_LV=[["睡眠","😴"],["お酒","🍺"],["食事・水分","🍽️"],["運動","🏃"],["スマホ・環境","📱"],["書く・こころ","✍️"]], MN_EF=[["集中","🎯"],["気分","🙂"],["からだ","💪"]];
+  let mnOpen=null;
   function renderManual(){ const box=$("mnBox"); if(!box) return; box.replaceChildren();
-    const done=exps.filter(e=>e.status==="done"&&(e.rule||e.result)); $("mnSub").textContent=done.length?done.length+"件":"";
-    if(!done.length){ box.append(el("p","empty","実験や自分の経験でわかったことが、ここに分野ごとにたまっていきます。")); return; }
-    const areas={}; done.forEach(e=>{ const a=String(e.area||"その他").split("・")[0]; (areas[a]=areas[a]||[]).push(e); });
-    Object.keys(areas).forEach(a=>{ const g=el("div","mng"); g.append(el("div","mnh",a)); areas[a].forEach(e=>{ const r=el("details","mni"); const sm=el("summary"); sm.append(el("span","src "+(/研究/.test(e.source||"")?"rs":/経験/.test(e.source||"")?"me":"ex"),/研究/.test(e.source||"")?"研究":/経験/.test(e.source||"")?"自分の経験":"実験"), el("b","",e.rule||e.result)); r.append(sm);
-      const bd=el("div","bd"); if(e.rule&&e.result) bd.append(el("p","",e.result)); if(e.hypothesis&&!/研究/.test(e.source||"")) bd.append(el("p","","仮説："+e.hypothesis)); if(e.ref) bd.append(el("p","","出典："+e.ref)); bd.append(el("small","",(e.source||"実験")+"・"+md(e.end||e.start))); r.append(bd); g.append(r); }); box.append(g); }); }
+    const isMe=e=>!/研究/.test(e.source||""), lv=e=>e.lever||String(e.area||"その他").split("・")[0], sh=e=>e.short||e.rule||e.result||e.action||"";
+    const done=exps.filter(e=>e.status==="done"&&(e.rule||e.result||e.short)), mine=done.filter(isMe), rs=done.filter(e=>!isMe(e)), tryi=exps.filter(e=>e.status==="running"||e.status==="planned");
+    $("mnSub").textContent=mine.length+"つのルール";
+    // ① 流れ：研究 → 試す → 自分のルール
+    const fl=el("div","mnflow"); [["📚","研究でわかった",rs.length],["🧪","試し中・次",tryi.length],["✅","自分のルール",mine.length]].forEach(([i,l,n],ix)=>{ if(ix) fl.append(el("span","ar","→")); const c=el("div","st"); c.append(el("span","",i), el("b","",String(n)), el("small","",l)); fl.append(c); }); box.append(fl);
+    // ② わたしのルール
+    box.append(el("div","mnh","✅ わたしのルール（自分で確かめた）"));
+    if(!mine.length) box.append(el("p","empty","実験や自分の経験で確かめたことが、ここにたまります。"));
+    mine.forEach(e=>{ const r=el("details","mni"); const sm=el("summary"); sm.append(el("span","lv",(MN_LV.find(x=>x[0]===lv(e))||["","📌"])[1]), el("b","",sh(e))); const ef=el("span","efs",(e.effects||[]).map(x=>(MN_EF.find(y=>y[0]===x)||["","•"])[1]).join("")); sm.append(ef); r.append(sm);
+      const bd=el("div","bd"); if(e.result) bd.append(el("p","",e.result)); bd.append(el("small","",(e.source||"実験")+"・"+md(e.end||e.start))); r.append(bd); box.append(r); });
+    // ③ なにが何に効く（マップ）
+    box.append(el("div","mnh","🧩 なにが何に効く？（タップでくわしく）"));
+    const tb=el("div","mnmap"); tb.append(el("span","c0","")); MN_EF.forEach(([n,i])=>tb.append(el("span","ch",i+" "+n)));
+    MN_LV.forEach(([L,ic])=>{ const its=done.concat(tryi).filter(e=>lv(e)===L); if(!its.length) return; const rowb=el("button","rl"+(mnOpen===L?" on":"")); rowb.type="button"; rowb.append(ic+" "+L); rowb.addEventListener("click",()=>{ mnOpen=mnOpen===L?null:L; renderManual(); }); tb.append(rowb);
+      MN_EF.forEach(([E])=>{ const m=its.filter(e=>(e.effects||[]).includes(E)); const v=m.some(e=>e.status==="done"&&isMe(e))?["me","●"]:m.some(e=>e.status==="done")?["rs","○"]:m.length?["tr","?"]:["",""]; tb.append(el("span","cv "+v[0],v[1])); });
+      if(mnOpen===L){ const d=el("div","det"); its.forEach(e=>{ const r=el("div","dr"); const tag=e.status!=="done"?["ex","試す"]:isMe(e)?["me","自分"]:["rs","研究"]; r.append(el("span","src "+tag[0],tag[1]), el("span","",sh(e))); d.append(r); }); tb.append(d); } });
+    box.append(tb); box.append(el("p","cylg","●自分で確かめた　○研究ではそう　？いま試している"));
+    // ④ 次に試すこと
+    if(tryi.length){ box.append(el("div","mnh","🧪 次に試すこと")); tryi.forEach(e=>{ const r=el("div","mntry"); r.append(el("b","",(e.status==="running"?"いま：":md(e.start)+"〜：")+(e.action||sh(e))), el("small","","仮説："+(e.hypothesis||"")+(e.measure?"／測る："+e.measure:""))); box.append(r); }); }
+  }
   /* ---------- 今日のダッシュボード ---------- */
   function renderDash(){
     const box=$("meDash"); if(!box) return; box.replaceChildren();
