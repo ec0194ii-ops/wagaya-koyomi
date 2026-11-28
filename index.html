@@ -1583,6 +1583,12 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .mdst{display:inline-flex;gap:2px}.mdst button{border:0;background:none;font-size:20px;line-height:1;padding:0 1px;color:var(--line)}.mdst button.on{color:#e0a91b}
 .mdcand{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.mdcand button{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:0;aspect-ratio:2/3;overflow:hidden}.mdcand img{width:100%;height:100%;object-fit:contain;background:var(--sunk)}.mdcand .noimg{font:inherit;font-size:11px;color:var(--muted)}
 .mdadd{display:flex;flex-direction:column;gap:6px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}.mdadd input,.mdadd select{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--paper);color:var(--fg)}.mdadd .mdrow{display:flex;gap:10px;align-items:center}
+
+.mmsum{display:flex;flex-wrap:wrap;gap:4px 8px;padding:4px 0 2px 14px;font-size:12px}.mmsum span.z{color:var(--faint,#aaa)}
+.mmsub{padding:2px 0 4px}.mms{position:relative;font-size:12.5px;font-weight:700;padding:4px 0 0 14px;color:var(--c)}.mms::before{content:"";position:absolute;left:0;top:14px;width:10px;border-top:2px solid var(--c)}
+.mmsub .mmf{margin-left:12px}.mmf.z .t{color:var(--faint,#aaa);font-size:12px}
+.mmsoon{font-size:11.5px;color:var(--muted);margin:4px 0 0 14px}
+.mmlk{display:flex;flex-wrap:wrap;gap:4px;padding:6px 0 2px 14px}.mmlk button{border:1px solid var(--c);background:var(--cb);border-radius:999px;padding:3px 10px;font:inherit;font-size:12px;color:var(--fg)}
 </style>
 </head>
 <body>
@@ -1782,7 +1788,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
     <div class="vhist" id="vHist"></div>
   </div>
   <div class="sec" data-mtab="goal" data-fold="manual">
-    <div class="sech"><div><div class="eyebrow">My manual</div><h2 data-ic="📘">わたしの取扱説明書</h2></div><span class="sub" id="mnSub"></span></div>
+    <div class="sech"><div><div class="eyebrow">My manual</div><h2 data-ic="🗺️">しあわせマップ（取扱説明書）</h2></div><span class="sub" id="mnSub"></span></div>
     <div class="card" id="mnBox"></div>
   </div>
   <div class="sec" data-mtab="goal" data-fold="flow">
@@ -4592,7 +4598,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(values) values.axes.forEach(a=>{ const r=el("div","dbax"); const n=axScore(lastR,a); r.append(el("span","ic",a.ic), el("span","l",a.name)); const sp=el("div","vspark"); revs.forEach(rv=>{ const v=axScore(rv,a); const i=el("i",v?"":"na"); i.style.height=(v?v/5*100:12)+"%"; sp.append(i); }); r.append(sp, el("b","",n?n+"":"–")); r.addEventListener("click",()=>setMeTab("goal")); A.append(r); });
   }
   /* ---------- 📘 わたしの取扱説明書：実験・自分の経験・研究で「わかったこと」を分野ごとに ---------- */
-  const MN_LV=[["睡眠","😴"],["お酒","🍺"],["食事・水分","🍽️"],["運動","🏃"],["スマホ・環境","📱"],["書く・こころ","✍️"],["写真・思い出","📸"]], MN_EF=[["集中","🎯"],["気分","🙂"],["からだ","💪"],["家族","👨‍👩‍👧"]];
+  const MN_LV=[["睡眠","😴"],["お酒","🍺"],["食事・水分","🍽️"],["運動","🏃"],["スマホ・環境","📱"],["書く・こころ","✍️"],["写真・思い出","📸"],["家族イベント","🎉"],["ママとの関係","💞"],["育児","🍼"],["掃除","🧽"],["料理","🍳"],["ファッション","👔"],["知見","🌏"]], MN_EF=[["集中","🎯"],["気分","🙂"],["からだ","💪"],["家族","👨‍👩‍👧"]];
   let mnOpen=null;
   function renderManual(){ const box=$("mnBox"); if(!box) return; box.replaceChildren();
     const isMe=e=>!/研究/.test(e.source||""), lv=e=>e.lever||String(e.area||"その他").split("・")[0], sh=e=>e.short||e.rule||e.result||e.action||"";
@@ -4600,18 +4606,35 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     $("mnSub").textContent=mine.length+"つのルール";
     // ① 流れ：研究 → 試す → 自分のルール
     const fl=el("div","mnflow"); [["📚","研究でわかった",rs.length],["🧪","試し中・次",tryi.length],["✅","自分のルール",mine.length]].forEach(([i,l,n],ix)=>{ if(ix) fl.append(el("span","ar","→")); const c=el("div","st"); c.append(el("span","",i), el("b","",String(n)), el("small","",l)); fl.append(c); }); box.append(fl);
-    // ② マインドマップ：わたし → 何を整える（レバー） → わかったこと
-    const mm=el("div","mmap"); const core=el("div","mmc"); core.append(el("b","","🧑 パパと家族のいい状態"), el("small","","🎯集中 ・ 🙂気分 ・ 💪からだ ・ 👨‍👩‍👧家族")); mm.append(core);
-    const brs=el("div","mmbs");
-    MN_LV.forEach(([L,ic],bi)=>{ const its=done.concat(tryi).filter(e=>lv(e)===L).sort((x,y)=>(isMe(y)&&y.status==="done")-(isMe(x)&&x.status==="done")); if(!its.length) return;
-      const br=el("div","mmb"); br.style.setProperty("--h",String([200,25,140,95,265,330,45][bi%7]));
-      const hasMe=its.some(e=>e.status==="done"&&isMe(e)); const hb=el("button","mmh"+(hasMe?" me":"")); hb.type="button"; hb.append(el("span","",ic+" "+L), el("small","",its.length+""));
-      const open=mnOpen===L||mnOpen==="*"; hb.setAttribute("aria-expanded",open?"true":"false"); hb.addEventListener("click",()=>{ mnOpen=mnOpen===L?null:L; renderManual(); }); br.append(hb);
-      const lv2=el("div","mml"+(open?"":" few")); its.forEach((e,ii)=>{ if(!open&&ii>0) return; const tag=e.status!=="done"?["ex","試す"]:isMe(e)?["me","自分"]:["rs","研究"]; const lf=el("div","mmf "+tag[0]); lf.append(el("span","src "+tag[0],tag[1]), el("span","t",sh(e)), el("span","efs",(e.effects||[]).map(x=>(MN_EF.find(y=>y[0]===x)||["","•"])[1]).join(""))); lv2.append(lf); });
-      if(!open&&its.length>1) lv2.append(el("button","mmmore","＋ほか"+(its.length-1)+"つ")); if(!open) lv2.querySelector(".mmmore")?.addEventListener("click",()=>{ mnOpen=L; renderManual(); });
-      br.append(lv2); brs.append(br); });
+    // ② マインドマップ：家族4人の幸せ → 5つの柱 → 枝（何を整える） → わかったこと（自分／研究／試す）
+    const mm=el("div","mmap"); const core=el("div","mmc"); core.append(el("b","","🏠 家族4人の幸せ"), el("small","","健康・思い出・相棒・暮らしの力・知見")); mm.append(core);
+    const brs=el("div","mmbs"), all=done.concat(tryi);
+    const goMemo=re=>()=>{ const m=memos.find(x=>re.test(x.title||"")); if(m) openKu("memo",m); else status("まだメモがありません"); };
+    const goKu=(mode,q)=>()=>{ setMeTab("life"); setKu(mode); $("kuQ").value=q||""; renderKu(); setTimeout(()=>$("kuQ").scrollIntoView({block:"start",behavior:"smooth"}),40); };
+    const goMedia=()=>{ setMeTab("life"); setTimeout(()=>$("mdGrid").scrollIntoView({block:"start",behavior:"smooth"}),40); };
+    const PIL=[
+      {k:"health",ic:"💪",n:"健康",h:200,lv:["睡眠","お酒","食事・水分","運動","スマホ・環境","書く・こころ"]},
+      {k:"memory",ic:"📸",n:"思い出",h:25,lv:["写真・思い出","家族イベント"]},
+      {k:"partner",ic:"🤝",n:"相棒",h:330,lv:["ママとの関係","育児"],ln:[["🤝 改善ノート",goMemo(/改善ノート/)]],soon:"育児は、ゆづと2人目の年齢に合わせて（まずは新生児期から）"},
+      {k:"life",ic:"🧽",n:"暮らしの力",h:140,lv:["掃除","料理","ファッション"],ln:[["🧽 掃除メモ",goKu("memo","掃除")],["🍳 わが家の料理",goKu("recipe","")]]},
+      {k:"know",ic:"🌏",n:"知見",h:265,lv:["知見"],ln:[["🎬 見た・読んだ",goMedia],["🌏 知見マップ",goMemo(/知見マップ/)]]}];
+    const known=new Set(PIL.flatMap(P=>P.lv)); all.filter(e=>!known.has(lv(e))).forEach(e=>{ if(!PIL[0].lv.includes(lv(e))) PIL[0].lv.push(lv(e)); });
+    PIL.forEach(P=>{ const its=all.filter(e=>P.lv.includes(lv(e))), nMe=its.filter(e=>e.status==="done"&&isMe(e)).length, open=mnOpen===P.k||mnOpen==="*";
+      const br=el("div","mmb"); br.style.setProperty("--h",String(P.h));
+      const hb=el("button","mmh"+(nMe?" me":"")); hb.type="button"; hb.append(el("span","",P.ic+" "+P.n), el("small","",its.length+"")); hb.setAttribute("aria-expanded",open?"true":"false");
+      hb.addEventListener("click",()=>{ mnOpen=mnOpen===P.k?null:P.k; renderManual(); }); br.append(hb);
+      const body=el("div","mml");
+      if(!open){ const sm=el("div","mmsum"); P.lv.forEach(L=>{ const n=its.filter(e=>lv(e)===L).length; const ic=(MN_LV.find(x=>x[0]===L)||["","•"])[1]; sm.append(el("span",n?"":"z",ic+" "+L.replace("・思い出","")+(n?" "+n:""))); }); body.append(sm); }
+      else { P.lv.forEach(L=>{ const li=its.filter(e=>lv(e)===L).sort((x,y)=>(isMe(y)&&y.status==="done")-(isMe(x)&&x.status==="done")); const ic=(MN_LV.find(x=>x[0]===L)||["","•"])[1];
+          const sub=el("div","mmsub"); sub.append(el("div","mms",ic+" "+L));
+          if(!li.length){ const z=el("div","mmf z"); z.append(el("span","t","（これから）")); sub.append(z); }
+          li.forEach(e=>{ const tag=e.status!=="done"?["ex","試す"]:isMe(e)?["me","自分"]:["rs","研究"]; const lf=el("div","mmf "+tag[0]); lf.append(el("span","src "+tag[0],tag[1]), el("span","t",sh(e)), el("span","efs",(e.effects||[]).map(x=>(MN_EF.find(y=>y[0]===x)||["","•"])[1]).join(""))); sub.append(lf); });
+          body.append(sub); });
+        if(P.soon) body.append(el("p","mmsoon","🌱 "+P.soon)); }
+      if((P.ln||[]).length){ const lk=el("div","mmlk"); P.ln.forEach(([t,f])=>{ const b=el("button","",t+" ›"); b.type="button"; b.addEventListener("click",f); lk.append(b); }); body.append(lk); }
+      br.append(body); brs.append(br); });
     mm.append(brs); box.append(mm);
-    { const all=el("button","lnk",mnOpen==="*"?"たたむ":"ぜんぶ開く"); all.type="button"; all.addEventListener("click",()=>{ mnOpen=mnOpen==="*"?null:"*"; renderManual(); }); const lg=el("p","cylg","自分＝自分で確かめたルール　研究＝研究ではそう　試す＝これから試す　🎯集中 🙂気分 💪からだ 👨‍👩‍👧家族 ＝効くところ　"); lg.append(all); box.append(lg); }
+    { const al=el("button","lnk",mnOpen==="*"?"たたむ":"ぜんぶ開く"); al.type="button"; al.addEventListener("click",()=>{ mnOpen=mnOpen==="*"?null:"*"; renderManual(); }); const lg=el("p","cylg","柱をタップで開く。自分＝自分で確かめた　研究＝研究・一般的な知識　試す＝これから　"); lg.append(al); box.append(lg); }
     // ④ 次に試すこと
     if(tryi.length){ box.append(el("div","mnh","🧪 次に試すこと")); tryi.forEach(e=>{ const r=el("div","mntry"); r.append(el("b","",(e.status==="running"?"いま：":md(e.start)+"〜：")+(e.action||sh(e))), el("small","","仮説："+(e.hypothesis||"")+(e.measure?"／測る："+e.measure:""))); box.append(r); }); }
   }
