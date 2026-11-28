@@ -1157,6 +1157,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 /* ===== 2026-11 redesign: dashboard, わたしの軸, 3-line diary, 欲しいもの ===== */
 .metabs button{font-size:10.5px}
 .medash{margin:12px 0 4px}
+.pwshow{display:block;margin:6px 0 2px;border:0;background:none;padding:4px 0;font:inherit;font-size:13px;font-weight:700;color:var(--accent);text-align:left}
 .slmini{border:1px solid var(--line);border-left:3px solid #9b9a97;border-radius:8px;padding:8px 10px;background:var(--paper);margin-bottom:8px}
 .slmini.ok{border-left-color:#448361} .slmini.warn{border-left-color:#cb912f} .slmini.bad{border-left-color:#d44c47}
 .slmini .top{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:0;font:inherit;color:var(--fg);text-align:left}
@@ -1937,6 +1938,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
           <input type="password" id="pwCur" placeholder="いまの合言葉" autocomplete="current-password" aria-label="いまの合言葉・パスワード" required>
           <input type="password" id="pwNew" placeholder="新しいパスワード（6文字以上）" autocomplete="new-password" minlength="6" aria-label="新しいパスワード" required>
           <input type="password" id="pwNew2" placeholder="もう一度" autocomplete="new-password" minlength="6" aria-label="新しいパスワード（確認）" required>
+          <button type="button" class="pwshow" data-for="pwCur,pwNew,pwNew2">あ 日本語で入力する（文字を表示）</button>
           <button class="btn sm" type="submit" id="pwSave" style="justify-self:end">パスワードを決める</button>
         </form>
       </div>
@@ -1958,6 +1960,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
       <button type="button" id="lgMama" aria-pressed="false"><span class="pp p-mama">マ</span>ママ</button>
     </div>
     <input type="password" id="lgPass" placeholder="家族の合言葉" autocomplete="current-password" aria-label="家族の合言葉" required>
+    <button type="button" class="pwshow" data-for="lgPass">あ 日本語で入力する（文字を表示）</button>
     <small class="lghint" id="lgHint" hidden>パパだけのパスワードを決めている場合は、そちらを入れてください。</small>
     <div class="lerr" id="lgErr" role="alert"></div>
     <button class="btn" type="submit" id="lgBtn">はじめる</button>
@@ -2117,6 +2120,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const md=k=>{const d=k2d(k);return (d.getMonth()+1)+"/"+d.getDate()};
   const fmtDay=k=>{const d=k2d(k);return `${d.getMonth()+1}月${d.getDate()}日（${DOW[d.getDay()]}）`};
   const toMin=t=>{const[h,m]=String(t).split(":").map(Number);return h*60+(m||0)};
+  // iPhoneはパスワード欄で日本語が打てないので、ボタンで普通の文字の欄に切り替える
+  document.addEventListener("click",ev=>{ const b=ev.target.closest&&ev.target.closest(".pwshow"); if(!b) return; const ids=(b.dataset.for||"").split(",");
+    const show=b.dataset.on!=="1"; ids.forEach(id=>{ const i=document.getElementById(id); if(i){ i.type=show?"text":"password"; i.setAttribute("autocapitalize","off"); i.setAttribute("autocorrect","off"); i.setAttribute("spellcheck","false"); } });
+    b.dataset.on=show?"1":"0"; b.textContent=show?"🔒 文字をかくす":"あ 日本語で入力する（文字を表示）"; const f=document.getElementById(ids[0]); if(f) f.focus(); });
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
