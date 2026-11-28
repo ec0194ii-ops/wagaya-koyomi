@@ -1526,7 +1526,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .cypg .bar em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg)}
 .cypg .gi{display:grid;grid-template-columns:20px 1fr auto auto;gap:0 6px;align-items:center;padding:5px 0;border-top:1px dashed var(--line)}.cypg .gi b{font-size:13px;font-weight:600}.cypg .gi .pc{font-size:12px;font-family:var(--f-num);min-width:32px;text-align:right}.cypg .gi .bar,.cypg .gi .sub{grid-column:2/-1}.cypg .gi .sub{font-size:11px;color:var(--muted);margin-top:2px}
 .cypg .st{font-size:10.5px;border-radius:4px;padding:0 5px;background:var(--sunk,#eee);color:var(--muted)}.cypg .st.ok{background:color-mix(in srgb,#3a9a6a 18%,transparent);color:#2b593f}.cypg .st.lag{background:color-mix(in srgb,var(--hot,#d9822b) 18%,transparent);color:var(--hot,#b3541e)}
-.cyd.gone::after{content:"";position:absolute;inset:4px;background:linear-gradient(to top right,transparent calc(50% - .7px),color-mix(in srgb,var(--fg) 55%,transparent) calc(50% - .7px),color-mix(in srgb,var(--fg) 55%,transparent) calc(50% + .7px),transparent calc(50% + .7px));pointer-events:none}
+.cyd.gone{background:#5b5b5f;color:#fff}.cyd.gone.sun,.cyd.gone.sat{color:#fff}.cyd.gone::after{content:"";position:absolute;left:5px;bottom:9px;height:3px;border-radius:2px;width:calc((100% - 10px)*var(--v,0));background:#7fd6a5}.cyd.gone .dots i.fam{background:#ccc}.cyd.gone .dots i{background:#9cc0ff}
 .mnflow{display:flex;align-items:center;gap:4px;margin:2px 0 8px}.mnflow .st{flex:1;background:var(--sunk,#f3f1ec);border-radius:10px;padding:6px 4px;display:flex;flex-direction:column;align-items:center}.mnflow .st b{font-size:18px;font-family:var(--f-num)}.mnflow .st small{font-size:10.5px;color:var(--muted)}.mnflow .ar{color:var(--muted)}
 .mni .lv{flex:none}.mni .efs{flex:none;margin-left:auto;font-size:12px}
 .mnmap{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:2px;align-items:center}.mnmap .ch{font-size:11px;text-align:center;color:var(--muted)}
@@ -1550,6 +1550,14 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .mmf .src{flex:none;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:2px;background:var(--c-gray);color:var(--muted)}.mmf .src.me{background:var(--c-green);color:#2b593f}.mmf .src.rs{background:var(--c-blue);color:#28456c}.mmf .src.ex{background:var(--c-purple);color:#5a3d78}
 .mmmore{border:0;background:none;color:var(--c);font:inherit;font-size:12px;padding:2px 0 2px 14px}
 @media (prefers-color-scheme:dark){.mmb{--cb:hsl(var(--h) 30% 20%)}}
+
+.spsw{display:flex;gap:4px;background:var(--sunk,#efece6);border-radius:999px;padding:3px;margin-top:max(12px,env(safe-area-inset-top,0px));width:max-content}
+.spsw button{border:0;background:none;border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--muted)}.spsw button[aria-pressed=true]{background:var(--paper);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#pane-me.swiping [data-mtab]{transform:translateX(var(--sx,0));opacity:calc(1 - min(.4, abs(var(--sx,0px)) / 600px))}
+#pane-me.swback [data-mtab]{transition:transform .2s ease}
+#pane-me.mtin-l [data-mtab]{animation:mtinL .3s cubic-bezier(.2,.8,.2,1)}#pane-me.mtin-r [data-mtab]{animation:mtinR .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes mtinL{from{transform:translateX(48px);opacity:0}to{transform:none;opacity:1}}@keyframes mtinR{from{transform:translateX(-48px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){#pane-me.mtin-l [data-mtab],#pane-me.mtin-r [data-mtab]{animation:none}}
 </style>
 </head>
 <body>
@@ -1730,7 +1738,8 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 <!-- ================= MY NOTE (private to the signed-in person) ================= -->
 <section id="pane-me" role="tabpanel" hidden>
   <div class="nwhead"><span class="ic">📰</span><h2>けさのニュース</h2><a href="./?space=me" class="nwback">📓 ノートへ</a></div>
-  <div class="mhead"><button type="button" class="tbtn" id="meBack">‹ わが家へ</button><h2 id="meTitle">パパのノート</h2></div>
+  <div class="spsw" role="group" aria-label="家族とノートの切り替え"><button type="button" id="meBack">👨‍👩‍👧 家族</button><button type="button" aria-pressed="true" id="meSwMe">📓 パパ</button></div>
+  <div class="mhead"><h2 id="meTitle">パパのノート</h2></div>
   <p class="menote">🔒 ここはパパだけのページです。ママのスマホには出ません。</p>
   <div class="metabs" id="meTabs" role="group" aria-label="ノートの切り替え">
     <button type="button" data-t="goal" aria-pressed="false"><span class="mti">🧭</span>軸</button>
@@ -3719,7 +3728,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function renderMe(){
     if(!$("pane-me")) return;
     const nm=meName(); $("meTitle").textContent=nm+"のノート"; $("meEntry").textContent=""; $("meEntry").append("📓 "+nm+"のノート ",el("span","","自分だけ"));
-    $("meEntry").hidden=true;
+    $("meEntry").textContent=""; $("meEntry").append("📓 "+nm+"のノートへ ›",el("span","","自分だけ")); $("meEntry").hidden=false; if($("meSwMe")) $("meSwMe").textContent="📓 "+nm;
     $("pane-me").querySelector(".menote").textContent="🔒 ここは"+nm+"だけのページです。"+(nm==="パパ"?"ママ":"パパ")+"のスマホには出ません。";
     $("meToday").textContent="今日 "+md(todayKey)+"（"+DOW[k2d(todayKey).getDay()]+"）";
     // today: my own plans first, family plans faintly for context
@@ -3766,14 +3775,21 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const lsGet=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, lsSet=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
   function setMeTab(t){ if(!["dash","today","goal","body","news","life"].includes(t)) t="dash"; $("pane-me").dataset.mt=t;
     $("meTabs").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")); lsSet("koyomi-me-tab",t); }
-  $("meTabs").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-t]"); if(!b) return; setMeTab(b.dataset.t); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); });
+  $("meTabs").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-t]"); if(!b) return; { const O=["goal","dash","today","body","life"], d=O.indexOf(b.dataset.t)-O.indexOf($("pane-me").dataset.mt); if(d){ const P=$("pane-me"); P.classList.remove("mtin-l","mtin-r"); void P.offsetWidth; P.classList.add(d>0?"mtin-l":"mtin-r"); setTimeout(()=>P.classList.remove("mtin-l","mtin-r"),320); } } setMeTab(b.dataset.t); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); });
   setMeTab(lsGet("koyomi-me-tab")||"today");
-  { const ORD=["goal","dash","today","body","life"]; let sx=null, sy=0, st=0;
-    $("pane-me").addEventListener("touchstart",ev=>{ const t=ev.touches[0]; if(ev.touches.length!==1||ev.target.closest("input,textarea,select,.tl,.tldays,.tlq,.hzseg,.gtseg,.dyweek,.kuseg,.mdtiles,[data-noswipe]")){ sx=null; return; } sx=t.clientX; sy=t.clientY; st=Date.now(); },{passive:true});
-    $("pane-me").addEventListener("touchend",ev=>{ if(sx==null) return; const t=ev.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy; sx=null;
-      if(Math.abs(dx)<70||Math.abs(dy)>Math.abs(dx)*0.6||Date.now()-st>700) return;
-      const i=ORD.indexOf($("pane-me").dataset.mt), j=i+(dx<0?1:-1); if(i<0||j<0||j>=ORD.length) return;
-      setMeTab(ORD[j]); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); },{passive:true}); }
+  { const ORD=["goal","dash","today","body","life"], P=$("pane-me"); let sx=null, sy=0, st=0, horiz=null;
+    const slideIn=dir=>{ P.classList.remove("mtin-l","mtin-r"); void P.offsetWidth; P.classList.add(dir>0?"mtin-l":"mtin-r"); setTimeout(()=>P.classList.remove("mtin-l","mtin-r"),320); };
+    const go=dir=>{ const i=ORD.indexOf(P.dataset.mt), j=i+dir; if(i<0||j<0||j>=ORD.length) return false; setMeTab(ORD[j]); slideIn(dir); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); return true; };
+    const reset=()=>{ P.classList.remove("swiping"); P.style.removeProperty("--sx"); };
+    P.addEventListener("touchstart",ev=>{ const t=ev.touches[0]; horiz=null; if(ev.touches.length!==1||ev.target.closest("input,textarea,select,.tl,.tldays,.tlq,.hzseg,.gtseg,.dyweek,.kuseg,.mdtiles,.cyyr,[data-noswipe]")){ sx=null; return; } sx=t.clientX; sy=t.clientY; st=Date.now(); },{passive:true});
+    P.addEventListener("touchmove",ev=>{ if(sx==null) return; const t=ev.touches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+      if(horiz==null&&(Math.abs(dx)>10||Math.abs(dy)>10)) horiz=Math.abs(dx)>Math.abs(dy)*1.3;
+      if(!horiz) return; const i=ORD.indexOf(P.dataset.mt), edge=(i===0&&dx>0)||(i===ORD.length-1&&dx<0);
+      P.classList.add("swiping"); P.style.setProperty("--sx",(edge?dx*0.25:dx*0.6)+"px"); },{passive:true});
+    P.addEventListener("touchend",ev=>{ if(sx==null) return; const t=ev.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy; sx=null; const wasH=horiz; horiz=null;
+      if(wasH&&Math.abs(dx)>=60&&Math.abs(dy)<Math.abs(dx)*0.7){ reset(); if(go(dx<0?1:-1)) return; }
+      if(P.classList.contains("swiping")){ P.classList.add("swback"); reset(); setTimeout(()=>P.classList.remove("swback"),220); } },{passive:true});
+    P.addEventListener("touchcancel",()=>{ sx=null; reset(); },{passive:true}); }
   let meFold={}; try{ meFold=JSON.parse(lsGet("koyomi-me-fold")||"{}")||{}; }catch(e){ meFold={}; }
   $("pane-me").querySelectorAll(".sec[data-fold]").forEach(sec=>{ const k=sec.dataset.fold; if(meFold[k]) sec.classList.add("folded");
     sec.querySelector(".sech").addEventListener("click",ev=>{ if(ev.target.closest("button,a,input,form")) return;
@@ -4432,7 +4448,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const dots=el("span","dots"); evs.slice(0,3).forEach(e=>dots.append(el("i",e._private?"me":"fam"))); c.append(dots);
       c.addEventListener("click",()=>{ cySel=k; renderCy(); }); g.append(c); }
     box.append(g);
-    { const lg=el("p","cylg","斜線＝終わった日　色が濃い日＝朝ルーティン・習慣・日記ができた日　"); lg.append(el("i","me"),"自分の予定　",el("i","fam"),"家族の予定"); box.append(lg); }
+    { const lg=el("p","cylg","グレー＝終わった日（緑の線が長いほど 朝ルーティン・習慣・日記ができた日）　"); lg.append(el("i","me"),"自分の予定　",el("i","fam"),"家族の予定"); box.append(lg); }
     // 選んだ日
     const k=cySel, dt=el("div","cydt"); const dh=el("div","h"); dh.append(el("b","",md(k)+"（"+DOW[k2d(k).getDay()]+"）"+(k===todayKey?" 今日":"")));
     if(k>=todayKey&&daysTo(k)<8){ const go=el("button","lnk","🕒 タイムラインで組む ›"); go.type="button"; go.addEventListener("click",()=>{ tlDay=k; tlMode="tl"; setMeTab("today"); renderMeTimeline(); }); dh.append(go); }
@@ -5153,6 +5169,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.doc("info/outings").onSnapshot(s=>{ogMeta=s.exists?s.data():null;renderOutings()});
       db.doc("info/weather").onSnapshot(s=>{weather=s.exists?s.data():null;renderHome();renderCal()});
       if(/[?&]space=me\b/.test(location.search)) selectTab("me");
+      else if(!/[?&](space|tab)=/.test(location.search)&&me==="papa"){ selectTab("me"); setMeTab("today"); }   // パパは開いたら自分の「今日」から
       if(/[?&]space=news\b/.test(location.search)){ selectTab("me"); setMeTab("news"); }
       { const mt=(location.search.match(/[?&]tab=(today|dash|goal|body|life)\b/)||[])[1]; if(mt){ selectTab("me"); setMeTab(mt); } }
       setInterval(()=>{ if(token&&document.visibilityState==="visible") refresh().catch(()=>{}); },30000);
