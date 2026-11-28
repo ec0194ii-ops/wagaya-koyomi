@@ -1561,6 +1561,15 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 
 .cyfut{font-size:12.5px;color:var(--muted);margin:0 0 8px}.cyfut b{color:var(--fg)}
 .cypast{margin-bottom:10px}.cypast .h{display:block;font-size:13.5px;margin-bottom:4px}.cypast .pr{display:grid;grid-template-columns:1fr auto;gap:0 8px;font-size:12.5px;padding:3px 0}.cypast .pr b{font-family:var(--f-num)}.cypast .bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--sunk,#eee);position:relative}.cypast .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#3a9a6a}.cypast .wt{font-size:12.5px;margin:4px 0 0}
+
+.dbwrap{margin:8px 0 6px}.dbt{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin:4px 0}
+.dbpk{background:var(--sunk);border-radius:10px;padding:8px 10px;margin-bottom:6px}.dbpk .h{display:flex;align-items:center;gap:8px}.dbpk .h b{flex:1;font-size:13px}
+.dbch{display:flex;gap:8px;align-items:baseline;margin-top:4px;font-size:14px;font-weight:600}.dbch small{margin-left:auto;font-size:11px;color:var(--muted);font-weight:400}
+.dbgo{display:block;width:100%;margin-top:6px;border:1px dashed var(--line);background:var(--paper);border-radius:8px;padding:7px;font:inherit;font-size:12.5px;color:var(--muted)}
+.dbls{display:flex;flex-direction:column;gap:4px;margin:6px 0}.dbc{display:flex;gap:8px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 9px;font:inherit;font-size:13px;color:var(--fg)}.dbc small{margin-left:auto;flex:none;font-size:10.5px;color:var(--muted)}.dbc.st{border-color:var(--accent)}
+.dbm{border-top:1px solid var(--line);padding:6px 0}.dbm summary{list-style:none;display:flex;gap:8px;align-items:baseline;cursor:pointer}.dbm summary::-webkit-details-marker{display:none}.dbm summary b{font-size:13px;flex:none}.dbm summary span{font-size:13px;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dbw{display:flex;gap:8px;align-items:baseline;padding:3px 0 3px 8px;font-size:13px}.dbw small{flex:none;font-size:10.5px;color:var(--muted);width:52px}.dbw.top{font-weight:700}
+.mdmem{background:var(--c-purple,#efe9f8);border-radius:12px;padding:8px 12px;margin:6px 0;cursor:pointer}.mdmem small{display:block;font-size:11px;color:var(--muted)}.mdmem b{font-size:14px}
 </style>
 </head>
 <body>
@@ -1775,8 +1784,8 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
       </div>
       <div class="vfh">毎週・毎月</div>
       <div class="vflow">
-        <div class="vfs"><span class="ic">🧭</span><div><b>日曜の夜 ふりかえり</b><span>からだ・ニュース・5つの軸がまとめて届く → 1〜5で採点して返信 → 来週の軸を1つ決める</span></div></div>
-        <div class="vfs"><span class="ic">📰</span><div><b>毎月1日 月のまとめ</b><span>ニュースの月まとめ。軸を見直して、足したいことがあれば次の版に</span></div></div>
+        <div class="vfs"><span class="ic">🧭</span><div><b>日曜の夜 ふりかえり</b><span>からだ・ニュース・5つの軸がまとめて届く → 1〜5で採点して返信 → 来週の軸を1つ決める → 今週の日記からベスト1を選ぶ（Claudeは候補を出すだけ）</span></div></div>
+        <div class="vfs"><span class="ic">📰</span><div><b>毎月1日 月のまとめ</b><span>ニュースの月まとめ。軸を見直して、足したいことがあれば次の版に。月末に週のベストから「今月のいちばん」を選ぶ</span></div></div>
       </div>
       <div class="vfh">どこに入れる？</div>
       <div class="vflow">
@@ -2216,7 +2225,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[], money=null, exps=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[], money=null, exps=[], dbests=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -4029,9 +4038,39 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       c.append(el("small","",DOW[k2d(k).getDay()]), el("i",n===3?"full":n>0||(d&&d.text)?"part":"",n===3?"●":n>0||(d&&d.text)?"◐":"○")); W.append(c); }
     const ago=diaries.find(d=>d.date===addDays(todayKey,-365)||d.date===addDays(todayKey,-366));
     if(ago){ const a=el("div","dyago"); a.append(el("small","","1年前の今日"), dyLines(ago)); L.append(a); }
-    diaries.filter(d=>d.date!==todayKey).slice(0,dyAll?60:7).forEach(d=>{ const r=el("div","dyit"); r.append(el("small","",(d.date.slice(0,4)!==todayKey.slice(0,4)?d.date.slice(0,4)+"年":"")+md(d.date)+"（"+DOW[k2d(d.date).getDay()]+"）"), dyLines(d)); L.append(r); });
-    if(!dyAll&&diaries.filter(d=>d.date!==todayKey).length>7){ const m=el("button","nwb","もっと見る"); m.type="button"; m.addEventListener("click",()=>{dyAll=true;renderDiary();}); L.append(m); }
+    // 🏅 しぼって残す：週のベスト1（日曜）→ 月のいちばん（月末）。毎日の日記はたたんでおく
+    dyBest(L);
+    const tg=el("button","nwb",dyAll?"毎日の日記をたたむ":"📖 毎日の日記をひらく"); tg.type="button"; tg.addEventListener("click",()=>{dyAll=!dyAll;renderDiary();}); L.append(tg);
+    if(!dyAll) return;
+    diaries.filter(d=>d.date!==todayKey).slice(0,60).forEach(d=>{ const r=el("div","dyit"); r.append(el("small","",(d.date.slice(0,4)!==todayKey.slice(0,4)?d.date.slice(0,4)+"年":"")+md(d.date)+"（"+DOW[k2d(d.date).getDay()]+"）"), dyLines(d)); L.append(r); });
   }
+  let dyPick=null;
+  const dbId=(sc,k)=>"dbest-"+meNow()+"-"+sc+"-"+k, dbOf=(sc,k)=>dbests.find(x=>x.scope===sc&&x.key===k);
+  function dyWeekLines(ws){ const out=[]; for(let i=0;i<7;i++){ const k=addDays(ws,i), d=diaries.find(x=>x.date===k); if(!d) continue; const o=dyParse(d.text); DY3.forEach(([kk,ic])=>{ if(o[kk]) out.push({ic,text:o[kk],date:k}); }); } return out; }
+  async function dbSave(sc,key,c){ try{ await db.collection("notes").doc(dbId(sc,key)).set(Object.assign({},dbOf(sc,key)||{},{type:"diarybest",scope:sc,key,ic:c.ic||"",text:c.text,from:c.date||c.from||"",_private:true})); dyPick=null; status(sc==="w"?"🏅 今週のベスト1を残しました":"🌟 今月のいちばんを残しました"); }catch(e){ status("保存できませんでした。",true); } }
+  function dbPicker(L,sc,key,title,cands,hint){ const cur=dbOf(sc,key), box=el("div","dbpk"); const hd=el("div","h"); hd.append(el("b","",title));
+    if(cur&&cur.text){ const r=el("div","dbch"); r.append(el("span","",(cur.ic||"🏅")+" "+cur.text), el("small","",cur.from?md(cur.from):"")); box.append(hd,r); const ch=el("button","lnk","えらび直す"); ch.type="button"; ch.addEventListener("click",()=>{ dyPick=sc+key; renderDiary(); }); hd.append(ch); if(dyPick!==sc+key){ L.append(box); return; } }
+    else box.append(hd);
+    const open=dyPick===sc+key; if(!open){ const b=el("button","dbgo",hint); b.type="button"; b.addEventListener("click",()=>{ dyPick=sc+key; renderDiary(); }); box.append(b); L.append(box); return; }
+    const cl=(cur&&cur.candidates)||[]; const list=el("div","dbls");
+    const add=(c,star)=>{ const b=el("button","dbc"+(star?" st":"")); b.type="button"; b.append(el("span","",(star?"✨ ":"")+(c.ic||"")+" "+c.text), el("small","",c.date?md(c.date):"")); b.addEventListener("click",()=>dbSave(sc,key,c)); list.append(b); };
+    cl.forEach(t=>add(typeof t==="string"?{text:t}:t,true)); cands.filter(c=>!cl.some(t=>(t.text||t)===c.text)).forEach(c=>add(c,false));
+    if(!cands.length&&!cl.length) list.append(el("p","empty","まだえらべる日記がありません。")); box.append(list);
+    const x=el("button","lnk","やめる"); x.type="button"; x.addEventListener("click",()=>{ dyPick=null; renderDiary(); }); box.append(x); L.append(box); }
+  function dyBest(L){ const ws=weekStart(todayKey), lw=addDays(ws,-7), mon=todayKey.slice(0,7), pm=addDays(mon+"-01",-1).slice(0,7);
+    const W=el("div","dbwrap"); W.append(el("div","dbt","🏅 しぼって残す")); L.append(W);
+    // 先週が未選択なら先に（週の頭の3日だけ）
+    if(!dbOf("w",lw)&&dyWeekLines(lw).length&&daysTo(ws)>=-3) dbPicker(W,"w",lw,"先週（"+md(lw)+"〜）のベスト1",dyWeekLines(lw),"先週の日記から1つえらぶ");
+    dbPicker(W,"w",ws,"今週のベスト1",dyWeekLines(ws),[0,6].includes(k2d(todayKey).getDay())?"今週の日記から1つえらぶ（日曜のふりかえり）":"日曜にえらびます（いまえらんでもOK）");
+    const mc=dbests.filter(x=>x.scope==="w"&&addDays(x.key,6).slice(0,7)===mon||x.scope==="w"&&x.key.slice(0,7)===mon).map(x=>({ic:x.ic,text:x.text,date:x.from}));
+    const endSoon=+todayKey.slice(8)>=new Date(+mon.slice(0,4),+mon.slice(5,7),0).getDate()-6;
+    if(!dbOf("m",pm)&&dbests.some(x=>x.scope==="w"&&x.key.slice(0,7)===pm)&&+todayKey.slice(8)<=7) dbPicker(W,"m",pm,(+pm.slice(5))+"月のいちばん",dbests.filter(x=>x.scope==="w"&&x.key.slice(0,7)===pm).map(x=>({ic:x.ic,text:x.text,date:x.from})),"先月のベストから1つえらぶ");
+    if(mc.length&&(endSoon||dbOf("m",mon))) dbPicker(W,"m",mon,(+mon.slice(5))+"月のいちばん",mc,"今月のベスト1から1つえらぶ（月末）");
+    // アーカイブ：月ごとに「いちばん」と週のベスト
+    const months=[...new Set(dbests.map(x=>x.scope==="m"?x.key:x.key.slice(0,7)))].sort().reverse();
+    months.forEach(m=>{ const mb=dbOf("m",m), wk=dbests.filter(x=>x.scope==="w"&&x.key.slice(0,7)===m).sort((a,b)=>a.key.localeCompare(b.key)); if(m===mon&&!mb&&wk.every(x=>x.key>=lw)) return;
+      const g=el("details","dbm"); if(m===months[0]) g.open=true; const sm=el("summary"); sm.append(el("b","",m.slice(0,4)+"年"+(+m.slice(5))+"月"), el("span","",mb?"🌟 "+mb.text:wk.length+"週")); g.append(sm);
+      wk.forEach(x=>{ const r=el("div","dbw"+(mb&&mb.text===x.text?" top":"")); r.append(el("small","",md(x.key)+"の週"), el("span","",(x.ic||"🏅")+" "+x.text)); g.append(r); }); W.append(g); }); }
   $("dyForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return;
     const g=$("dyG").value.trim(), p=$("dyP").value.trim(), f=$("dyF").value.trim(), x=$("dyIn").value.trim();
     const v=[g&&"🙏感謝："+g, p&&"🌱前進："+p, f&&"👨‍👩‍👧家族："+f, x].filter(Boolean).join("\n"); if(!v) return;
@@ -4557,6 +4596,8 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const of=$("ovFull"); if(of){ of.replaceChildren(); const c=overviewCard("full"); if(c) of.append(c); else of.append(el("p","empty","今年度の目標はまだありません。")); }
     try{ renderCy(); }catch(e){ console.warn(e); }
     box.append(sleepMini());
+    if([0,6].includes(k2d(todayKey).getDay())){ const ws=weekStart(todayKey); const hit=[[364,"1年前の今週"],[28,"1か月前の今週"]].map(([n,l])=>{ const b=dbests.find(x=>x.scope==="w"&&x.key===weekStart(addDays(ws,-n))); return b?[l,b]:null; }).find(Boolean);
+      if(hit){ const r=el("div","mdmem"); r.append(el("small","","💭 "+hit[0]+"のベスト"), el("b","",(hit[1].ic||"")+" "+hit[1].text)); r.addEventListener("click",()=>{ setMeTab("body"); }); box.append(r); } }
     if(mealCfg||meals.length){ const T=mealTgt(), N=mealNeeds(T,mealSum), ym=meals.find(x=>x.date===addDays(todayKey,-1));
       const yv=ym?(()=>{ const s=mealSum(ym), k=Math.round(+s.kcal||0), d=k-T.kcal, out=["昨日 "+k+"kcal"+(d>T.kcal*0.08?"（+"+d+"）":"")];
         if(+s.f>T.f*1.15) out.push("脂質多め"); if(+s.salt>T.salt*1.15) out.push("塩分多め"); if(+s.p<T.p*0.8) out.push("たんぱく質少なめ"); if(+s.fiber<T.fiber*0.75) out.push("野菜少なめ");
@@ -5175,7 +5216,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; money=all.find(x=>x.type==="money"&&x._private)||null; exps=all.filter(x=>x.type==="experiment"&&x._private).sort((a,b)=>String(b.start).localeCompare(String(a.start))); daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; money=all.find(x=>x.type==="money"&&x._private)||null; dbests=all.filter(x=>x.type==="diarybest"&&x._private&&x.key); exps=all.filter(x=>x.type==="experiment"&&x._private).sort((a,b)=>String(b.start).localeCompare(String(a.start))); daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{const all=rows(s); wants=all.filter(x=>x._private&&x.list==="wants"); shop=all.filter(x=>!(x._private&&x.list==="wants"));renderShop();renderHome();renderWants()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
