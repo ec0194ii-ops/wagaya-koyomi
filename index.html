@@ -1157,6 +1157,17 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 /* ===== 2026-11 redesign: dashboard, わたしの軸, 3-line diary, 欲しいもの ===== */
 .metabs button{font-size:10.5px}
 .medash{margin:12px 0 4px}
+.ovw{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);margin-bottom:8px}
+.ovw .pur{font-size:12.5px;line-height:1.5;color:var(--fg);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer} .ovw .pur.open{display:block}
+.ovw .fc{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 2px;font-size:11.5px;color:var(--muted)} .ovw .fc span{background:var(--c-yellow);color:var(--fg);font-weight:700;border-radius:999px;padding:1px 8px}
+.ovw .ph{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 4px;font-size:12.5px;font-weight:700} .ovw .ph small{font-weight:400;color:var(--muted);font-size:11px}
+.ovw .gi{display:grid;grid-template-columns:22px 1fr 40px;gap:2px 8px;align-items:center;padding:3px 0;cursor:pointer}
+.ovw .gi .ic{font-size:15px;grid-row:span 2} .ovw .gi b{font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .ovw .gi .pc{font-size:12px;font-weight:700;text-align:right;font-family:var(--f-num)}
+.ovw .gi .bar{grid-column:2 / 4;position:relative;height:6px;border-radius:3px;background:var(--sunk);overflow:visible} .ovw .gi .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#448361}
+.ovw .gi .bar i.lag{background:#cb912f} .ovw .gi .bar em{position:absolute;top:-3px;width:2px;height:12px;background:var(--fg);opacity:.35;border-radius:1px}
+.ovw .gi .sub{grid-column:2 / 4;font-size:11px;color:var(--muted);line-height:1.45} .ovw .gi .sub.hide{display:none}
+.ovw .today{margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--c-green);font-size:13px;line-height:1.5} .ovw .today b{display:block;font-size:11px;color:var(--muted)}
+.ovw .ovwk{font-size:12px;color:var(--muted);margin:2px 0 0;line-height:1.6}
 .mdfood{display:flex;gap:8px;align-items:baseline;border:1px solid var(--line);border-left:3px solid #448361;border-radius:8px;padding:7px 10px;margin-bottom:8px;background:var(--paper);font-size:12.5px;line-height:1.5;cursor:pointer}
 .mdfood b{white-space:nowrap;font-size:12.5px} .mdfood p{margin:0} .mdfood p.y{color:var(--muted);font-size:11.5px}
 .mlrec{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper)}
@@ -4261,6 +4272,32 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     top.addEventListener("click",()=>{ slMiniOpen=!slMiniOpen; more.hidden=!slMiniOpen; });
     return k; }
   let slMiniOpen=false;
+  /* ---------- 🧭 全体図：目的 → 今年度 → 今月 → 今週 → 今日の1つ（values.overview） ---------- */
+  const ovOpen=new Set();
+  function ovEval(it){
+    if(it.kind==="weight"){ const ws=health.filter(h=>+h.weight>0).sort((a,b)=>a.date.localeCompare(b.date)), cur=ws.length?+ws[ws.length-1].weight:null; if(cur==null) return {p:null,txt:"体重の記録がまだありません"};
+      const p=(it.start-cur)/(it.start-it.target); return {p:Math.max(0,Math.min(1,p)),txt:"いま"+cur.toFixed(1)+"kg"+(cur<=it.target?"・達成！":"・あと"+(cur-it.target).toFixed(1)+"kg")}; }
+    if(it.kind==="score"){ const sc=((values.goals&&values.goals.scores&&values.goals.scores[it.metric])||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))), last=sc[sc.length-1], v=last?+last.score:it.start;
+      const nx=values.goals&&values.goals[it.metric]&&values.goals[it.metric].next; return {p:Math.max(0,Math.min(1,(v-it.start)/(it.target-it.start))),txt:"最新"+v+"点"+(nx?"・次の本番 "+md(nx):"")}; }
+    return {p:Math.max(0,Math.min(1,(+it.p||0)/100)),txt:"タップで進み具合を変える",manual:true}; }
+  function overviewCard(){
+    const O=values&&values.overview; if(!O) return null; const w=el("div","ovw");
+    if(values.purpose){ const pu=el("div","pur","🎯 "+values.purpose); pu.addEventListener("click",()=>pu.classList.toggle("open")); w.append(pu); }
+    if((O.focus||[]).length){ const f=el("div","fc"); f.append("いま力を入れる"); O.focus.forEach(x=>f.append(el("span","",(x.ic||"")+" "+x.label))); if(O.focusNote) f.title=O.focusNote; w.append(f); }
+    (O.periods||[]).forEach((P,pi)=>{ const from=P.from||todayKey, to=P.to||todayKey, started=todayKey>=from, left=daysTo(to), tot=Math.max(1,(k2d(to)-k2d(from))/864e5), el2=started?Math.max(0,Math.min(1,(k2d(todayKey)-k2d(from))/864e5/tot)):0;
+      const ph=el("div","ph"); ph.append(el("span","",(P.key==="fy"?"📅 ":"🗓 ")+P.label), el("small","",started?(left>0?"あと"+left+"日":"きょうまで"):md(from)+"から")); w.append(ph);
+      (P.items||[]).forEach((it,ii)=>{ const r=ovEval(it), id=P.key+ii; const g=el("div","gi"); g.append(el("span","ic",it.ic||"•"), el("b","",it.label), el("span","pc",r.p==null?"–":Math.round(r.p*100)+"%"));
+        const bar=el("div","bar"); const fi=el("i",r.p!=null&&started&&r.p<el2*0.7?"lag":""); fi.style.width=((r.p||0)*100)+"%"; bar.append(fi); if(started){ const t=el("em"); t.style.left="calc("+(el2*100).toFixed(1)+"% - 1px)"; t.title="いまの時点の目安"; bar.append(t); } g.append(bar);
+        const sub=el("div","sub"+(ovOpen.has(id)?"":" hide")); [it.qual?"めざす姿："+it.qual:"",r.txt,it.detail||""].filter(Boolean).forEach(x=>sub.append(el("div","",x))); g.append(sub);
+        g.addEventListener("click",async()=>{ if(r.manual&&ovOpen.has(id)){ const ov=JSON.parse(JSON.stringify(O)); const t=ov.periods[pi].items[ii]; t.p=((+t.p||0)+25)%125; try{ await db.collection("notes").doc(values.id).update({overview:ov}); }catch(e){ status("変えられませんでした。",true); } return; }
+          ovOpen.has(id)?ovOpen.delete(id):ovOpen.add(id); renderDash(); }); w.append(g); }); });
+    // 今週
+    const wk=O.week&&O.week.to>=todayKey?O.week:null; w.append(el("div","ph","✅ 今週")); w.append(el("p","ovwk",wk&&(wk.items||[]).length?wk.items.map(x=>"・"+x).join("\n"):"日曜のふりかえりで、今週やることを3つまで決めます"));
+    if(wk) w.lastChild.style.whiteSpace="pre-line";
+    // 今日の1つ
+    const td=O.today&&O.today.date===todayKey?O.today.text:null, gt=!td?myTodos().filter(x=>!x.done&&gtOf(x)==="today")[0]:null;
+    const tb=el("div","today"); tb.append(el("b","","👉 今日の1つ"), document.createTextNode(td||(gt?gt.title:"「おはよう」のときに一緒に決めます"))); w.append(tb);
+    return w; }
   function renderBoard(){
     const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
     const c=el("div","dbhero"); const dd=daysTo(g.dreamDate);
@@ -4322,6 +4359,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- 今日のダッシュボード ---------- */
   function renderDash(){
     const box=$("meDash"); if(!box) return; box.replaceChildren();
+    const ovw=overviewCard(); if(ovw) box.append(ovw);
     box.append(sleepMini());
     if(mealCfg||meals.length){ const T=mealTgt(), N=mealNeeds(T,mealSum), ym=meals.find(x=>x.date===addDays(todayKey,-1));
       const yv=ym?(()=>{ const s=mealSum(ym), k=Math.round(+s.kcal||0), d=k-T.kcal, out=["昨日 "+k+"kcal"+(d>T.kcal*0.08?"（+"+d+"）":"")];
