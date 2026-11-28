@@ -1158,7 +1158,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opa
 .metabs button{font-size:10.5px}
 .medash{margin:12px 0 4px}
 .mdfood{display:flex;gap:8px;align-items:baseline;border:1px solid var(--line);border-left:3px solid #448361;border-radius:8px;padding:7px 10px;margin-bottom:8px;background:var(--paper);font-size:12.5px;line-height:1.5;cursor:pointer}
-.mdfood b{white-space:nowrap;font-size:12.5px}
+.mdfood b{white-space:nowrap;font-size:12.5px} .mdfood p{margin:0} .mdfood p.y{color:var(--muted);font-size:11.5px}
 .mlrec{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper)}
 .mlrec .hlrh{margin:0 0 4px} .mlrec ul{margin:0 0 6px;padding:0;list-style:none;font-size:12.5px;line-height:1.6} .mlrec ul li{padding-left:1.3em;text-indent:-1.3em}
 .mlrec .opt{display:flex;gap:8px;align-items:baseline;padding:6px 0;border-top:1px solid var(--line)} .mlrec .opt:first-of-type{border-top:0}
@@ -3906,8 +3906,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     if(N.days<2){ w.append(el("div","hlrh","🔎 2日以上記録すると、足りない栄養と「今日とりたい食材」が出ます")); return w; }
     w.append(el("div","hlrh","🔎 この1週間の傾向（記録した"+N.days+"日の平均・今日をのぞく）"));
     const ul=el("ul"); (N.notes.length?N.notes:["✨ この1週間はバランスよく取れています"]).forEach(t=>ul.append(el("li","",t))); w.append(ul);
-    if(N.foods.length||N.tips.length){ w.append(el("div","hlrh","🥗 今日とりたいもの")); const f=el("div","");
-      N.foods.forEach(x=>f.append(el("span","tg",x))); w.append(f); if(N.tips.length){ const u2=el("ul"); N.tips.forEach(t=>u2.append(el("li","","・"+t))); w.append(u2); } }
+    if(N.foods.length){ w.append(el("div","hlrh","🥗 今日とりたい食材")); const f=el("div",""); N.foods.forEach(x=>f.append(el("span","tg",x))); w.append(f); }
     return w; }
   // ひとこと日記：🙏感謝・🌱前進・👨‍👩‍👧家族 の3行（＋ほか）。text にそのまま行で保存する（Claudeが読み書きしやすい形）
   const DY3=[["g","🙏","感謝"],["p","🌱","前進"],["f","👨‍👩‍👧","家族"]];
@@ -4324,8 +4323,14 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function renderDash(){
     const box=$("meDash"); if(!box) return; box.replaceChildren();
     box.append(sleepMini());
-    if(mealCfg||meals.length){ const N=mealNeeds(mealTgt(),mealSum); if(N.foods.length||N.tips.length){ const r=el("div","mdfood"); r.append(el("b","","🥗 今日とりたい"));
-      const t=el("span","",[N.foods.join("・"),N.tips[0]||""].filter(Boolean).join("／")); r.append(t); r.addEventListener("click",()=>{ setMeTab("body"); }); box.append(r); } }
+    if(mealCfg||meals.length){ const T=mealTgt(), N=mealNeeds(T,mealSum), ym=meals.find(x=>x.date===addDays(todayKey,-1));
+      const yv=ym?(()=>{ const s=mealSum(ym), k=Math.round(+s.kcal||0), d=k-T.kcal, out=["昨日 "+k+"kcal"+(d>T.kcal*0.08?"（+"+d+"）":"")];
+        if(+s.f>T.f*1.15) out.push("脂質多め"); if(+s.salt>T.salt*1.15) out.push("塩分多め"); if(+s.p<T.p*0.8) out.push("たんぱく質少なめ"); if(+s.fiber<T.fiber*0.75) out.push("野菜少なめ");
+        if(out.length===1&&Math.abs(d)<=T.kcal*0.08) out.push("バランス◎"); return out.join("・"); })():"";
+      if(N.foods.length||yv){ const r=el("div","mdfood"); const tx=el("div");
+        if(N.foods.length){ const a=el("p"); a.append(el("b","","🥗 今日とりたい "), N.foods.join("・")); tx.append(a); }
+        if(yv){ const b=el("p","y"); b.append(el("b","","📋 "), yv); tx.append(b); }
+        r.append(tx); r.addEventListener("click",()=>setMeTab("body")); box.append(r); } }
     if(values&&values.axes.length){ const dn=Math.floor(k2d(todayKey).getTime()/864e5), a=values.axes[((dn%values.axes.length)+values.axes.length)%values.axes.length];
       const ax=el("div","mdaxis"); const tx=el("div"); tx.append(el("small","","今日の軸"), el("b","",a.name+" — "+(a.short||""))); ax.append(el("span","ic",a.ic||"🧭"), tx);
       ax.addEventListener("click",()=>setMeTab("goal")); box.append(ax); }
