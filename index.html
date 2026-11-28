@@ -1570,6 +1570,19 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .dbm{border-top:1px solid var(--line);padding:6px 0}.dbm summary{list-style:none;display:flex;gap:8px;align-items:baseline;cursor:pointer}.dbm summary::-webkit-details-marker{display:none}.dbm summary b{font-size:13px;flex:none}.dbm summary span{font-size:13px;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dbw{display:flex;gap:8px;align-items:baseline;padding:3px 0 3px 8px;font-size:13px}.dbw small{flex:none;font-size:10.5px;color:var(--muted);width:52px}.dbw.top{font-weight:700}
 .mdmem{background:var(--c-purple,#efe9f8);border-radius:12px;padding:8px 12px;margin:6px 0;cursor:pointer}.mdmem small{display:block;font-size:11px;color:var(--muted)}.mdmem b{font-size:14px}
+
+.mdseg{display:flex;gap:4px;overflow-x:auto;margin:0 0 6px;scrollbar-width:none}.mdseg button{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 10px;font:inherit;font-size:12px;color:var(--muted)}.mdseg button[aria-pressed=true]{background:var(--fg);color:var(--paper);border-color:var(--fg)}
+.mdgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 8px}
+.mdit{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;display:flex;flex-direction:column;gap:4px}.mdit.on .mdcv{outline:2px solid var(--accent);outline-offset:2px}
+.mdit .mt b{display:block;font-size:12px;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.mdit .mt small{font-size:10.5px;color:#d9a520;letter-spacing:-1px}
+.mdcv{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:linear-gradient(150deg,hsl(var(--h,200) 55% 62%),hsl(calc(var(--h,200) + 40) 50% 38%));box-shadow:0 4px 12px -6px rgba(0,0,0,.45)}
+.mdcv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.mdcv .ph{position:absolute;inset:0;display:none;padding:8px;color:#fff;font-weight:700;font-size:12px;line-height:1.35;align-items:flex-end;text-shadow:0 1px 3px rgba(0,0,0,.3)}.mdcv.noimg .ph{display:flex}
+.mdcv.big{width:96px;flex:none}
+.mddt{display:flex;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.mddt .tx{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}.mddt .tx>b{font-size:15px}.mddt .tx>small{font-size:11.5px;color:var(--muted)}
+.mddt textarea{width:100%;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--paper);color:var(--fg);resize:vertical}.mddt .act{display:flex;gap:12px;align-items:center}
+.mdst{display:inline-flex;gap:2px}.mdst button{border:0;background:none;font-size:20px;line-height:1;padding:0 1px;color:var(--line)}.mdst button.on{color:#e0a91b}
+.mdcand{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.mdcand button{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:0;aspect-ratio:2/3;overflow:hidden}.mdcand img{width:100%;height:100%;object-fit:cover}.mdcand .noimg{font:inherit;font-size:11px;color:var(--muted)}
+.mdadd{display:flex;flex-direction:column;gap:6px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}.mdadd input,.mdadd select{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--paper);color:var(--fg)}.mdadd .mdrow{display:flex;gap:10px;align-items:center}
 </style>
 </head>
 <body>
@@ -1889,6 +1902,19 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
     <div class="sech"><div><div class="eyebrow">News</div><h2 data-ic="📰">けさのニュース</h2></div><span class="sub" id="nwSub"></span></div>
     <div class="nwdays" id="nwDays"></div>
     <div class="nwbox" id="nwBox"></div>
+  </div>
+  <div class="sec" data-mtab="life" data-fold="media">
+    <div class="sech"><div><div class="eyebrow">Watched &amp; read</div><h2 data-ic="🎬">見た・読んだ</h2></div><span class="sub" id="mdSub"></span></div>
+    <div class="mdseg" id="mdSeg" role="group" aria-label="種類"></div>
+    <div class="card"><div class="mdgrid" id="mdGrid"></div><div id="mdDet"></div>
+      <form class="mdadd" id="mdForm" autocomplete="off">
+        <input type="text" id="mdT" maxlength="80" placeholder="＋ 見た・読んだもの（例：半沢直樹）" aria-label="タイトル">
+        <div class="mdrow"><select id="mdK" aria-label="種類"><option value="drama">📺 ドラマ</option><option value="movie">🎬 映画</option><option value="book">📚 本</option><option value="manga">📖 マンガ</option><option value="anime">🎞️ アニメ</option><option value="other">✨ その他</option></select>
+          <span class="mdst" id="mdS"></span></div>
+        <input type="text" id="mdN" maxlength="120" placeholder="ひとこと感想（例：スカッとした）">
+        <button type="submit" class="btn sm">記録する</button>
+      </form>
+    </div>
   </div>
   <div class="sec" data-mtab="life" data-fold="wants">
     <div class="sech"><div><div class="eyebrow">Wants</div><h2 data-ic="🛍️">欲しいもの</h2></div><span class="sub" id="wnSub"></span></div>
@@ -2225,7 +2251,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
   const now=new Date(); const todayKey=ymd(now); const tmrKey=addDays(todayKey,1);
 
-  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[], money=null, exps=[], dbests=[];
+  let db=null, events=[], todos=[], shop=[], wishes=[], garbage=[], places=[], weather=null, outings=[], ogMeta=null, things=[], recipes=[], routines=[], keeps=[], memos=[], health=[], hlLogs={}, hlReps=[], news=[], recaps=[], meals=[], mealCfg=null, checklists=[], diaries=[], values=null, reviews=[], wants=[], daymemos=[], money=null, exps=[], dbests=[], medias=[];
   let homeSel=todayKey, calSel=todayKey, view=new Date(now.getFullYear(),now.getMonth(),1);
   let editing=null, formMode="ev", dayMode="list";
   try{ if(localStorage.getItem("wagaya-daymode")==="time") dayMode="time"; }catch(e){}
@@ -3777,7 +3803,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
         for(let i=0;i<26*7;i++){ const k=addDays(start,i); const c=el("i",k>todayKey?"fu":lg[k]?"on":""); c.title=md(k); g.append(c); }
         w.append(g); hb.append(w); }); }
     const dn=rts.filter(r=>rtLog(r)[todayKey]).length; $("meRtSub").textContent=rts.length?"今日 "+dn+"/"+rts.length:"";
-    renderKu(); renderBody(); renderNews(); renderMorning(); renderDiary(); renderMeal(); renderGoal(); renderWants(); renderGtd(); renderDayMemo(); renderDash(); renderBoard(); renderManual();
+    renderKu(); try{ renderMedia(); }catch(e){ console.warn(e); } renderBody(); renderNews(); renderMorning(); renderDiary(); renderMeal(); renderGoal(); renderWants(); renderGtd(); renderDayMemo(); renderDash(); renderBoard(); renderManual();
   }
   $("meRtForm").addEventListener("submit",async ev=>{ ev.preventDefault(); const v=$("meRtIn").value.trim(); if(!v||!db) return; $("meRtIn").value="";
     try{ await db.collection("routines").add({title:v,log:{},createdAt:new Date().toISOString()}); }catch(e){ status("追加できませんでした。",true); } });
@@ -4619,6 +4645,42 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const due=myTodos().filter(x=>!x.done&&gtOf(x)==="today").length; tile("✅",due,null,due?"今日やる":"やること",null,()=>{ gtBox="today"; lsSet("koyomi-gt","today"); renderGtd(); jump("today","gtSec")(); },due?"warn":"ok");
     box.append(tiles);
   }
+
+  /* ---------- 🎬📚 見た・読んだ（タイトル・★・ひとこと。表紙はGoogle Books／iTunesから自動でさがす） ---------- */
+  const MDK={drama:["📺","ドラマ"],movie:["🎬","映画"],book:["📚","本"],manga:["📖","マンガ"],anime:["🎞️","アニメ"],other:["✨","その他"]};
+  const mdTried=new Set(); let mdF="all", mdSel=null, mdCand=null, mdStar=0, mdJ=0;
+  const mdHue=t=>{ let h=0; for(const c of String(t)) h=(h*31+c.codePointAt(0))%360; return h; };
+  function mdSearch(kind,title){ const q=encodeURIComponent(title);
+    if(kind==="book"||kind==="manga") return fetch("https://www.googleapis.com/books/v1/volumes?q="+q+"&maxResults=12&printType=books").then(r=>r.json()).then(j=>(j.items||[]).map(it=>{ const v=it.volumeInfo||{}, im=v.imageLinks&&(v.imageLinks.thumbnail||v.imageLinks.smallThumbnail); return im?{img:String(im).replace(/^http:/,"https:").replace("&edge=curl",""),label:(v.title||"")+(v.authors?"／"+v.authors[0]:"")}:null; }).filter(Boolean));
+    if(kind==="other") return Promise.resolve([]);
+    return new Promise(res=>{ const cb="mdcb"+(++mdJ)+Date.now(), sc=document.createElement("script"); let done=false; const fin=v=>{ if(done) return; done=true; try{ delete window[cb]; }catch(e){} sc.remove(); res(v); };
+      window[cb]=j=>fin((j.results||[]).map(r=>({img:String(r.artworkUrl100||r.artworkUrl60||"").replace(/\/\d+x\d+bb/,"/400x400bb"),label:(r.collectionName||r.trackName||"")+(r.artistName?"／"+r.artistName:"")})).filter(x=>x.img));
+      const media=kind==="movie"?"movie":"tvShow", ent=kind==="movie"?"movie":"tvSeason";
+      sc.src="https://itunes.apple.com/search?term="+q+"&country=jp&lang=ja_jp&media="+media+"&entity="+ent+"&limit=12&callback="+cb; sc.onerror=()=>fin([]); document.head.append(sc); setTimeout(()=>fin([]),8000); }); }
+  function mdCover(m,big){ const w=el("div","mdcv"+(big?" big":"")); if(m.img){ const im=el("img"); im.src=m.img; im.alt=""; im.loading="lazy"; im.referrerPolicy="no-referrer"; im.onerror=()=>{ im.remove(); w.classList.add("noimg"); }; w.append(im); } else w.classList.add("noimg");
+    w.style.setProperty("--h",mdHue(m.title)); w.append(el("span","ph",(MDK[m.kind]||MDK.other)[0]+" "+m.title)); return w; }
+  async function mdAutoImg(id,kind,title){ try{ const r=await mdSearch(kind,title); await db.collection("notes").doc(id).update({img:r[0]?r[0].img:""}); }catch(e){} }
+  function renderMedia(){ const G=$("mdGrid"); if(!G) return; G.replaceChildren();
+    const S=$("mdSeg"); S.replaceChildren(); const cnt=k=>medias.filter(m=>k==="all"||m.kind===k).length;
+    [["all","すべて"]].concat(Object.keys(MDK).filter(k=>cnt(k)).map(k=>[k,MDK[k][0]+" "+MDK[k][1]])).forEach(([k,l])=>{ const b=el("button","",l+" "+cnt(k)); b.type="button"; b.setAttribute("aria-pressed",mdF===k?"true":"false"); b.addEventListener("click",()=>{ mdF=k; mdSel=null; renderMedia(); }); S.append(b); });
+    $("mdSub").textContent=medias.length?medias.length+"件":"";
+    medias.forEach(m=>{ if(m.img==null&&!mdTried.has(m.id)){ mdTried.add(m.id); mdAutoImg(m.id,m.kind,m.title); } });   // 表紙がまだ（未検索）のものは自動でさがす
+    const list=medias.filter(m=>mdF==="all"||m.kind===mdF);
+    list.forEach(m=>{ const b=el("button","mdit"+(mdSel===m.id?" on":"")); b.type="button"; b.append(mdCover(m)); const t=el("div","mt"); t.append(el("b","",m.title), el("small","",m.star?"★".repeat(m.star):"")); b.append(t); b.addEventListener("click",()=>{ mdSel=mdSel===m.id?null:m.id; mdCand=null; renderMedia(); }); G.append(b); });
+    if(!list.length) G.append(el("p","empty","見たドラマ・映画、読んだ本やマンガを入れると、表紙つきでここに並びます。チャットで「見た、半沢直樹、★5、スカッとした」でもOK。"));
+    // 選んだ1件
+    const D=$("mdDet"); D.replaceChildren(); const m=medias.find(x=>x.id===mdSel); if(m){ const d=el("div","mddt"); d.append(mdCover(m,true)); const tx=el("div","tx");
+      tx.append(el("b","",m.title), el("small","",(MDK[m.kind]||MDK.other).join(" ")+(m.date?"・"+md(m.date):"")));
+      const st=el("div","mdst"); for(let i=1;i<=5;i++){ const s1=el("button",i<=(m.star||0)?"on":"","★"); s1.type="button"; s1.addEventListener("click",()=>db.collection("notes").doc(m.id).update({star:i===m.star?0:i})); st.append(s1); } tx.append(st);
+      const nt=el("textarea"); nt.rows=2; nt.maxLength=300; nt.value=m.note||""; nt.placeholder="ひとこと感想"; nt.addEventListener("change",()=>db.collection("notes").doc(m.id).update({note:nt.value.trim()})); tx.append(nt);
+      const act=el("div","act"); const pc=el("button","lnk","🖼 表紙をえらぶ"); pc.type="button"; pc.addEventListener("click",async()=>{ mdCand="loading"; renderMedia(); mdCand=await mdSearch(m.kind,m.title); renderMedia(); });
+      act.append(pc, armBtn("消す",()=>{ mdSel=null; return db.collection("notes").doc(m.id).delete(); })); tx.append(act); d.append(tx); D.append(d);
+      if(mdCand){ const c=el("div","mdcand"); if(mdCand==="loading") c.append(el("p","empty","さがしています…")); else if(!mdCand.length) c.append(el("p","empty","見つかりませんでした。")); else { mdCand.forEach(r=>{ const b=el("button"); b.type="button"; const im=el("img"); im.src=r.img; im.alt=r.label; im.referrerPolicy="no-referrer"; b.append(im); b.title=r.label; b.addEventListener("click",async()=>{ await db.collection("notes").doc(m.id).update({img:r.img}); mdCand=null; }); c.append(b); }); const no=el("button","noimg","画像なし"); no.type="button"; no.addEventListener("click",async()=>{ await db.collection("notes").doc(m.id).update({img:""}); mdCand=null; }); c.append(no); } D.append(c); } }
+    const SB=$("mdS"); if(!SB.children.length){ for(let i=1;i<=5;i++){ const b=el("button","","★"); b.type="button"; b.addEventListener("click",()=>{ mdStar=mdStar===i?0:i; SB.querySelectorAll("button").forEach((x,j)=>x.classList.toggle("on",j<mdStar)); }); SB.append(b); } }
+  }
+  $("mdForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return; const t=$("mdT").value.trim(); if(!t){ $("mdT").focus(); return; } const k=$("mdK").value, id="media-"+meNow()+"-"+Date.now().toString(36);
+    try{ await db.collection("notes").doc(id).set({type:"media",kind:k,title:t,star:mdStar,note:$("mdN").value.trim(),date:todayKey,createdAt:new Date().toISOString(),_private:true});
+      $("mdT").value=""; $("mdN").value=""; mdStar=0; $("mdS").querySelectorAll("button").forEach(x=>x.classList.remove("on")); status((MDK[k]||MDK.other)[0]+" "+t+" を記録しました"); }catch(e){ status("保存できませんでした。",true); } });
   /* ---------- 欲しいもの（自分用の買い物：shop + owner + list:"wants"） ---------- */
   function renderWants(){
     const L=$("wnList"); if(!L) return; L.replaceChildren();
@@ -5216,7 +5278,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       db.collection("recipes").onSnapshot(s=>{recipes=rows(s);renderMe()});
       db.collection("routines").onSnapshot(s=>{routines=rows(s);renderMe()});
       db.collection("keeps").onSnapshot(s=>{keeps=rows(s);renderKeeps();renderMemHome()});
-      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; money=all.find(x=>x.type==="money"&&x._private)||null; dbests=all.filter(x=>x.type==="diarybest"&&x._private&&x.key); exps=all.filter(x=>x.type==="experiment"&&x._private).sort((a,b)=>String(b.start).localeCompare(String(a.start))); daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
+      db.collection("notes").onSnapshot(s=>{const all=rows(s); values=all.find(x=>x.type==="values"&&x._private&&Array.isArray(x.axes))||null; money=all.find(x=>x.type==="money"&&x._private)||null; dbests=all.filter(x=>x.type==="diarybest"&&x._private&&x.key); medias=all.filter(x=>x.type==="media"&&x._private&&x.title).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||String(b.createdAt||"").localeCompare(String(a.createdAt||""))); exps=all.filter(x=>x.type==="experiment"&&x._private).sort((a,b)=>String(b.start).localeCompare(String(a.start))); daymemos=all.filter(x=>x.type==="daymemo"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); reviews=all.filter(x=>x.type==="review"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); memos=all.filter(x=>x.type==="memo"&&x._private); health=all.filter(x=>x.type==="health"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")); hlLogs={}; all.forEach(x=>{ if(x.type==="healthlog"&&x._private&&x.res) hlLogs[x.res]=x; }); diaries=all.filter(x=>x.type==="diary"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); checklists=all.filter(x=>x.type==="checklist"&&x._private&&Array.isArray(x.steps)); news=all.filter(x=>x.type==="news"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); meals=all.filter(x=>x.type==="meal"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); mealCfg=all.find(x=>x.type==="mealcfg"&&x._private)||null; recaps=all.filter(x=>x.type==="newsrecap"&&x._private&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")).sort((a,b)=>b.date.localeCompare(a.date)); hlReps=all.filter(x=>x.type==="healthreport"&&x._private&&Array.isArray(x.lines)).sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.id).localeCompare(String(a.id))); renderMe(); freqRec=all.find(x=>x.key==="shopfreq")||null; storeRec=all.find(x=>x.key==="shopstore")||null; renderShop();});
       db.collection("shopping").onSnapshot(s=>{const all=rows(s); wants=all.filter(x=>x._private&&x.list==="wants"); shop=all.filter(x=>!(x._private&&x.list==="wants"));renderShop();renderHome();renderWants()});
       db.collection("wishes").onSnapshot(s=>{wishes=rows(s);renderWish()});
       db.collection("garbage").onSnapshot(s=>{garbage=rows(s);renderHome();renderCal();renderPlaces()});
