@@ -1526,7 +1526,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .cypg .bar em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg)}
 .cypg .gi{display:grid;grid-template-columns:20px 1fr auto auto;gap:0 6px;align-items:center;padding:5px 0;border-top:1px dashed var(--line)}.cypg .gi b{font-size:13px;font-weight:600}.cypg .gi .pc{font-size:12px;font-family:var(--f-num);min-width:32px;text-align:right}.cypg .gi .bar,.cypg .gi .sub{grid-column:2/-1}.cypg .gi .sub{font-size:11px;color:var(--muted);margin-top:2px}
 .cypg .st{font-size:10.5px;border-radius:4px;padding:0 5px;background:var(--sunk,#eee);color:var(--muted)}.cypg .st.ok{background:color-mix(in srgb,#3a9a6a 18%,transparent);color:#2b593f}.cypg .st.lag{background:color-mix(in srgb,var(--hot,#d9822b) 18%,transparent);color:var(--hot,#b3541e)}
-.cyd.gone::after{content:"";position:absolute;inset:4px;background:linear-gradient(to top right,transparent calc(50% - .7px),color-mix(in srgb,var(--fg) 22%,transparent) calc(50% - .7px),color-mix(in srgb,var(--fg) 22%,transparent) calc(50% + .7px),transparent calc(50% + .7px));pointer-events:none}
+.cyd.gone::after{content:"";position:absolute;inset:4px;background:linear-gradient(to top right,transparent calc(50% - .7px),color-mix(in srgb,var(--fg) 55%,transparent) calc(50% - .7px),color-mix(in srgb,var(--fg) 55%,transparent) calc(50% + .7px),transparent calc(50% + .7px));pointer-events:none}
 .mnflow{display:flex;align-items:center;gap:4px;margin:2px 0 8px}.mnflow .st{flex:1;background:var(--sunk,#f3f1ec);border-radius:10px;padding:6px 4px;display:flex;flex-direction:column;align-items:center}.mnflow .st b{font-size:18px;font-family:var(--f-num)}.mnflow .st small{font-size:10.5px;color:var(--muted)}.mnflow .ar{color:var(--muted)}
 .mni .lv{flex:none}.mni .efs{flex:none;margin-left:auto;font-size:12px}
 .mnmap{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:2px;align-items:center}.mnmap .ch{font-size:11px;text-align:center;color:var(--muted)}
@@ -1535,6 +1535,21 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .mnmap .det{grid-column:1/-1;background:var(--sunk,#f3f1ec);border-radius:8px;padding:6px 8px;margin:2px 0 6px}.mnmap .dr{display:flex;gap:6px;font-size:12.5px;line-height:1.5;padding:3px 0}
 .mnmap .src,.mni .src{flex:none;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:2px;background:var(--c-gray);color:var(--muted)}.mnmap .src.me{background:var(--c-green);color:#2b593f}.mnmap .src.rs{background:var(--c-blue);color:#28456c}.mnmap .src.ex{background:var(--c-purple);color:#5a3d78}
 .mntry{padding:5px 0;border-top:1px dashed var(--line)}.mntry b{display:block;font-size:13px}.mntry small{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+.cym .pc{font-size:10px;color:var(--muted);font-family:var(--f-num);line-height:1}
+.mmap{position:relative;margin:4px 0 6px}
+.mmc{margin:0 auto 0;width:max-content;max-width:90%;text-align:center;background:var(--fg);color:var(--paper);border-radius:14px;padding:8px 14px;position:relative;z-index:1}.mmc b{display:block;font-size:14px}.mmc small{font-size:11px;opacity:.8}
+.mmbs{position:relative;margin-left:14px;padding-top:10px;border-left:2px solid var(--line)}
+.mmb{position:relative;padding:8px 0 4px 16px;--c:hsl(var(--h) 45% 45%);--cb:hsl(var(--h) 55% 94%)}
+.mmb::before{content:"";position:absolute;left:-2px;top:22px;width:16px;border-top:2px solid var(--c)}
+.mmh{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--c);background:var(--cb);color:var(--fg);border-radius:999px;padding:4px 12px;font:inherit;font-size:13.5px;font-weight:700}.mmh small{font-size:10.5px;background:var(--c);color:#fff;border-radius:999px;padding:0 6px}
+.mmh.me::after{content:"✅";font-size:11px}
+.mml{margin:4px 0 0 14px;border-left:2px solid var(--c);padding-left:0}
+.mmf{position:relative;display:flex;gap:6px;align-items:flex-start;padding:4px 0 4px 14px;font-size:12.5px;line-height:1.5}.mmf::before{content:"";position:absolute;left:0;top:13px;width:10px;border-top:2px solid var(--c)}
+.mmf .t{flex:1}.mmf.me .t{font-weight:700}.mmf .efs{flex:none;font-size:11px}
+.mmf .src{flex:none;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:2px;background:var(--c-gray);color:var(--muted)}.mmf .src.me{background:var(--c-green);color:#2b593f}.mmf .src.rs{background:var(--c-blue);color:#28456c}.mmf .src.ex{background:var(--c-purple);color:#5a3d78}
+.mmmore{border:0;background:none;color:var(--c);font:inherit;font-size:12px;padding:2px 0 2px 14px}
+@media (prefers-color-scheme:dark){.mmb{--cb:hsl(var(--h) 30% 20%)}}
 </style>
 </head>
 <body>
@@ -3753,6 +3768,12 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     $("meTabs").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false")); lsSet("koyomi-me-tab",t); }
   $("meTabs").addEventListener("click",ev=>{ const b=ev.target.closest("button[data-t]"); if(!b) return; setMeTab(b.dataset.t); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); });
   setMeTab(lsGet("koyomi-me-tab")||"today");
+  { const ORD=["goal","dash","today","body","life"]; let sx=null, sy=0, st=0;
+    $("pane-me").addEventListener("touchstart",ev=>{ const t=ev.touches[0]; if(ev.touches.length!==1||ev.target.closest("input,textarea,select,.tl,.tldays,.tlq,.hzseg,.gtseg,.dyweek,.kuseg,.mdtiles,[data-noswipe]")){ sx=null; return; } sx=t.clientX; sy=t.clientY; st=Date.now(); },{passive:true});
+    $("pane-me").addEventListener("touchend",ev=>{ if(sx==null) return; const t=ev.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy; sx=null;
+      if(Math.abs(dx)<70||Math.abs(dy)>Math.abs(dx)*0.6||Date.now()-st>700) return;
+      const i=ORD.indexOf($("pane-me").dataset.mt), j=i+(dx<0?1:-1); if(i<0||j<0||j>=ORD.length) return;
+      setMeTab(ORD[j]); $("meTabs").scrollIntoView({block:"start",behavior:"smooth"}); },{passive:true}); }
   let meFold={}; try{ meFold=JSON.parse(lsGet("koyomi-me-fold")||"{}")||{}; }catch(e){ meFold={}; }
   $("pane-me").querySelectorAll(".sec[data-fold]").forEach(sec=>{ const k=sec.dataset.fold; if(meFold[k]) sec.classList.add("folded");
     sec.querySelector(".sech").addEventListener("click",ev=>{ if(ev.target.closest("button,a,input,form")) return;
@@ -4355,16 +4376,17 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   /* ---------- 📆 計画・進捗のカレンダー：年度の12か月＋月のマス（予定・節目・その日の行動） ---------- */
   let cyMon=null, cySel=null, cyView="m";
   // 日数の進み vs 目標の進み（期間ごと）
-  function cyProg(P){ const w=el("div","cypg"); if(!P){ w.append(el("p","empty","この期間の目標はまだありません。")); return w; }
-    const from=P.from, to=P.to, tot=Math.max(1,Math.round((k2d(to)-k2d(from))/864e5)+1), gone=Math.max(0,Math.min(tot,Math.round((k2d(todayKey)-k2d(from))/864e5)+1)), tr=todayKey<from?0:gone/tot;
-    const hd=el("div","dy"); hd.append(el("b","","🗓 日数 "+Math.round(tr*100)+"%"), el("small","",md(from)+"〜"+md(to)+"・"+(todayKey<from?md(from)+"から":gone+"日目／"+tot+"日")));
+  function cyProg(P,from,to,lab){ const w=el("div","cypg"); tot=Math.max(1,Math.round((k2d(to)-k2d(from))/864e5)+1), gone=Math.max(0,Math.min(tot,Math.round((k2d(todayKey)-k2d(from))/864e5)+1)), tr=todayKey<from?0:gone/tot;
+    const hd=el("div","dy"); hd.append(el("b","","🗓 "+lab+"の日数 "+Math.round(tr*100)+"%"), el("small","",md(from)+"〜"+md(to)+"・"+(todayKey<from?md(from)+"から":todayKey>to?"終わり":gone+"日目／"+tot+"日")));
     const bar=el("div","bar t"); const fi=el("i"); fi.style.width=(tr*100)+"%"; bar.append(fi); hd.append(bar); w.append(hd);
-    (P.items||[]).forEach(it=>{ const r=ovEval(it), end=it.by||to, itot=Math.max(1,(k2d(end)-k2d(from))/864e5), itr=todayKey<from?0:Math.max(0,Math.min(1,(k2d(todayKey)-k2d(from))/864e5/itot));
+    if(!P||!(P.items||[]).length){ w.append(el("p","empty","この期間の目標はまだありません。")); return w; }
+    const gf=P.from||from;
+    (P.items||[]).forEach(it=>{ const r=ovEval(it), end=it.by||to, itot=Math.max(1,(k2d(end)-k2d(gf))/864e5), itr=todayKey<gf?0:Math.max(0,Math.min(1,(k2d(todayKey)-k2d(gf))/864e5/itot));
       const g=el("div","gi"); const st=r.p==null?["","–"]:r.p>=1?["ok","達成"]:r.p>=itr+0.05?["ok","先行"]:r.p>=itr-0.1?["","順調"]:["lag","遅れ"];
       g.append(el("span","ic",it.ic||"•"), el("b","",it.label), el("span","st "+st[0],st[1]), el("span","pc",r.p==null?"–":Math.round(r.p*100)+"%"));
       const b=el("div","bar"); const f=el("i",st[0]); f.style.width=((r.p||0)*100)+"%"; b.append(f); const m=el("em"); m.style.left="calc("+(itr*100).toFixed(1)+"% - 1px)"; m.title="日数の目安"; b.append(m); g.append(b);
       g.append(el("small","sub",r.txt+(it.by?"・期限 "+md(it.by):""))); w.append(g); });
-    w.append(el("p","cylg","バー＝目標の進み　｜＝日数から見た目安（ここより右なら順調）")); return w; }
+    w.append(el("p","cylg","バー＝目標の進み　｜＝目標を立てた日（"+md(gf)+"）から期限までの日数で見た目安。｜より右なら順調")); return w; }
   function ovMarks(){ const O=(values&&values.overview)||{}, out=[];
     (O.marks||[]).forEach(m=>{ if(m&&m.date) out.push({date:m.date.length===7?m.date+"-01":m.date,month:m.date.length===7,ic:m.ic||"📍",label:m.label||""}); });
     (O.periods||[]).filter(P=>P.key==="fy").forEach(P=>(P.items||[]).forEach(it=>{ if(it.by) out.push({date:it.by,ic:it.ic||"🎯",label:"目標："+it.label,goal:true}); }));
@@ -4381,12 +4403,13 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     $("cySub").textContent=cyView==="y"?fy+"年度（4月〜3月）":"";
     const sg=el("div","cyseg"); [["y","今年度"],["m","月"]].forEach(([v,l])=>{ const b=el("button","",l); b.type="button"; b.setAttribute("aria-pressed",cyView===v?"true":"false"); b.addEventListener("click",()=>{ cyView=v; renderCy(); }); sg.append(b); }); box.append(sg);
     const PS=((values&&values.overview&&values.overview.periods)||[]);
-    if(cyView==="y") box.append(cyProg(PS.find(P=>P.key==="fy")));
-    else box.append(cyProg(PS.find(P=>P.key!=="fy"&&String(P.from).slice(0,7)===cyMon)));
+    if(cyView==="y") box.append(cyProg(PS.find(P=>P.key==="fy"),fy+"-04-01",(fy+1)+"-03-31",fy+"年度"));
+    else { const cy=+cyMon.slice(0,4), cm=+cyMon.slice(5,7); box.append(cyProg(PS.find(P=>P.key!=="fy"&&String(P.from).slice(0,7)===cyMon),cyMon+"-01",cyMon+"-"+String(new Date(cy,cm,0).getDate()).padStart(2,"0"),cm+"月")); }
     // 年度の12か月
     const yr=el("div","cyyr");
     for(let i=0;i<12;i++){ const m=(i+3)%12+1, y=m>=4?fy:fy+1, key=mon(y,m), cur=key===todayKey.slice(0,7), past=key<todayKey.slice(0,7);
       const b=el("button","cym"+(cur?" now":"")+(past?" past":"")+(key===cyMon?" sel":"")); b.type="button"; b.append(el("b","",m+"月"));
+      if(cur){ const dm=new Date(y,m,0).getDate(); b.append(el("small","pc",Math.round(+todayKey.slice(8)/dm*100)+"%")); } else if(past) b.append(el("small","pc","✓"));
       const mk=marks.filter(x=>x.date.slice(0,7)===key); const ic=el("span","ic",mk.slice(0,2).map(x=>x.ic).join("")); b.append(ic);
       if(past||cur){ let n=0,sum=0; const dim=new Date(y,m,0).getDate(); for(let d=1;d<=dim;d++){ const k=key+"-"+String(d).padStart(2,"0"); if(k>todayKey) break; const v=dayScore(k); if(v!=null){ n++; sum+=v; } }
         const br=el("i","bar"); br.style.setProperty("--v",n?(sum/n):0); br.title=n?"行動できた度 "+Math.round(sum/n*100)+"%":""; b.append(br); }
@@ -4480,18 +4503,18 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     $("mnSub").textContent=mine.length+"つのルール";
     // ① 流れ：研究 → 試す → 自分のルール
     const fl=el("div","mnflow"); [["📚","研究でわかった",rs.length],["🧪","試し中・次",tryi.length],["✅","自分のルール",mine.length]].forEach(([i,l,n],ix)=>{ if(ix) fl.append(el("span","ar","→")); const c=el("div","st"); c.append(el("span","",i), el("b","",String(n)), el("small","",l)); fl.append(c); }); box.append(fl);
-    // ② わたしのルール
-    box.append(el("div","mnh","✅ わたしのルール（自分で確かめた）"));
-    if(!mine.length) box.append(el("p","empty","実験や自分の経験で確かめたことが、ここにたまります。"));
-    mine.forEach(e=>{ const r=el("details","mni"); const sm=el("summary"); sm.append(el("span","lv",(MN_LV.find(x=>x[0]===lv(e))||["","📌"])[1]), el("b","",sh(e))); const ef=el("span","efs",(e.effects||[]).map(x=>(MN_EF.find(y=>y[0]===x)||["","•"])[1]).join("")); sm.append(ef); r.append(sm);
-      const bd=el("div","bd"); if(e.result) bd.append(el("p","",e.result)); bd.append(el("small","",(e.source||"実験")+"・"+md(e.end||e.start))); r.append(bd); box.append(r); });
-    // ③ なにが何に効く（マップ）
-    box.append(el("div","mnh","🧩 なにが何に効く？（タップでくわしく）"));
-    const tb=el("div","mnmap"); tb.append(el("span","c0","")); MN_EF.forEach(([n,i])=>tb.append(el("span","ch",i+" "+n)));
-    MN_LV.forEach(([L,ic])=>{ const its=done.concat(tryi).filter(e=>lv(e)===L); if(!its.length) return; const rowb=el("button","rl"+(mnOpen===L?" on":"")); rowb.type="button"; rowb.append(ic+" "+L); rowb.addEventListener("click",()=>{ mnOpen=mnOpen===L?null:L; renderManual(); }); tb.append(rowb);
-      MN_EF.forEach(([E])=>{ const m=its.filter(e=>(e.effects||[]).includes(E)); const v=m.some(e=>e.status==="done"&&isMe(e))?["me","●"]:m.some(e=>e.status==="done")?["rs","○"]:m.length?["tr","?"]:["",""]; tb.append(el("span","cv "+v[0],v[1])); });
-      if(mnOpen===L){ const d=el("div","det"); its.forEach(e=>{ const r=el("div","dr"); const tag=e.status!=="done"?["ex","試す"]:isMe(e)?["me","自分"]:["rs","研究"]; r.append(el("span","src "+tag[0],tag[1]), el("span","",sh(e))); d.append(r); }); tb.append(d); } });
-    box.append(tb); box.append(el("p","cylg","●自分で確かめた　○研究ではそう　？いま試している"));
+    // ② マインドマップ：わたし → 何を整える（レバー） → わかったこと
+    const mm=el("div","mmap"); const core=el("div","mmc"); core.append(el("b","","🧑 パパのベストな状態"), el("small","","🎯集中 ・ 🙂気分 ・ 💪からだ")); mm.append(core);
+    const brs=el("div","mmbs");
+    MN_LV.forEach(([L,ic],bi)=>{ const its=done.concat(tryi).filter(e=>lv(e)===L).sort((x,y)=>(isMe(y)&&y.status==="done")-(isMe(x)&&x.status==="done")); if(!its.length) return;
+      const br=el("div","mmb"); br.style.setProperty("--h",String([200,25,140,95,265,330][bi%6]));
+      const hasMe=its.some(e=>e.status==="done"&&isMe(e)); const hb=el("button","mmh"+(hasMe?" me":"")); hb.type="button"; hb.append(el("span","",ic+" "+L), el("small","",its.length+""));
+      const open=mnOpen===L||mnOpen==="*"; hb.setAttribute("aria-expanded",open?"true":"false"); hb.addEventListener("click",()=>{ mnOpen=mnOpen===L?null:L; renderManual(); }); br.append(hb);
+      const lv2=el("div","mml"+(open?"":" few")); its.forEach((e,ii)=>{ if(!open&&ii>0) return; const tag=e.status!=="done"?["ex","試す"]:isMe(e)?["me","自分"]:["rs","研究"]; const lf=el("div","mmf "+tag[0]); lf.append(el("span","src "+tag[0],tag[1]), el("span","t",sh(e)), el("span","efs",(e.effects||[]).map(x=>(MN_EF.find(y=>y[0]===x)||["","•"])[1]).join(""))); lv2.append(lf); });
+      if(!open&&its.length>1) lv2.append(el("button","mmmore","＋ほか"+(its.length-1)+"つ")); if(!open) lv2.querySelector(".mmmore")?.addEventListener("click",()=>{ mnOpen=L; renderManual(); });
+      br.append(lv2); brs.append(br); });
+    mm.append(brs); box.append(mm);
+    { const all=el("button","lnk",mnOpen==="*"?"たたむ":"ぜんぶ開く"); all.type="button"; all.addEventListener("click",()=>{ mnOpen=mnOpen==="*"?null:"*"; renderManual(); }); const lg=el("p","cylg","自分＝自分で確かめたルール　研究＝研究ではそう　試す＝これから試す　🎯集中 🙂気分 💪からだ ＝効くところ　"); lg.append(all); box.append(lg); }
     // ④ 次に試すこと
     if(tryi.length){ box.append(el("div","mnh","🧪 次に試すこと")); tryi.forEach(e=>{ const r=el("div","mntry"); r.append(el("b","",(e.status==="running"?"いま：":md(e.start)+"〜：")+(e.action||sh(e))), el("small","","仮説："+(e.hypothesis||"")+(e.measure?"／測る："+e.measure:""))); box.append(r); }); }
   }
