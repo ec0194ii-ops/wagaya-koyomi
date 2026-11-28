@@ -1500,6 +1500,25 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .mni .src{flex:none;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:2px;background:var(--c-gray);color:var(--muted)}
 .mni .src.me{background:var(--c-green);color:#2b593f} .mni .src.rs{background:var(--c-blue);color:#28456c} .mni .src.ex{background:var(--c-purple);color:#5a3d78}
 .mni .bd{padding:0 0 6px 52px;font-size:12.5px;color:var(--muted);line-height:1.6} .mni .bd p{margin:0 0 2px}
+
+.cyyr{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:8px}
+.cym{border:1px solid var(--line,#e5e2da);background:var(--paper,#fff);border-radius:10px;padding:4px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;color:inherit;position:relative;min-height:48px}
+.cym b{font-size:12px}.cym .ic{font-size:12px;min-height:15px;line-height:15px}
+.cym.past{opacity:.75}.cym.now{border-color:var(--accent,#d9822b);box-shadow:0 0 0 1px var(--accent,#d9822b) inset}.cym.sel{background:color-mix(in srgb,var(--accent,#d9822b) 12%,transparent)}
+.cym .bar{position:absolute;left:6px;right:6px;bottom:3px;height:3px;border-radius:2px;background:var(--line,#e5e2da);overflow:hidden}
+.cym .bar::after{content:"";position:absolute;inset:0;width:calc(var(--v,0)*100%);background:#3a9a6a}
+.cyup{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}.cyup span{font-size:11.5px;background:color-mix(in srgb,var(--accent,#d9822b) 12%,transparent);border-radius:999px;padding:2px 8px}.cyup span.g{background:color-mix(in srgb,#3a9a6a 14%,transparent)}
+.cyhd{display:flex;align-items:center;justify-content:space-between;margin:4px 0}.cyhd button{border:0;background:none;font-size:20px;padding:0 12px;color:inherit}.cyhd b{font-size:14px}
+.cyg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cyg .dw{text-align:center;font-size:10.5px;opacity:.6}.cyg .sun{color:var(--hot,#c0504d)}.cyg .sat{color:var(--cold,#3d6fb6)}
+.cyd{position:relative;aspect-ratio:1/1.05;border:0;border-radius:8px;font:inherit;color:inherit;padding:2px;display:flex;flex-direction:column;align-items:center;background:color-mix(in srgb,#3a9a6a calc(var(--v,0)*55%),var(--paper,#fff));}
+.cyd b{font-size:12px;font-weight:600}.cyd .mk{font-size:11px;line-height:1}.cyd .dots{position:absolute;bottom:3px;display:flex;gap:2px}.cyd .dots i{width:4px;height:4px;border-radius:50%;background:#3d6fb6}.cyd .dots i.fam{background:#aaa}
+.cyd.td{box-shadow:0 0 0 2px var(--accent,#d9822b) inset}.cyd.sel{outline:2px solid var(--fg,#333);outline-offset:-2px}
+.cylg{font-size:10.5px;opacity:.7;margin:6px 0 4px}.cylg i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3d6fb6;margin:0 3px 1px 0}.cylg i.fam{background:#aaa}
+.cydt{border-top:1px solid var(--line,#e5e2da);margin-top:6px;padding-top:8px}.cydt .h{display:flex;align-items:center;gap:10px;margin-bottom:4px}.cydt .h b{flex:1}
+.cydt .mkr{font-size:13px;padding:3px 0}.cydt .rec{font-size:12px;opacity:.8;margin-top:6px;line-height:1.7}
+.ovwk b{font-weight:700}
+.tlqt{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;align-items:center}.tlqt small{opacity:.6;font-size:11px}.tlqt button{border:1px solid var(--line,#e5e2da);background:var(--paper,#fff);border-radius:999px;padding:3px 9px;font:inherit;font-size:12px;color:inherit;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1684,7 +1703,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
   <p class="menote">🔒 ここはパパだけのページです。ママのスマホには出ません。</p>
   <div class="metabs" id="meTabs" role="group" aria-label="ノートの切り替え">
     <button type="button" data-t="goal" aria-pressed="false"><span class="mti">🧭</span>軸</button>
-    <button type="button" data-t="dash" aria-pressed="false"><span class="mti">📅</span>計画</button>
+    <button type="button" data-t="dash" aria-pressed="false"><span class="mti">📅</span>計画・進捗</button>
     <button type="button" data-t="today" aria-pressed="true"><span class="mti">☀️</span>今日</button>
     <button type="button" data-t="body" aria-pressed="false"><span class="mti">✏️</span>記録</button>
     <button type="button" data-t="life" aria-pressed="false"><span class="mti">📒</span>ストック</button>
@@ -1728,6 +1747,10 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
   <div class="sec" data-mtab="dash">
     <div class="sech"><div><div class="eyebrow">This year</div><h2 data-ic="📅">今年度・今月</h2></div><span class="sub" id="ovSub"></span></div>
     <div id="ovFull"></div>
+  </div>
+  <div class="sec" data-mtab="dash" data-fold="cal">
+    <div class="sech"><div><div class="eyebrow">Calendar</div><h2 data-ic="📆">カレンダーで見る</h2></div><span class="sub" id="cySub"></span></div>
+    <div class="card" id="cyBox"></div>
   </div>
   <div class="sec" data-mtab="dash">
     <div class="hzseg" id="hzSeg" role="group" aria-label="期間"></div>
@@ -4088,7 +4111,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const isWeekend=k=>[0,6].includes(k2d(k).getDay());
   function renderMeTimeline(){
     const box=$("tlBox"); if(!box) return; if(!tlDay||tlDay<todayKey) tlDay=todayKey;
-    const mode=tlMode||(isWeekend(todayKey)?"tl":"list");
+    const mode=tlMode||"tl";
     $("tlView").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===mode?"true":"false"));
     $("meDay").hidden=mode==="tl"; box.hidden=mode!=="tl"; $("tlDays").hidden=mode!=="tl"; if(mode!=="tl") return;
     const ds=$("tlDays"); ds.replaceChildren();
@@ -4122,7 +4145,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const durs=el("div","tlqd"); let dur=60; [[30,"30分"],[60,"1時間"],[120,"2時間"],[180,"3時間"]].forEach(([v,l])=>{ const b=el("button","",l); b.type="button"; b.setAttribute("aria-pressed",v===dur?"true":"false"); b.addEventListener("click",()=>{ dur=v; durs.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); }); durs.append(b); });
       const fam=el("label","tlqf"); const fc=el("input"); fc.type="checkbox"; fam.append(fc," 家族の予定にする");
       const act=el("div","tlqa"); const cx=el("button","btn ghost sm","やめる"); cx.type="button"; cx.addEventListener("click",()=>{ tlQ=null; renderMeTimeline(); }); const ok=el("button","btn sm","入れる"); ok.type="submit"; act.append(fam,cx,ok);
-      const r1=el("div","tlqr"); r1.append(tm,ti); q.append(r1,durs,act);
+      const r1=el("div","tlqr"); r1.append(tm,ti); q.append(r1);
+      const tds=(typeof myTodos==="function"?myTodos():[]).filter(x=>!x.done&&["today","next"].includes(gtOf(x))).slice(0,6);
+      if(tds.length){ const tq=el("div","tlqt"); tq.append(el("small","","やることから：")); tds.forEach(x=>{ const c=el("button","",x.title); c.type="button"; c.addEventListener("click",()=>{ ti.value=x.title; ti.focus(); }); tq.append(c); }); q.append(tq); }
+      q.append(durs,act);
       q.addEventListener("click",ev=>ev.stopPropagation());
       q.addEventListener("submit",async ev=>{ ev.preventDefault(); const t=ti.value.trim(); if(!t) { ti.focus(); return; } const a=tlMin(tm.value)||tlQ.start;
         const data={_private:!fc.checked,title:t,date:tlDay,time:fromMin(a),end:fromMin(Math.min(a+dur,24*60-1)),endDate:"",remind:"",repeat:"",until:"",who:fc.checked?["family"]:[meNow()],cat:"",memo:"",createdAt:new Date().toISOString()};
@@ -4287,7 +4313,12 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     return {p:Math.max(0,Math.min(1,(+it.p||0)/100)),txt:"タップで進み具合を変える",manual:true}; }
   function overviewCard(mode){
     const O=values&&values.overview; if(!O) return null; const w=el("div","ovw"), full=mode==="full";
-    if(!full&&values.purpose){ const pu=el("div","pur","🎯 "+values.purpose); pu.addEventListener("click",()=>pu.classList.toggle("open")); w.append(pu); }
+    if(!full){ // 今日タブ：今日の1つ・今週だけ（目標と進捗は「計画・進捗」タブ）
+      const td=O.today&&O.today.date===todayKey?O.today.text:null, gt=!td?myTodos().filter(x=>!x.done&&gtOf(x)==="today")[0]:null;
+      const tb=el("div","today"); tb.append(el("b","","👉 今日の1つ"), document.createTextNode(td||(gt?gt.title:"「おはよう」のときに一緒に決めます"))); w.append(tb);
+      const wk=O.week&&O.week.to>=todayKey?O.week:null; const wl=el("p","ovwk"); wl.append(el("b","","✅ 今週 "), wk&&(wk.items||[]).length?wk.items.join("・"):"日曜のふりかえりで3つまで決めます"); w.append(wl);
+      const mk=ovMarks().filter(m=>m.date>=todayKey)[0]; const more=el("button","ovmore",(mk?"⏳ "+mk.ic+" "+mk.label+"まであと"+daysTo(mk.date)+"日　":"")+"📅 計画・進捗 ›"); more.type="button"; more.addEventListener("click",()=>setMeTab("dash")); w.append(more);
+      return w; }
     if((O.focus||[]).length){ const f=el("div","fc"); f.append("いま力を入れる"); O.focus.forEach(x=>f.append(el("span","",(x.ic||"")+" "+x.label))); if(O.focusNote) f.title=O.focusNote; w.append(f); }
     (O.periods||[]).filter(P=>full||P.key!=="fy").forEach((P,pi0)=>{ const pi=(O.periods||[]).indexOf(P); const from=P.from||todayKey, to=P.to||todayKey, started=todayKey>=from, left=daysTo(to), tot=Math.max(1,(k2d(to)-k2d(from))/864e5), el2=started?Math.max(0,Math.min(1,(k2d(todayKey)-k2d(from))/864e5/tot)):0;
       const ph=el("div","ph"); ph.append(el("span","",(P.key==="fy"?"📅 ":"🗓 ")+P.label), el("small","",started?(left>0?"あと"+left+"日":"きょうまで"):md(from)+"から")); w.append(ph);
@@ -4305,6 +4336,61 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const td=O.today&&O.today.date===todayKey?O.today.text:null, gt=!td?myTodos().filter(x=>!x.done&&gtOf(x)==="today")[0]:null;
     const tb=el("div","today"); tb.append(el("b","","👉 今日の1つ"), document.createTextNode(td||(gt?gt.title:"「おはよう」のときに一緒に決めます"))); w.append(tb);
     return w; }
+  /* ---------- 📆 計画・進捗のカレンダー：年度の12か月＋月のマス（予定・節目・その日の行動） ---------- */
+  let cyMon=null, cySel=null;
+  function ovMarks(){ const O=(values&&values.overview)||{}, out=[];
+    (O.marks||[]).forEach(m=>{ if(m&&m.date) out.push({date:m.date.length===7?m.date+"-01":m.date,month:m.date.length===7,ic:m.ic||"📍",label:m.label||""}); });
+    (O.periods||[]).filter(P=>P.key==="fy").forEach(P=>(P.items||[]).forEach(it=>{ if(it.by) out.push({date:it.by,ic:it.ic||"🎯",label:"目標："+it.label,goal:true}); }));
+    return out.sort((a,b)=>a.date.localeCompare(b.date)); }
+  function cyStart(){ let m=null; diaries.forEach(d=>{ if(d.date&&(!m||d.date<m)) m=d.date; }); routines.forEach(r=>Object.keys(rtLog(r)).forEach(x=>{ if(!m||x<m) m=x; })); return m||todayKey; }
+  function dayScore(k){ if(k>todayKey||k<cyStart()) return null; const parts=[];
+    const c=checklists.find(x=>x.key==="morning"); if(c){ const S=mrStat(c,k); if(S.t&&S.n) parts.push(S.n/S.t); else if(S.t&&k<todayKey) parts.push(0); }
+    const d=diaries.find(x=>x.date===k); parts.push(d?dyCount(d.text)/3:0);
+    if(routines.length) parts.push(routines.filter(r=>rtLog(r)[k]).length/routines.length);
+    const v=parts.reduce((a,b)=>a+b,0)/parts.length; return v; }
+  function renderCy(){ const box=$("cyBox"); if(!box) return; box.replaceChildren();
+    const ty=+todayKey.slice(0,4), tm=+todayKey.slice(5,7), fy=tm>=4?ty:ty-1; if(!cyMon) cyMon=todayKey.slice(0,7); if(!cySel) cySel=todayKey;
+    const marks=ovMarks(), mon=(y,m)=>y+"-"+String(m).padStart(2,"0");
+    $("cySub").textContent=fy+"年度（4月〜3月）";
+    // 年度の12か月
+    const yr=el("div","cyyr");
+    for(let i=0;i<12;i++){ const m=(i+3)%12+1, y=m>=4?fy:fy+1, key=mon(y,m), cur=key===todayKey.slice(0,7), past=key<todayKey.slice(0,7);
+      const b=el("button","cym"+(cur?" now":"")+(past?" past":"")+(key===cyMon?" sel":"")); b.type="button"; b.append(el("b","",m+"月"));
+      const mk=marks.filter(x=>x.date.slice(0,7)===key); const ic=el("span","ic",mk.slice(0,2).map(x=>x.ic).join("")); b.append(ic);
+      if(past||cur){ let n=0,sum=0; const dim=new Date(y,m,0).getDate(); for(let d=1;d<=dim;d++){ const k=key+"-"+String(d).padStart(2,"0"); if(k>todayKey) break; const v=dayScore(k); if(v!=null){ n++; sum+=v; } }
+        const br=el("i","bar"); br.style.setProperty("--v",n?(sum/n):0); br.title=n?"行動できた度 "+Math.round(sum/n*100)+"%":""; b.append(br); }
+      b.addEventListener("click",()=>{ cyMon=key; cySel=key===todayKey.slice(0,7)?todayKey:key+"-01"; renderCy(); }); yr.append(b); }
+    box.append(yr);
+    // これからの節目
+    const up=marks.filter(x=>x.date>=todayKey).slice(0,4); if(up.length){ const ul=el("div","cyup"); up.forEach(x=>{ const r=el("span",x.goal?"g":"",x.ic+" "+(x.month?(+x.date.slice(5,7))+"月":md(x.date))+" "+x.label); ul.append(r); }); box.append(ul); }
+    // 月のマス
+    const Y=+cyMon.slice(0,4), M=+cyMon.slice(5,7), first=new Date(Y,M-1,1), dim=new Date(Y,M,0).getDate();
+    const hd=el("div","cyhd"); const pv=el("button","","‹"), nx=el("button","","›"); pv.type=nx.type="button";
+    const shift=d=>{ const t=new Date(Y,M-1+d,1); cyMon=mon(t.getFullYear(),t.getMonth()+1); cySel=cyMon===todayKey.slice(0,7)?todayKey:cyMon+"-01"; renderCy(); };
+    pv.addEventListener("click",()=>shift(-1)); nx.addEventListener("click",()=>shift(1)); hd.append(pv, el("b","",Y+"年"+M+"月"), nx); box.append(hd);
+    const g=el("div","cyg"); DOW.forEach((d,i)=>g.append(el("span","dw"+(i===0?" sun":i===6?" sat":""),d)));
+    for(let i=0;i<first.getDay();i++) g.append(el("span","emp"));
+    for(let d=1;d<=dim;d++){ const k=cyMon+"-"+String(d).padStart(2,"0"), dw=new Date(Y,M-1,d).getDay(), evs=eventsOn(k), sc=dayScore(k), mk=marks.filter(x=>!x.month&&x.date===k);
+      const c=el("button","cyd"+(k===todayKey?" td":"")+(k===cySel?" sel":"")+(dw===0?" sun":dw===6?" sat":"")); c.type="button";
+      if(sc!=null) c.style.setProperty("--v",sc.toFixed(2));
+      c.append(el("b","",String(d))); if(mk.length) c.append(el("span","mk",mk[0].ic));
+      const dots=el("span","dots"); evs.slice(0,3).forEach(e=>dots.append(el("i",e._private?"me":"fam"))); c.append(dots);
+      c.addEventListener("click",()=>{ cySel=k; renderCy(); }); g.append(c); }
+    box.append(g);
+    { const lg=el("p","cylg","マスの色が濃い日＝朝ルーティン・習慣・日記ができた日　"); lg.append(el("i","me"),"自分の予定　",el("i","fam"),"家族の予定"); box.append(lg); }
+    // 選んだ日
+    const k=cySel, dt=el("div","cydt"); const dh=el("div","h"); dh.append(el("b","",md(k)+"（"+DOW[k2d(k).getDay()]+"）"+(k===todayKey?" 今日":"")));
+    if(k>=todayKey&&daysTo(k)<8){ const go=el("button","lnk","🕒 タイムラインで組む ›"); go.type="button"; go.addEventListener("click",()=>{ tlDay=k; tlMode="tl"; setMeTab("today"); renderMeTimeline(); }); dh.append(go); }
+    const ad=el("button","lnk","＋ 予定"); ad.type="button"; ad.addEventListener("click",()=>{ window.__meDefault=true; openSheet("ev"); window.__meDefault=false; $("evDate").value=k; }); dh.append(ad); dt.append(dh);
+    marks.filter(x=>x.date===k||(x.month&&x.date.slice(0,7)===k.slice(0,7)&&k.slice(8)==="01")).forEach(x=>dt.append(el("div","mkr",x.ic+" "+x.label)));
+    const evs=eventsOn(k); evs.forEach(e=>{ const r=el("div","merow"+(e._private?"":" fam")); r.append(el("span","tm",e.time||"終日")); const t=el("span","tx",String(e.title).replace(/^🔒/,"")); if(!e._private) t.append(el("small","","家族の予定")); r.append(t); r.addEventListener("click",()=>openSheet("ev",e)); dt.append(r); });
+    if(!evs.length) dt.append(el("p","empty","予定はありません。"));
+    if(k<=todayKey){ const rec=[]; const c=checklists.find(x=>x.key==="morning"); if(c){ const S=mrStat(c,k); if(S.t) rec.push("🌅 朝 "+S.n+"/"+S.t); }
+      if(routines.length) rec.push("🔁 習慣 "+routines.filter(r=>rtLog(r)[k]).length+"/"+routines.length);
+      const d=diaries.find(x=>x.date===k); rec.push("✏️ 日記 "+(d?dyCount(d.text):0)+"/3");
+      const h=health.find(x=>x.date===k); if(h&&+h.weight>0) rec.push("⚖️ "+(+h.weight).toFixed(1)+"kg"); if(h&&+h.sleep_h>0) rec.push("😴 "+(+h.sleep_h).toFixed(1)+"h"); if(h&&+h.cond>0) rec.push("🙂 調子"+h.cond);
+      dt.append(el("div","rec",rec.join("　"))); }
+    box.append(dt); }
   function renderBoard(){
     const top=$("dbTop"); if(!top) return; const g=goals(); top.replaceChildren();
     top.append(sleepCard());
@@ -4365,6 +4451,7 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const box=$("meDash"); if(!box) return; box.replaceChildren();
     const ovw=overviewCard(); if(ovw) box.append(ovw);
     const of=$("ovFull"); if(of){ of.replaceChildren(); const c=overviewCard("full"); if(c) of.append(c); else of.append(el("p","empty","今年度の目標はまだありません。")); }
+    try{ renderCy(); }catch(e){ console.warn(e); }
     box.append(sleepMini());
     if(mealCfg||meals.length){ const T=mealTgt(), N=mealNeeds(T,mealSum), ym=meals.find(x=>x.date===addDays(todayKey,-1));
       const yv=ym?(()=>{ const s=mealSum(ym), k=Math.round(+s.kcal||0), d=k-T.kcal, out=["昨日 "+k+"kcal"+(d>T.kcal*0.08?"（+"+d+"）":"")];
