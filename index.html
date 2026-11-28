@@ -1558,6 +1558,9 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 #pane-me.mtin-l [data-mtab]{animation:mtinL .3s cubic-bezier(.2,.8,.2,1)}#pane-me.mtin-r [data-mtab]{animation:mtinR .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes mtinL{from{transform:translateX(48px);opacity:0}to{transform:none;opacity:1}}@keyframes mtinR{from{transform:translateX(-48px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){#pane-me.mtin-l [data-mtab],#pane-me.mtin-r [data-mtab]{animation:none}}
+
+.cyfut{font-size:12.5px;color:var(--muted);margin:0 0 8px}.cyfut b{color:var(--fg)}
+.cypast{margin-bottom:10px}.cypast .h{display:block;font-size:13.5px;margin-bottom:4px}.cypast .pr{display:grid;grid-template-columns:1fr auto;gap:0 8px;font-size:12.5px;padding:3px 0}.cypast .pr b{font-family:var(--f-num)}.cypast .bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--sunk,#eee);position:relative}.cypast .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#3a9a6a}.cypast .wt{font-size:12.5px;margin:4px 0 0}
 </style>
 </head>
 <body>
@@ -4413,6 +4416,16 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const d=diaries.find(x=>x.date===k); parts.push(d?dyCount(d.text)/3:0);
     if(routines.length) parts.push(routines.filter(r=>rtLog(r)[k]).length/routines.length);
     const v=parts.reduce((a,b)=>a+b,0)/parts.length; return v; }
+  // 終わった月：どこまでできたか
+  function cyPast(mon,last,cm){ const w=el("div","cypast"); w.append(el("b","h","📊 "+cm+"月のふりかえり"));
+    let n=0,sum=0,dy=0,mr=0,days=0; const c=checklists.find(x=>x.key==="morning");
+    const dmax=+last.slice(8); for(let di=1;di<=dmax;di++){ const k=mon+"-"+String(di).padStart(2,"0"); if(k>todayKey) break; days++; const v=dayScore(k); if(v!=null){ n++; sum+=v; } const d=diaries.find(x=>x.date===k); if(d&&dyCount(d.text)===3) dy++; if(c){ const S=mrStat(c,k); if(S.t&&S.n===S.t) mr++; } }
+    if(!n){ w.append(el("p","empty","この月は記録がありません。")); return w; }
+    const row=(ic,l,v,r)=>{ const g=el("div","pr"); g.append(el("span","",ic+" "+l), el("b","",v)); const b=el("div","bar"); const f=el("i"); f.style.width=Math.round(Math.min(1,r)*100)+"%"; b.append(f); g.append(b); w.append(g); };
+    row("🌱","動けた度",Math.round(sum/n*100)+"%",sum/n); row("✏️","日記3行",dy+"/"+days+"日",dy/days); if(c) row("🌅","朝ルーティン完走",mr+"/"+days+"日",mr/days);
+    const ws=health.filter(h=>+h.weight>0&&h.date>=mon+"-01"&&h.date<=last).sort((a,b)=>a.date.localeCompare(b.date)); if(ws.length>1){ const d=+ws[ws.length-1].weight- +ws[0].weight; w.append(el("p","wt","⚖️ 体重 "+(+ws[0].weight).toFixed(1)+" → "+(+ws[ws.length-1].weight).toFixed(1)+"kg（"+(d>0?"+":"")+d.toFixed(1)+"）")); }
+    const P=((values&&values.overview&&values.overview.periods)||[]).find(P=>P.key!=="fy"&&String(P.from).slice(0,7)===mon); if(P) (P.items||[]).forEach(it=>{ const r=ovEval(it); w.append(el("p","wt",(it.ic||"•")+" "+it.label+"："+(r.p!=null&&r.p>=1?"達成 🎉":r.p!=null?Math.round(r.p*100)+"%":"–"))); });
+    return w; }
   function renderCy(){ const box=$("cyBox"); if(!box) return; box.replaceChildren();
     const ty=+todayKey.slice(0,4), tm=+todayKey.slice(5,7), fy=tm>=4?ty:ty-1; if(!cyMon) cyMon=todayKey.slice(0,7); if(!cySel) cySel=todayKey;
     const marks=ovMarks(), mon=(y,m)=>y+"-"+String(m).padStart(2,"0");
@@ -4420,7 +4433,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
     const sg=el("div","cyseg"); [["y","今年度"],["m","月"]].forEach(([v,l])=>{ const b=el("button","",l); b.type="button"; b.setAttribute("aria-pressed",cyView===v?"true":"false"); b.addEventListener("click",()=>{ cyView=v; renderCy(); }); sg.append(b); }); box.append(sg);
     const PS=((values&&values.overview&&values.overview.periods)||[]);
     if(cyView==="y") box.append(cyProg(PS.find(P=>P.key==="fy"),fy+"-04-01",(fy+1)+"-03-31",fy+"年度"));
-    else { const cy=+cyMon.slice(0,4), cm=+cyMon.slice(5,7); box.append(cyProg(PS.find(P=>P.key!=="fy"&&String(P.from).slice(0,7)===cyMon),cyMon+"-01",cyMon+"-"+String(new Date(cy,cm,0).getDate()).padStart(2,"0"),cm+"月")); }
+    else { const cy=+cyMon.slice(0,4), cm=+cyMon.slice(5,7), nowM=todayKey.slice(0,7), last=cyMon+"-"+String(new Date(cy,cm,0).getDate()).padStart(2,"0");
+      if(cyMon===nowM) box.append(cyProg(PS.find(P=>P.key!=="fy"&&String(P.from).slice(0,7)===cyMon),cyMon+"-01",last,cm+"月"));
+      else if(cyMon<nowM) box.append(cyPast(cyMon,last,cm));
+      else { const P=PS.find(P=>P.key!=="fy"&&String(P.from).slice(0,7)===cyMon); if(P&&(P.items||[]).length){ const n=el("p","cyfut"); n.append(el("b","",cm+"月の目標　"), P.items.map(it=>(it.ic||"")+it.label).join("・")); box.append(n); } } }
     // 年度の12か月
     const yr=el("div","cyyr");
     for(let i=0;i<12;i++){ const m=(i+3)%12+1, y=m>=4?fy:fy+1, key=mon(y,m), cur=key===todayKey.slice(0,7), past=key<todayKey.slice(0,7);
