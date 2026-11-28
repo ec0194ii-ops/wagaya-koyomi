@@ -1579,7 +1579,7 @@ h1,h2,h3,h4,.sech h2,.mhead h2,.oc2 h3,.tile .tx b,.datebig .dw,.brand b{font-fa
 .mdcv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.mdcv .ph{position:absolute;inset:0;display:none;padding:8px;color:#fff;font-weight:700;font-size:12px;line-height:1.35;align-items:flex-end;text-shadow:0 1px 3px rgba(0,0,0,.3)}.mdcv.noimg .ph{display:flex}
 .mdcv.big{width:96px;flex:none}
 .mddt{display:flex;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.mddt .tx{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}.mddt .tx>b{font-size:15px}.mddt .tx>small{font-size:11.5px;color:var(--muted)}
-.mddt textarea{width:100%;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--paper);color:var(--fg);resize:vertical}.mddt .act{display:flex;gap:12px;align-items:center}
+.mdup{cursor:pointer}.mddt textarea{width:100%;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--paper);color:var(--fg);resize:vertical}.mddt .act{display:flex;gap:12px;align-items:center}
 .mdst{display:inline-flex;gap:2px}.mdst button{border:0;background:none;font-size:20px;line-height:1;padding:0 1px;color:var(--line)}.mdst button.on{color:#e0a91b}
 .mdcand{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.mdcand button{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:0;aspect-ratio:2/3;overflow:hidden}.mdcand img{width:100%;height:100%;object-fit:cover}.mdcand .noimg{font:inherit;font-size:11px;color:var(--muted)}
 .mdadd{display:flex;flex-direction:column;gap:6px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}.mdadd input,.mdadd select{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--paper);color:var(--fg)}.mdadd .mdrow{display:flex;gap:10px;align-items:center}
@@ -4650,7 +4650,21 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
   const MDK={drama:["📺","ドラマ"],movie:["🎬","映画"],book:["📚","本"],manga:["📖","マンガ"],anime:["🎞️","アニメ"],other:["✨","その他"]};
   const mdTried=new Set(); let mdF="all", mdSel=null, mdCand=null, mdStar=0, mdJ=0;
   const mdHue=t=>{ let h=0; for(const c of String(t)) h=(h*31+c.codePointAt(0))%360; return h; };
-  function mdSearch(kind,title){ const q=encodeURIComponent(title);
+  // ウィキペディア（日本語で探して、英語版の記事の画像も見る：ドラマのポスターは英語版にあることが多い）
+  async function mdWiki(title,kind){ const W=(lang,qs)=>fetch("https://"+lang+".wikipedia.org/w/api.php?format=json&formatversion=2&origin=*&"+qs).then(r=>r.json());
+    const hint=kind==="movie"?" 映画":kind==="book"||kind==="manga"?"":" ドラマ";
+    const ja=await W("ja","action=query&generator=search&gsrsearch="+encodeURIComponent(title+hint)+"&gsrlimit=5&prop=pageimages|langlinks&piprop=thumbnail&pithumbsize=400&pilicense=any&lllang=en&lllimit=5");
+    const pages=((ja.query&&ja.query.pages)||[]).sort((a,b)=>(a.index||0)-(b.index||0)), out=[];
+    pages.forEach(p=>{ if(p.thumbnail&&p.thumbnail.source) out.push({img:p.thumbnail.source,label:p.title+"（Wikipedia）"}); });
+    const en=pages.map(p=>p.langlinks&&p.langlinks[0]&&(p.langlinks[0].title||p.langlinks[0]["*"])).filter(Boolean).slice(0,5);
+    if(en.length){ const e=await W("en","action=query&titles="+encodeURIComponent(en.join("|"))+"&prop=pageimages&piprop=thumbnail&pithumbsize=400&pilicense=any");
+      ((e.query&&e.query.pages)||[]).forEach(p=>{ if(p.thumbnail&&p.thumbnail.source) out.push({img:p.thumbnail.source,label:p.title+"（Wikipedia）"}); }); }
+    return out; }
+  async function mdSearch(kind,title){ const a=await Promise.all([mdSearch0(kind,title).catch(()=>[]), mdWiki(title,kind).catch(()=>[])]);
+    const seen=new Set(); return a[0].concat(a[1]).filter(x=>!seen.has(x.img)&&seen.add(x.img)); }
+  // 自分の写真・スクショから（小さくしてそのまま保存）
+  function mdShrink(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>{ const sc=Math.min(1,360/Math.max(im.naturalWidth,im.naturalHeight)), c=document.createElement("canvas"); c.width=Math.round(im.naturalWidth*sc); c.height=Math.round(im.naturalHeight*sc); c.getContext("2d").drawImage(im,0,0,c.width,c.height); URL.revokeObjectURL(u); res(c.toDataURL("image/jpeg",0.78)); }; im.onerror=rej; im.src=u; }); }
+  function mdSearch0(kind,title){ const q=encodeURIComponent(title);
     if(kind==="book"||kind==="manga") return fetch("https://www.googleapis.com/books/v1/volumes?q="+q+"&maxResults=12&printType=books").then(r=>r.json()).then(j=>(j.items||[]).map(it=>{ const v=it.volumeInfo||{}, im=v.imageLinks&&(v.imageLinks.thumbnail||v.imageLinks.smallThumbnail); return im?{img:String(im).replace(/^http:/,"https:").replace("&edge=curl",""),label:(v.title||"")+(v.authors?"／"+v.authors[0]:"")}:null; }).filter(Boolean));
     if(kind==="other") return Promise.resolve([]);
     return new Promise(res=>{ const cb="mdcb"+(++mdJ)+Date.now(), sc=document.createElement("script"); let done=false; const fin=v=>{ if(done) return; done=true; try{ delete window[cb]; }catch(e){} sc.remove(); res(v); };
@@ -4674,8 +4688,10 @@ window.addEventListener("error",e=>{ if(e&&e.message&&/Script error/.test(e.mess
       const st=el("div","mdst"); for(let i=1;i<=5;i++){ const s1=el("button",i<=(m.star||0)?"on":"","★"); s1.type="button"; s1.addEventListener("click",()=>db.collection("notes").doc(m.id).update({star:i===m.star?0:i})); st.append(s1); } tx.append(st);
       const nt=el("textarea"); nt.rows=2; nt.maxLength=300; nt.value=m.note||""; nt.placeholder="ひとこと感想"; nt.addEventListener("change",()=>db.collection("notes").doc(m.id).update({note:nt.value.trim()})); tx.append(nt);
       const act=el("div","act"); const pc=el("button","lnk","🖼 表紙をえらぶ"); pc.type="button"; pc.addEventListener("click",async()=>{ mdCand="loading"; renderMedia(); mdCand=await mdSearch(m.kind,m.title); renderMedia(); });
-      act.append(pc, armBtn("消す",()=>{ mdSel=null; return db.collection("notes").doc(m.id).delete(); })); tx.append(act); d.append(tx); D.append(d);
-      if(mdCand){ const c=el("div","mdcand"); if(mdCand==="loading") c.append(el("p","empty","さがしています…")); else if(!mdCand.length) c.append(el("p","empty","見つかりませんでした。")); else { mdCand.forEach(r=>{ const b=el("button"); b.type="button"; const im=el("img"); im.src=r.img; im.alt=r.label; im.referrerPolicy="no-referrer"; b.append(im); b.title=r.label; b.addEventListener("click",async()=>{ await db.collection("notes").doc(m.id).update({img:r.img}); mdCand=null; }); c.append(b); }); const no=el("button","noimg","画像なし"); no.type="button"; no.addEventListener("click",async()=>{ await db.collection("notes").doc(m.id).update({img:""}); mdCand=null; }); c.append(no); } D.append(c); } }
+      const up=el("label","lnk mdup","📷 写真から"); const fi=el("input"); fi.type="file"; fi.accept="image/*"; fi.hidden=true; up.append(fi);
+      fi.addEventListener("change",async()=>{ const f=fi.files&&fi.files[0]; if(!f) return; try{ const d=await mdShrink(f); await db.collection("notes").doc(m.id).update({img:d}); mdCand=null; status("表紙を変えました"); }catch(e){ status("この画像は使えませんでした。",true); } });
+      act.append(pc, up, armBtn("消す",()=>{ mdSel=null; return db.collection("notes").doc(m.id).delete(); })); tx.append(act); d.append(tx); D.append(d);
+      if(mdCand){ const c=el("div","mdcand"); if(mdCand==="loading") c.append(el("p","empty","さがしています…")); else if(!mdCand.length) c.append(el("p","empty","見つかりませんでした。「📷 写真から」で、スクショや写真を表紙にできます。")); else { mdCand.forEach(r=>{ const b=el("button"); b.type="button"; const im=el("img"); im.src=r.img; im.alt=r.label; im.referrerPolicy="no-referrer"; b.append(im); b.title=r.label; b.addEventListener("click",async()=>{ await db.collection("notes").doc(m.id).update({img:r.img}); mdCand=null; }); c.append(b); }); const no=el("button","noimg","画像なし"); no.type="button"; no.addEventListener("click",async()=>{ await db.collection("notes").doc(m.id).update({img:""}); mdCand=null; }); c.append(no); } D.append(c); } }
     const SB=$("mdS"); if(!SB.children.length){ for(let i=1;i<=5;i++){ const b=el("button","","★"); b.type="button"; b.addEventListener("click",()=>{ mdStar=mdStar===i?0:i; SB.querySelectorAll("button").forEach((x,j)=>x.classList.toggle("on",j<mdStar)); }); SB.append(b); } }
   }
   $("mdForm").addEventListener("submit",async ev=>{ ev.preventDefault(); if(!db) return; const t=$("mdT").value.trim(); if(!t){ $("mdT").focus(); return; } const k=$("mdK").value, id="media-"+meNow()+"-"+Date.now().toString(36);
